@@ -20,21 +20,25 @@ OA.Model = function(userSetting) {
   var model = this;
   var faces = [];
   var edges = [];
-  var raycaster;
+  var raycaster = null;
   var camera = null;
   var cardAngle = _setting.initAngle;
   var refreshFaceGroup = new THREE.Object3D();
   var cameraCtrl = null;
   refreshFaceGroup.cardAngle = null;
+  var foldable = true;
   var bindEvents = function() {
     $(window).bind("mousewheel", onMousewheel);
     $(window).bind("mousemove", onDocumentMouseMove);
+    $(window).bind("mousedown", onMousedown);
+    $(window).bind("mouseup", onMouseup);
   };
 
   var unbindEvents = function() {
     $(window).unbind("mousewheel", onMousewheel);
     $(window).unbind("mousemove", onDocumentMouseMove);
-
+    $(window).unbind("mousedown", onMousedown);
+    $(window).bind("mouseup", onMouseup);
   };
 
   function setMovePointPosition(intersector) {
@@ -93,31 +97,50 @@ OA.Model = function(userSetting) {
   }
 
   function onDocumentMouseMove(event) {
+
+  }
+
+  function onMousedown(event){
     event.preventDefault();
-    // mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
-    // mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    if(editPlane.showFlag){
+      var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
+      if (intersects.length > 0) {
+        cameraCtrl.noZoom = true;
+        cameraCtrl.noRotate = true;
+      } 
+    }
+  }
+
+  function onMouseup(event){
+    event.preventDefault();
+    cameraCtrl.noZoom = false;
+    cameraCtrl.noRotate = false;
+    
   }
 
   function onMousewheel(event, delta, deltaX, deltaY) {
-    var d = ((deltaY < 0) ? 1 : -1);
-    OA.log(delta, deltaX, deltaY);
-    var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d , 4);
-    if (d > 0 && newDist < cardH) {
-      editPlane.position.z = newDist;
-      editPlane.oaInfo.t = newDist;
-      // viewerR += gridStep;
-    } else if (d < 0 && newDist >= 0) {
-      editPlane.position.z = newDist;
-      editPlane.oaInfo.t = newDist;
+    if(editPlane.showFlag){
+      var d = ((deltaY < 0) ? 1 : -1);
+      OA.log(delta, deltaX, deltaY);
+      var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d , 4);
+      if (d > 0 && newDist < cardH) {
+        editPlane.position.z = newDist;
+        editPlane.oaInfo.t = newDist;
+        // viewerR += gridStep;
+      } else if (d < 0 && newDist >= 0) {
+        editPlane.position.z = newDist;
+        editPlane.oaInfo.t = newDist;
+      }
     }
     //event.stopPropagation();
    // event.preventDefault();
-
-    var d = ((deltaY < 0) ? -1 : 1);
-    //OA.log(delta, deltaX, deltaY);
-    var newAngle = cardAngle + d * 5;
-    if (newAngle >= 0 && newAngle <= 180) {
-      cardAngle = newAngle;
+    if(foldable){
+      var d = ((deltaY < 0) ? -1 : 1);
+      //OA.log(delta, deltaX, deltaY);
+      var newAngle = cardAngle + d * 5;
+      if (newAngle >= 0 && newAngle <= 180) {
+        cardAngle = newAngle;
+      }
     }
 
 
@@ -217,9 +240,12 @@ OA.Model = function(userSetting) {
       }
     });
     editPlane.name = "editPlane";
+    editPlane.showFlag = true;
     model.add(editPlane);
    
     bindEvents();
+
+    model.updateCardAngle();
     return model;
   };
 
@@ -231,14 +257,15 @@ OA.Model = function(userSetting) {
     return null;
   }
 
-
-  this.setCameraCtrl = function(ctrl) {
-    camera = ctrl.object;
-    cameraCtrl = ctrl;
+  this.showEditPlane = function(showFlag){
+      if(editPlane.showFlag === undefined || editPlane.showFlag != showFlag){
+         editPlane.traverse( function ( object ) { object.visible = !!showFlag; } );
+         editPlane.showFlag = showFlag;
+      }
   };
 
-  this.tick = function(params) {
-    if (refreshFaceGroup.cardAngle !== cardAngle) {
+  this.updateCardAngle = function() {
+    if (refreshFaceGroup.cardAngle !== cardAngle){
       model.remove(refreshFaceGroup)
       refreshFaceGroup = new THREE.Object3D();
       refreshFaceGroup.cardAngle = cardAngle;
@@ -247,21 +274,45 @@ OA.Model = function(userSetting) {
         faces[i].setAngle(cardAngle);
       }
       model.add(refreshFaceGroup);
-    }
+     }
+  };
+
+  this.setFoldable = function(canFold, angle){
+       foldable = canFold;
+       if(angle != undefined && angle !== cardAngle){
+          cardAngle = angle;
+          model.updateCardAngle();
+      }
+  };
+
+  this.setCameraCtrl = function(ctrl) {
+    camera = ctrl.object;
+    cameraCtrl = ctrl;
+  };
+
+  this.tick = function(params) {
+      raycaster = params.raycaster;
+      if (foldable) {
+         model.updateCardAngle();
+      }
 
       if (movePoint && movePoint.remove) {
         model.remove(movePoint);
       }
-      var intersects = params.raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
-      if (intersects.length > 0) {
-        intersector = getRealIntersector(intersects);
-        if (intersector) {
+      if (editPlane.showFlag === true) {
+        var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
+        if (intersects.length > 0) {
+          intersector = getRealIntersector(intersects);
+          if (intersector) {
 
-          movePoint = new THREE.Object3D();
-          setMovePointPosition(intersector);
-          model.add(movePoint);
+            movePoint = new THREE.Object3D();
+            setMovePointPosition(intersector);
+            model.add(movePoint);
+          }
         }
       }
+
+
   };
 
   //public

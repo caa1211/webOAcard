@@ -51,11 +51,18 @@
     var mouse2D = new THREE.Vector3(0, 10000, 0.5);
     var orbitCtrls;
     var raycaster, projector;
+    var cardModeOpts = [
+        {name: "Edit", cameraControl: true, showEditPlane: true, angleFixed: 90},
+        {name: "Display", cameraControl: true, showEditPlane: false, angleFixed: -1}];
+        //,{name: "Print",cameraControl: false, editPlane: false, angleFixed: 180} 
+ 
+    var cardMode = 0;
 
     function init(oa) {
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
+        //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
         scene.add(camera);
        
         camera.position.set(0, 0, oaModel.getCardH() * 2.5);
@@ -99,6 +106,8 @@
         $(window).bind('resize', onWindowResize);
         $(window).bind("mousemove", onDocumentMouseMove);
         $(window).bind("mousedown", onDocumentMouseDown);
+
+        changeCardMode(cardMode);
         // document.addEventListener('mousemove', onDocumentMouseMove, false);
         //document.addEventListener('mousedown', onDocumentMouseDown, false);
         // document.addEventListener('keydown', onDocumentKeyDown, false);
@@ -108,29 +117,36 @@
         // //window.addEventListener('DOMMouseScroll', onMousewheel, false);
          //$(window).bind("mousewheel", onMousewheel);
     }
-
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-      function onDocumentMouseMove(event) {
-          event.preventDefault();
-          mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      }
-      
+    function onDocumentMouseMove(event) {
+        event.preventDefault();
+        mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    function changeCardMode(index){
+        var opt = cardModeOpts[cardMode];
+        orbitCtrls.enabled = opt.cameraControl;
+        oaModel.showEditPlane(opt.showEditPlane);
+        if(opt.angleFixed === -1){
+            oaModel.setFoldable(true);
+        }else{
+            oaModel.setFoldable(false, 90);
+        }
+    }
 
     function onDocumentMouseDown(event) {
         event.preventDefault();
-        // if (event.which == 3){
-        //     orbitCtrls.enabled =  orbitCtrls.enabled ? false: true;
-        // }
+        if (event.which == 3) {
+            cardMode = (cardMode + 1) % cardModeOpts.length;
+            changeCardMode(cardMode);
+        }
     }
-
-
-
     function animate() {
         requestAnimationFrame(animate);
         render();
