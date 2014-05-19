@@ -129,6 +129,7 @@ material.color.setHex( 0x00ff00 );
   }
 
   function onMousewheel(event, delta, deltaX, deltaY) {
+    event.preventDefault();
     if(editPlane.showFlag){
       var d = ((deltaY < 0) ? 1 : -1);
       OA.log(delta, deltaX, deltaY);
@@ -142,8 +143,7 @@ material.color.setHex( 0x00ff00 );
         editPlane.oaInfo.t = newDist;
       }
     }
-    //event.stopPropagation();
-   // event.preventDefault();
+    
     if(foldable){
       var d = ((deltaY < 0) ? -1 : 1);
       //OA.log(delta, deltaX, deltaY);
@@ -186,14 +186,14 @@ material.color.setHex( 0x00ff00 );
     refreshFaceGroup.add(vFace);
 
 
-    // var tFace = new OA.Face({
-    //   contours: OA.Utils.getTestExPolygonTree(),
-    //   //   contours
-    //   type: "VFACE"
-    // });
+    var tFace = new OA.Face({
+      contours: OA.Utils.getTestExPolygonTree(),
+      //   contours
+      type: "VFACE"
+    });
 
-    // faces.push(tFace);
-    // refreshFaceGroup.add(tFace);
+    faces.push(tFace);
+    refreshFaceGroup.add(tFace);
 
     var pAryH = [
       [0, 0],
