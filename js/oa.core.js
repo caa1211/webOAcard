@@ -1,8 +1,18 @@
 var OA = {
-   REVISION: 'r01'
+   REVISION: 'r01',
+   debugMode: false
 };
 
 OA.Utils = {
+   log: function(str){
+      if(OA.debugeMode){
+         console.error(str)
+      }
+   },
+   formatFloat: function (num, pos) {
+     var size = Math.pow(10, pos);
+     return Math.round(num * size) / size;
+   },
    debugaxis: function(scene, oa, axisLength) {
     //Shorten the vertex function
     function v(x, y, z) {
@@ -241,5 +251,7 @@ OA.Utils = {
 
     model.add(mesh);
    }
-
 };
+
+OA.log = OA.Utils.log;
+

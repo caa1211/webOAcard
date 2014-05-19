@@ -35,7 +35,7 @@
 
     <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
-    var debugMode = true;
+    var debugMode = OA.debugMode;
     var camera, scene, renderer;
     var modelOption = {
         angle: 90,
@@ -115,9 +115,8 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-      function onDocumentMouseMove() {
+      function onDocumentMouseMove(event) {
           event.preventDefault();
-          //console.error()
           mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
           mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
       }
@@ -125,9 +124,9 @@
 
     function onDocumentMouseDown(event) {
         event.preventDefault();
-        if (event.which == 3){
-            orbitCtrls.enabled =  orbitCtrls.enabled ? false: true;
-        }
+        // if (event.which == 3){
+        //     orbitCtrls.enabled =  orbitCtrls.enabled ? false: true;
+        // }
     }
 
 

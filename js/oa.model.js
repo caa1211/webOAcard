@@ -15,8 +15,7 @@ OA.Model = function(userSetting) {
   var movePointFillTexture = THREE.ImageUtils.loadTexture("img/cfill.png");
   var movePoint = new THREE.Object3D();
   var _setting = $.extend({}, _def, userSetting);
-  var cardW = _setting.cardW,
-    cardH = _setting.cardH;
+  var cardW = _setting.cardW, cardH = _setting.cardH;
   var gridStep = cardW / _setting.gridNum;
   var model = this;
   var faces = [];
@@ -41,7 +40,7 @@ OA.Model = function(userSetting) {
   function setMovePointPosition(intersector) {
 
     if (intersector.face === null) {
-      console.log(intersector)
+      OA.log(intersector)
     }
 
     var materials = [
@@ -85,7 +84,7 @@ OA.Model = function(userSetting) {
     particles.add(particle);
     particles.add(particle2);
     movePoint.add(particles);
-    //console.error(cx + " " + cy + " " + cz + " editPlane " + editPlane.oaInfo.t);
+    //OA.log(cx + " " + cy + " " + cz + " editPlane " + editPlane.oaInfo.t);
   }
 
   function formatFloat(num, pos) {
@@ -93,17 +92,16 @@ OA.Model = function(userSetting) {
     return Math.round(num * size) / size;
   }
 
-  function onDocumentMouseMove() {
+  function onDocumentMouseMove(event) {
     event.preventDefault();
     // mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
     // mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
   }
 
-
   function onMousewheel(event, delta, deltaX, deltaY) {
     var d = ((deltaY < 0) ? 1 : -1);
-    console.log(delta, deltaX, deltaY);
-    var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d, 4);
+    OA.log(delta, deltaX, deltaY);
+    var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d , 4);
     if (d > 0 && newDist < cardH) {
       editPlane.position.z = newDist;
       editPlane.oaInfo.t = newDist;
@@ -113,10 +111,10 @@ OA.Model = function(userSetting) {
       editPlane.oaInfo.t = newDist;
     }
     //event.stopPropagation();
-    event.preventDefault();
+   // event.preventDefault();
 
     var d = ((deltaY < 0) ? -1 : 1);
-    //console.log(delta, deltaX, deltaY);
+    //OA.log(delta, deltaX, deltaY);
     var newAngle = cardAngle + d * 5;
     if (newAngle >= 0 && newAngle <= 180) {
       cardAngle = newAngle;
@@ -163,7 +161,6 @@ OA.Model = function(userSetting) {
 
     // faces.push(tFace);
     // refreshFaceGroup.add(tFace);
-
 
     var pAryH = [
       [0, 0],
@@ -251,20 +248,20 @@ OA.Model = function(userSetting) {
       }
       model.add(refreshFaceGroup);
     }
-    if (camera != null) {
+
+      if (movePoint && movePoint.remove) {
+        model.remove(movePoint);
+      }
       var intersects = params.raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
       if (intersects.length > 0) {
         intersector = getRealIntersector(intersects);
         if (intersector) {
-          if (movePoint && movePoint.remove) {
-            model.remove(movePoint);
-          }
+
           movePoint = new THREE.Object3D();
           setMovePointPosition(intersector);
           model.add(movePoint);
         }
       }
-    }
   };
 
   //public
