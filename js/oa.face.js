@@ -17,7 +17,7 @@ OA.Face = function(userSetting) {
       initAngle: 90
    };
    var face = this;
-
+   var isAngleFrom0 = true;
    var contour = [];
    var rot = [Math.PI / 2, 0, 0];
    var _setting = $.extend({}, _def, userSetting);
@@ -44,6 +44,8 @@ OA.Face = function(userSetting) {
       var border, borderGeo, p, a, i, j, jlen, ilen, exPolygon, holes, outer, polygon, outer_shape, hole_shape;
       var alen = exPolygons.length;
       var shapes = new Array(alen);
+      var borderWidth = _setting.borderWidth;
+      var borderColor = _setting.borderColor;
       for (a = 0; a < alen; a++) {
          exPolygon = exPolygons[a];
          holes = exPolygon.holes;
@@ -55,19 +57,7 @@ OA.Face = function(userSetting) {
                point = outer[j];
                point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
                outer[j] = point;
-
-               p = new THREE.Vector3(point.x, point.y, 0);
-               borderGeo.vertices.push(new THREE.Vertex(p));
-
-               if (j == jlen - 1) {
-                  //    debugger;
-                  p = new THREE.Vector3(outer[0].x, outer[0].y, 0);
-                  borderGeo.vertices.push(new THREE.Vertex(p));
-               }
             }
-
-            face.add(createLine(borderGeo));
-
             outer = new THREE.Shape(outer);
             ilen = holes && holes.length;
             if (ilen && ilen > 0) {
@@ -79,16 +69,18 @@ OA.Face = function(userSetting) {
                      point = polygon[j];
                      point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
                      polygon[j] = point;
-                     p = new THREE.Vector3(point.x, point.y, 0);
-                     borderGeo.vertices.push(new THREE.Vertex(vv));
-                     if (i == ilen - 1) {
-                        p = new THREE.Vector3(polygon[0].x, polygon[0].y, 0);
-                        borderGeo.vertices.push(new THREE.Vertex(vv));
-                     }
                   }
                   if (jlen > 0) {
-                     face.add(createLine(borderGeo));
+                     //hole border
                      holes[i] = new THREE.Shape(polygon);
+                     borderGeo = holes[i].createPointsGeometry();
+                     
+                     border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+                        linewidth: borderWidth,
+                        color: borderColor
+                     }));
+
+                     face.add(border);
                   }
                }
                if (polygon.length > 0) {
@@ -96,12 +88,16 @@ OA.Face = function(userSetting) {
                }
             }
             shapes[a] = outer;
+            //bouter border
+            borderGeo = outer.createPointsGeometry();
+           
+            border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+               linewidth: borderWidth,
+               color: borderColor
+            }));
+            face.add(border);
          }
       }
-      shapes = shapes.filter(function() {
-         return true
-      });
-
       var planeGeom = new THREE.ShapeGeometry(shapes);
       var plane = new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({
          color: typeOpts[type].color,
@@ -118,17 +114,17 @@ OA.Face = function(userSetting) {
    function createFaceGrid(face, gridData) {;
       var geometry = new THREE.Geometry();
       for (var i = 0; i <= gridData.h; i += gridData.s) {
-         geometry.vertices.push(new THREE.Vector3(0, -i, 0));
-         geometry.vertices.push(new THREE.Vector3(gridData.w, -i, 0));
+         geometry.vertices.push(new THREE.Vector3(0, -i, -0.1));
+         geometry.vertices.push(new THREE.Vector3(gridData.w, -i, -0.1));
       }
       for (var i = 0; i <= gridData.w; i += gridData.s) {
-         geometry.vertices.push(new THREE.Vector3(i, 0, 0));
-         geometry.vertices.push(new THREE.Vector3(i, -gridData.h, 0));
+         geometry.vertices.push(new THREE.Vector3(i, 0, -0.1));
+         geometry.vertices.push(new THREE.Vector3(i, -gridData.h, -0.1));
       }
       var material = new THREE.LineBasicMaterial({
-         color: 0x9699A4,
-         linewidth: 1,
-         opacity: 0.3,
+         color: gridData.color || 0x9699A4,
+         linewidth: gridData.linewidth || 1,
+         opacity: gridData.opacity || 0.3,
          transparent: true
       });
       var line = new THREE.Line(geometry, material);
@@ -141,31 +137,7 @@ OA.Face = function(userSetting) {
    var init = function() {
       //debugger;
       face.rotation.set(rot[0], rot[1], rot[2]);
-
-
       getObject3DByCoutours(_setting.contours)
-
-      // var shape = new THREE.Shape(_setting.ptnAry);
-      // var planeGeom = new THREE.ShapeGeometry(shape);
-
-      // var type = _setting.type;
-      // var plane = new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({
-      //    color: typeOpts[type].color,
-      //    side: THREE.DoubleSide,
-      //    opacity: _setting.opacity,
-      //    visible: _setting.opacity === 0 ? false : true,
-      //    transparent: true
-      // }));
-      // that.oaInfo = _setting;
-      // //face.angle = null;
-      // that.add(plane);
-      // var pointsGeom = shape.createPointsGeometry();
-      // var border = new THREE.Line(pointsGeom, new THREE.LineBasicMaterial({
-      //    linewidth: _setting.borderWidth,
-      //    color: _setting.borderColor
-      // }));
-      // that.rotation.set(rot[0], rot[1], rot[2]);
-      // that.add(border);
       if (_setting.gridData) {
          createFaceGrid(face, _setting.gridData);
       }
@@ -187,7 +159,7 @@ OA.Face = function(userSetting) {
 
       resetAngle(face);
 
-      if (window.isAngleFrom0) {
+      if (isAngleFrom0) {
          //from 0
          if (type == "VFACE") {
             face.translateOnAxis(new THREE.Vector3(0, 1, 0), dist);
@@ -205,9 +177,6 @@ OA.Face = function(userSetting) {
             face.translateOnAxis(new THREE.Vector3(0, 1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(1, 0, 0), (180 - angle) * Math.PI / 180);
             face.translateOnAxis(new THREE.Vector3(0, -1, 0), dist);
-            //face.rotateOnAxis(new THREE.Vector3( -1, 0, 0), angle * Math.PI / 180 );
-            //face.translateOnAxis(new THREE.Vector3( 0, -1, 0),  dist );
-            //face.translateOnAxis(new THREE.Vector3( 0, 1, 0),  dist );
          } else {
             face.translateOnAxis(new THREE.Vector3(0, 1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(1, 0, 0), (180 - angle) * Math.PI / 180);
@@ -229,47 +198,23 @@ OA.Face = function(userSetting) {
       var angle = face.angle;
       var type = face.oaInfo.type;
 
-      if (window.isAngleFrom0) {
-         // alert(3)
+      if (isAngleFrom0) {
          //from 0 
          if (type == "VFACE") {
             face.translateOnAxis(new THREE.Vector3(0, 1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(-1, 0, 0), (180 - angle) * Math.PI / 180);
             face.translateOnAxis(new THREE.Vector3(0, -1, 0), dist);
          } else {
-
             face.translateOnAxis(new THREE.Vector3(0, 1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(-1, 0, 0), angle * Math.PI / 180);
             face.translateOnAxis(new THREE.Vector3(0, -1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(1, 0, 0), angle * Math.PI / 180);
-
-
-            // face.rotateOnAxis(new THREE.Vector3( 1, 0, 0), angle * Math.PI / 180 );
-            // face.translateOnAxis(new THREE.Vector3( 0, 1, 0),  dist );
-            // face.rotateOnAxis(new THREE.Vector3( -1, 0, 0), angle * Math.PI / 180 );
-            // face.translateOnAxis(new THREE.Vector3( 0, -1, 0),  dist );
          }
       } else {
          if (type == "VFACE") {
-            // face.translateOnAxis(new THREE.Vector3( 0, 1, 0),  dist );
-            // face.rotateOnAxis(new THREE.Vector3( -1, 0, 0), (180-angle) * Math.PI / 180 );
-            // face.translateOnAxis(new THREE.Vector3( 0, -1, 0),  dist );
-
-            // face.translateOnAxis(new THREE.Vector3( 0, -1, 0),  dist );
-            //   face.rotateOnAxis(new THREE.Vector3( -1, 0, 0), (180-angle) * Math.PI / 180 );
-            //   face.translateOnAxis(new THREE.Vector3( 0, 1, 0),  dist );
-
-
             face.translateOnAxis(new THREE.Vector3(0, 1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(-1, 0, 0), (180 - angle) * Math.PI / 180);
             face.translateOnAxis(new THREE.Vector3(0, -1, 0), dist);
-
-
-            // face.translateOnAxis(new THREE.Vector3( 0, -1, 0),  dist );
-            //     face.rotateOnAxis(new THREE.Vector3( -1, 0, 0), (180-angle) * Math.PI / 180 );
-            //  face.translateOnAxis(new THREE.Vector3( 0, 1, 0),  dist );
-
-
          } else {
             face.translateOnAxis(new THREE.Vector3(0, -1, 0), dist);
             face.rotateOnAxis(new THREE.Vector3(1, 0, 0), (180 - angle) * Math.PI / 180);
@@ -279,7 +224,6 @@ OA.Face = function(userSetting) {
       }
 
    }
-
 
    this.getFaceMesh = function() {
       return faceMesh;
