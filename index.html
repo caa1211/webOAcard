@@ -32,7 +32,7 @@
     <script src="js/oa.model.js"></script>
     <script src="js/oa.face.js"></script>
     <script src="js/oa.contour.js"></script>
-
+    <script src="js/oa.point.js"></script>
     <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
     var debugMode = OA.debugMode;
@@ -57,7 +57,6 @@
     var cardMode = 0;
 
     function init(oa) {
-
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
@@ -127,7 +126,7 @@
         mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
 
-    function changeCardMode(index){
+    function changeCardMode(cardMode){
         var opt = cardModeOpts[cardMode];
         orbitCtrls.enabled = opt.cameraControl;
         oaModel.showEditPlane(opt.showEditPlane);
@@ -141,8 +140,10 @@
     function onDocumentMouseDown(event) {
         event.preventDefault();
         if (event.which == 3) {
-            cardMode = (cardMode + 1) % cardModeOpts.length;
-            changeCardMode(cardMode);
+            if(oaModel.contourState===0){
+                cardMode = (cardMode + 1) % cardModeOpts.length;
+                changeCardMode(cardMode);
+            }
         }
     }
     function animate() {

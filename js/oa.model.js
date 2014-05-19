@@ -11,12 +11,12 @@ OA.Model = function(userSetting) {
   };
 
   var editPlane = null;
-  var movePointTexture = THREE.ImageUtils.loadTexture("img/cborder.png");
-  var movePointFillTexture = THREE.ImageUtils.loadTexture("img/cfill.png");
-  var movePoint = new THREE.Object3D();
+
+  
   var _setting = $.extend({}, _def, userSetting);
   var cardW = _setting.cardW, cardH = _setting.cardH;
   var gridStep = cardW / _setting.gridNum;
+  var movePoint = new OA.Point({scale: gridStep});
   var model = this;
   var faces = [];
   var edges = [];
@@ -27,12 +27,17 @@ OA.Model = function(userSetting) {
   var cameraCtrl = null;
   refreshFaceGroup.cardAngle = null;
   var foldable = true;
+  var liveContour = null;
+  var contourStateType = {"NO_EDITING" : 0, "EDITING": 1, "CLOSE": 2};
+  this.contourState = contourStateType.NO_EDITING;
+
   var bindEvents = function() {
     $(window).bind("mousewheel", onMousewheel);
     $(window).bind("mousemove", onDocumentMouseMove);
     $(window).bind("mousedown", onMousedown);
     $(window).bind("mouseup", onMouseup);
   };
+
 
   var unbindEvents = function() {
     $(window).unbind("mousewheel", onMousewheel);
@@ -41,59 +46,14 @@ OA.Model = function(userSetting) {
     $(window).bind("mouseup", onMouseup);
   };
 
-  function setMovePointPosition(intersector) {
-
+  function getHoverPosition(intersector) {
     if (intersector.face === null) {
       OA.log(intersector)
     }
-
-    var materials = [
-      new THREE.MeshBasicMaterial({
-        color: 0x174F89
-      }),
-      new THREE.MeshBasicMaterial({
-        color: 0xDCAAAF
-      })
-    ];
-
     var cx = Math.floor((intersector.point.x / gridStep) + 0.5) * gridStep,
-    cy = Math.floor((intersector.point.y / gridStep) + 0.5) * gridStep,
-    cz = intersector.object.parent.oaInfo.t + 0.2;
-
-    material = new THREE.SpriteMaterial({
-      map: movePointTexture,
-      transparent: true,
-      opacity: 0.8,
-      useScreenCoordinates: false,
-      color: 0x000000,
-    });
-
-//material = new THREE.ParticleCircleMaterial( { color: 0xffffff } )
-
-    var particle = new THREE.Particle(material);
-    particle.position.x = cx;
-    particle.position.y = cy;
-    particle.position.z = cz + 0.1;
-    // Set the size of the particle
-    particle.scale.x = particle.scale.y = particle.scale.z = gridStep * 1.5;
-    var particle2 = particle.clone();
-    particle2.material = new THREE.SpriteMaterial({
-      map: movePointFillTexture,
-      transparent: true,
-      opacity: 0.3,
-      useScreenCoordinates: false,
-      color: 0xffffff
-    });
-    particle2.scale.x = particle2.scale.y = particle2.scale.z = gridStep * 0.6;
-
-material.color.setHex( 0x00ff00 );
-
-    var particles = new THREE.ParticleSystem();
-    particles.add(particle);
-    particles.add(particle2);
-
-    movePoint.add(particles);
-    //OA.log(cx + " " + cy + " " + cz + " editPlane " + editPlane.oaInfo.t);
+      cy = Math.floor((intersector.point.y / gridStep) + 0.5) * gridStep,
+      cz = intersector.object.parent.oaInfo.t;
+    return new THREE.Vector3(cx, cy, cz);
   }
 
   function formatFloat(num, pos) {
@@ -105,21 +65,69 @@ material.color.setHex( 0x00ff00 );
 
   }
 
+  function enterContourEditingState() {
+    model.contourState = contourStateType.EDITING;
+    if(liveContour == null){
+      liveContour = new OA.Contour();
+      model.add(liveContour);
+    }
+    cameraCtrl.enabled = false;
+    movePoint.setColor(1);
+  }
+
+  function enterContourNoEditingState() {
+    model.contourState = contourStateType.NO_EDITING;
+    model.remove(liveContour);
+    liveContour = null;
+    cameraCtrl.enabled = true;
+    movePoint.setColor(0);
+  }
+
+  function enterContourCloseState() {
+    model.contourState = contourStateType.CLOSE;
+    movePoint.setColor(2);
+  }
+
+
+
   function onMousedown(event){
     event.preventDefault();
-    if(editPlane.showFlag){
-      var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
-      if (intersects.length > 0) {
-        cameraCtrl.noZoom = true;
-        cameraCtrl.noRotate = true;
-      } 
-
+    if (movePoint.isVisible) {
+       cameraCtrl.noZoom = true;
+       cameraCtrl.noRotate = true;
       //add point
+        if(event.which ===1 ){
 
+           if(liveContour === null){
+              enterContourEditingState();
+           }
+           if(!liveContour.checkClosed()){
+             var p = movePoint.getPosition3D();
+             liveContour.addPosition3D(p);
+             if(liveContour.checkClosed()){
+                enterContourCloseState();
+             }
+           }
+        }else if(event.which === 3){
 
+           if(model.contourState !== contourStateType.NO_EDITING){
+             if(liveContour.getPointSize()>1){
+                liveContour.undo();
+                if(model.contourState == contourStateType.CLOSE){
+                   enterContourEditingState();
+                }
+             }else if(liveContour.getPointSize()===1){
+                liveContour.undo();
+                enterContourNoEditingState();
+                event.stopImmediatePropagation();
+             }
+           }
 
+        }
+      
     }
   }
+
 
   function onMouseup(event){
     event.preventDefault();
@@ -130,20 +138,21 @@ material.color.setHex( 0x00ff00 );
 
   function onMousewheel(event, delta, deltaX, deltaY) {
     event.preventDefault();
-    if(editPlane.showFlag){
+    if(editPlane.isVisible && model.contourState!==contourStateType.EDITING){
+
       var d = ((deltaY < 0) ? 1 : -1);
       OA.log(delta, deltaX, deltaY);
       var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d , 4);
       if (d > 0 && newDist < cardH) {
-        editPlane.position.z = newDist;
+        editPlane.position.z = newDist+0.1;
         editPlane.oaInfo.t = newDist;
         // viewerR += gridStep;
       } else if (d < 0 && newDist >= 0) {
-        editPlane.position.z = newDist;
+        editPlane.position.z = newDist+0.1;
         editPlane.oaInfo.t = newDist;
       }
     }
-    
+
     if(foldable){
       var d = ((deltaY < 0) ? -1 : 1);
       //OA.log(delta, deltaX, deltaY);
@@ -157,7 +166,7 @@ material.color.setHex( 0x00ff00 );
   }
 
   var init = function() {
-
+    
     var pAryV = [
       [0, 0],
       [cardW, 0],
@@ -186,14 +195,14 @@ material.color.setHex( 0x00ff00 );
     refreshFaceGroup.add(vFace);
 
 
-    var tFace = new OA.Face({
-      contours: OA.Utils.getTestExPolygonTree(),
-      //   contours
-      type: "VFACE"
-    });
+    // var tFace = new OA.Face({
+    //   contours: OA.Utils.getTestExPolygonTree(),
+    //   //   contours
+    //   type: "VFACE"
+    // });
 
-    faces.push(tFace);
-    refreshFaceGroup.add(tFace);
+    // faces.push(tFace);
+    // refreshFaceGroup.add(tFace);
 
     var pAryH = [
       [0, 0],
@@ -219,15 +228,15 @@ material.color.setHex( 0x00ff00 );
     refreshFaceGroup.add(hFace);
 
     var pEditAry = [
-      [0, 0],
-      [cardW, 0],
+      [0, 5],
+      [cardW, 5],
       [cardW, -cardH],
       [0, -cardH]
     ];
 
     editPlane = new OA.Face({
       contours: [{
-        "outer": pAryV.map(function(i) {
+        "outer": pEditAry.map(function(i) {
           return {
             "X": i[0],
             "Y": i[1]
@@ -241,20 +250,21 @@ material.color.setHex( 0x00ff00 );
       type: "VFACE",
       opacity: 0,
       borderColor: 0x237BD7,
+      addingLine: [[0, 0],[cardW, 0]],
       gridData: {
         w: cardW,
         h: cardH,
         s: gridStep,
         color: 0x1F6CBD,
-        opacity: 0.2
+        opacity: 0.2,
+        extendY: 5
       }
     });
     editPlane.name = "editPlane";
-    editPlane.showFlag = true;
+    //editPlane.isVisible = true;
     model.add(editPlane);
-   
+    model.add(movePoint);
     bindEvents();
-
     model.updateCardAngle();
     return model;
   };
@@ -268,10 +278,7 @@ material.color.setHex( 0x00ff00 );
   }
 
   this.showEditPlane = function(showFlag){
-      if(editPlane.showFlag === undefined || editPlane.showFlag != showFlag){
-         editPlane.traverse( function ( object ) { object.visible = !!showFlag; } );
-         editPlane.showFlag = showFlag;
-      }
+      OA.Utils.setObject3DVisible(editPlane, !!showFlag);
   };
 
   this.updateCardAngle = function() {
@@ -305,25 +312,47 @@ material.color.setHex( 0x00ff00 );
       if (foldable) {
          model.updateCardAngle();
       }
-
-      if (movePoint && movePoint.remove) {
-        model.remove(movePoint);
-      }
-      if (editPlane.showFlag === true) {
+      if (editPlane.isVisible === true) {
         var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
         if (intersects.length > 0) {
           intersector = getRealIntersector(intersects);
           if (intersector) {
+            var hoverPos = getHoverPosition(intersector);
+            if(!movePoint.isEqualPosition(hoverPos)){
+              movePoint.setPosition3D(hoverPos);
+              movePoint.setVisible(true);
+            }
 
-            movePoint = new THREE.Object3D();
-            setMovePointPosition(intersector);
-            model.add(movePoint);
+            if(liveContour!=null){
+              if (model.contourState === contourStateType.EDITING) {
+                movePoint.setColor(1);
+                var pos3Ds = liveContour.getPosition3Ds();
+                var movePointPos = movePoint.getPosition3D();
+                var distFromFitstP;
+              try{
+                distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
+                if (pos3Ds.length > 3 && distFromFitstP < gridStep *1.5) {
+                  movePoint.setPosition3D(pos3Ds[0]);
+                  movePoint.setColor(2);
+                }
+                liveContour.drawHoverLine(movePoint.getPosition3D());
+              }catch(e){
+                debugger;
+              }
+              }else if(model.contourState === contourStateType.CLOSE){
+                
+              }
+            }
           }
+        }else{
+          movePoint.setVisible(false);
         }
+      }else{
+        movePoint.setVisible(false);
       }
-
-
   };
+
+  
 
   //public
   this.destory = function() {

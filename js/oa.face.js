@@ -14,7 +14,8 @@ OA.Face = function(userSetting) {
       gridData: {},
       borderColor: 0x374F69,
       borderWidth: 3,
-      initAngle: 90
+      initAngle: 90,
+      addingLine: null
    };
    var face = this;
    var isAngleFrom0 = true;
@@ -111,14 +112,30 @@ OA.Face = function(userSetting) {
 
    };
 
+   function createAddingLine(face){
+      var lAry = _setting.addingLine;
+      var geometry = new THREE.Geometry();
+      for(var i=0; i<lAry.length; i++ ){
+         geometry.vertices.push(new THREE.Vector3(lAry[i][0], -0.1, lAry[i][1]-0.1));
+      }
+     
+      var addingLines = new THREE.Line(geometry, new THREE.LineDashedMaterial({
+         linewidth: 6,
+         color: 0x666666
+      }));
+
+      face.add(addingLines);
+   }
+
    function createFaceGrid(face, gridData) {;
       var geometry = new THREE.Geometry();
-      for (var i = 0; i <= gridData.h; i += gridData.s) {
+      var extendY = gridData.extendY ?  gridData.extendY : 0;
+      for (var i = -extendY; i <= gridData.h; i += gridData.s) {
          geometry.vertices.push(new THREE.Vector3(0, -i, -0.1));
          geometry.vertices.push(new THREE.Vector3(gridData.w, -i, -0.1));
       }
       for (var i = 0; i <= gridData.w; i += gridData.s) {
-         geometry.vertices.push(new THREE.Vector3(i, 0, -0.1));
+         geometry.vertices.push(new THREE.Vector3(i, extendY, -0.1));
          geometry.vertices.push(new THREE.Vector3(i, -gridData.h, -0.1));
       }
       var material = new THREE.LineBasicMaterial({
@@ -141,6 +158,10 @@ OA.Face = function(userSetting) {
       if (_setting.gridData) {
          createFaceGrid(face, _setting.gridData);
       }
+     if (_setting.addingLine) {
+         createAddingLine(face);
+      }
+     
       applyAngle(face, _setting.initAngle);
       return face;
    };
@@ -158,7 +179,9 @@ OA.Face = function(userSetting) {
       }
 
       resetAngle(face);
-
+      if(angle ===0){
+         angle =0.5
+      }
       if (isAngleFrom0) {
          //from 0
          if (type == "VFACE") {
@@ -197,6 +220,10 @@ OA.Face = function(userSetting) {
       var dist = face.oaInfo.t;
       var angle = face.angle;
       var type = face.oaInfo.type;
+
+      if(angle ===0){
+         angle =0.5
+      }
 
       if (isAngleFrom0) {
          //from 0 

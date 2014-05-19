@@ -5,9 +5,47 @@ var OA = {
 
 OA.Utils = {
    log: function(str){
-      if(OA.debugeMode){
+      if(OA.debugMode){
          console.error(str)
       }
+   },
+   checkEqualPosition: function(pos1, pos2){
+        if(pos1 === undefined||pos2===undefined){
+            return false;
+        }
+        if(pos1.x === pos2.x && 
+           pos1.y === pos2.y &&
+           pos1.z === pos2.z){
+            return true;
+        }else{
+            return false;
+        }
+    },
+   setObject3DVisible: function(object3D, visible){
+      if(object3D.isVisible === undefined || object3D.isVisible !== visible){
+         object3D.traverse( function ( object ) { object.visible = !!visible; } );
+         object3D.isVisible = visible;
+       }
+   },
+   texture: {
+     ready: false,
+     data: {
+      movePointTexture: null,
+      movePointFillTexture: null,
+     },
+     loadAllTexture: function(){
+       OA.Utils.texture.ready = true;
+       OA.Utils.texture.data.movePointTexture = THREE.ImageUtils.loadTexture("img/cborder.png");
+       OA.Utils.texture.data.movePointFillTexture = THREE.ImageUtils.loadTexture("img/cfill.png");
+     },
+     getTexture: function(){
+       if(OA.Utils.texture.ready){
+          return OA.Utils.texture.data;
+       }else{
+          OA.Utils.texture.loadAllTexture();
+          return OA.Utils.texture.data;
+       }
+     }
    },
    formatFloat: function (num, pos) {
      var size = Math.pow(10, pos);
@@ -254,4 +292,4 @@ OA.Utils = {
 };
 
 OA.log = OA.Utils.log;
-
+OA.Utils.texture.loadAllTexture();
