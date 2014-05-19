@@ -40,14 +40,12 @@
     var modelOption = {
         angle: 90,
         cardW: 64,
-        cardH: 100,
-        gridNum: 20
+        cardH: 40,
+        gridNum: 40
     };
     var oaModel = new OA.Model(modelOption);
     var sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
-    var viewerR = oaModel.getCardH() * 2.5;
-    var thetaX = 0,
-        thetaY = 10;
+    var viewerR = oaModel.getCardH() * 2.0;
     var mouse2D = new THREE.Vector3(0, 10000, 0.5);
     var orbitCtrls;
     var raycaster, projector;
@@ -84,7 +82,7 @@
         orbitCtrls.panLeft(-sceneOffset.x);
         orbitCtrls.panUp(sceneOffset.y);
         orbitCtrls.maxPolarAngle = 120*Math.PI/180;
-        orbitCtrls.rotateUp(20*Math.PI/180);
+        orbitCtrls.rotateUp(15*Math.PI/180);
         orbitCtrls.zoomSpeed = 0.1;
         orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
 

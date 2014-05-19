@@ -108,6 +108,11 @@ OA.Model = function(userSetting) {
         cameraCtrl.noZoom = true;
         cameraCtrl.noRotate = true;
       } 
+
+      //add point
+
+
+
     }
   }
 
