@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Starter Boolean</title>
+    <script src="clipper.js"></script>
+  </head>
+  <body>
+    <div id="svgcontainer"></div>
+    <script>
+var subj_paths = [[{X:10,Y:10},{X:110,Y:10},{X:110,Y:110},{X:10,Y:110}],
+                  [{X:20,Y:20},{X:20,Y:100},{X:100,Y:100},{X:100,Y:20}]]; 
+var clip_paths = [[{X:50,Y:50},{X:150,Y:50},{X:150,Y:150},{X:50,Y:150}],
+                  [{X:60,Y:60},{X:60,Y:140},{X:140,Y:140},{X:140,Y:60}]];
+
+
+var subj_paths_ex = [{
+  "outer":[{X:10,Y:10},{X:110,Y:10},{X:110,Y:110},{X:10,Y:110}],
+  "holes":[   
+         [
+         {X:20,Y:20},{X:20,Y:100},{X:100,Y:100},{X:100,Y:20}
+         ]
+     ]
+  }]; 
+
+//subj_paths = ClipperLib.JS.ExPolygonsToPaths(subj_paths_ex);
+//
+//solution_expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
+//var solution_paths = ClipperLib.Clipper.PolyTreeToPaths(solution_polytree);
+
+//subj_paths  = subj_paths_ex;
+
+ //subj_paths =  new ClipperLib.ExPolygon(subj_paths_ex);
+var cpr = new ClipperLib.Clipper();
+
+var scale = 100;
+ClipperLib.JS.ScaleUpPaths(subj_paths, scale);
+ClipperLib.JS.ScaleUpPaths(clip_paths, scale);
+
+cpr.AddPaths(subj_paths, ClipperLib.PolyType.ptSubject, true);  // true means closed path
+cpr.AddPaths(clip_paths, ClipperLib.PolyType.ptClip, true);
+
+var solution_paths = new ClipperLib.Paths();
+var succeeded = cpr.Execute(ClipperLib.ClipType.ctUnion, solution_paths, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+
+var solution_polytree = new ClipperLib.PolyTree();
+cpr.Execute(ClipperLib.ClipType.ctUnion, solution_polytree, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+
+var solution_expolygons = new ClipperLib.ExPolygons();
+
+//ClipperLib.Clipper.PolyTreeToExPolygons(solution_polytree, solution_expolygons);
+var expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
+debugger;
+
+// var cpr2 = new ClipperLib.Clipper();
+// var solution_paths2 = new ClipperLib.Paths();
+// cpr2.AddPaths(expolygons, ClipperLib.PolyType.ptSubject, true);
+// cpr2.AddPaths(clip_paths, ClipperLib.PolyType.clip_paths, true);
+// var succeeded2 = cpr2.Execute(ClipperLib.ClipType.ctUnion, solution_paths2, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+// debugger;
+// console.log(JSON.stringify(solution_paths));
+
+// Scale down coordinates and draw ...
+var svg = '<svg style="background-color:#dddddd" width="160" height="160">';
+svg += '<path stroke="black" fill="yellow" stroke-width="2" d="' + paths2string(solution_paths, scale) + '"/>';
+svg += '</svg>';
+document.getElementById("svgcontainer").innerHTML = svg;
+
+// Converts Paths to SVG path string
+// and scales down the coordinates
+function paths2string (paths, scale) {
+  var svgpath = "", i, j;
+  if (!scale) scale = 1;
+  for(i = 0; i < paths.length; i++) {
+    for(j = 0; j < paths[i].length; j++){
+      if (!j) svgpath += "M";
+      else svgpath += "L";
+      svgpath += (paths[i][j].X / scale) + ", " + (paths[i][j].Y / scale);
+    }
+    svgpath += "Z";
+  }
+  if (svgpath=="") svgpath = "M0,0";
+  return svgpath;
+}
+var paths = [[{"X":10,"Y":10},{"X":110,"Y":10},{"X":110,"Y":110},{"X":10,"Y":110}]];
+console.log(JSON.stringify(paths));
+ClipperLib.Clipper.ReversePaths(paths);
+console.log(JSON.stringify(paths));
+    </script>
+  </body>
+</html>
