@@ -63,30 +63,35 @@ OA.Model = function(userSetting) {
     material = new THREE.SpriteMaterial({
       map: movePointTexture,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.8,
       useScreenCoordinates: false,
-      color: 0xffffff
+      color: 0x000000,
     });
+
+//material = new THREE.ParticleCircleMaterial( { color: 0xffffff } )
 
     var particle = new THREE.Particle(material);
     particle.position.x = cx;
     particle.position.y = cy;
     particle.position.z = cz + 0.1;
     // Set the size of the particle
-    particle.scale.x = particle.scale.y = particle.scale.z = gridStep * 1.0;
+    particle.scale.x = particle.scale.y = particle.scale.z = gridStep * 1.5;
     var particle2 = particle.clone();
     particle2.material = new THREE.SpriteMaterial({
       map: movePointFillTexture,
-      transparent: false,
+      transparent: true,
       opacity: 0.3,
       useScreenCoordinates: false,
       color: 0xffffff
     });
-    particle2.scale.x = particle2.scale.y = particle2.scale.z = gridStep * 1.5;
+    particle2.scale.x = particle2.scale.y = particle2.scale.z = gridStep * 0.6;
+
+material.color.setHex( 0x00ff00 );
 
     var particles = new THREE.ParticleSystem();
     particles.add(particle);
     particles.add(particle2);
+
     movePoint.add(particles);
     //OA.log(cx + " " + cy + " " + cz + " editPlane " + editPlane.oaInfo.t);
   }
