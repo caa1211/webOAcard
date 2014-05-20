@@ -106,6 +106,15 @@ OA.Face = function(userSetting) {
          opacity: _setting.opacity,
          visible: _setting.opacity === 0 ? false : true,
          transparent: true
+
+         //          ,
+         // alphaTest: 0.5,
+         // depthTest: false,
+         // depthWrite: false,
+         // polygonOffset: false, polygonOffsetFactor: 1000, polygonOffsetUnits: 10
+
+
+
       }));
       plane.name = "faceBody";
       face.add(plane);

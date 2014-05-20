@@ -58,7 +58,12 @@ OA.Contour = function(userSetting) {
       for (var i = 0; i < pLen; ++i) {
          p = position3Ds[i];
          if (i == 0) {
-            circle = new OA.Point({scale: _setting.startPointSize});
+            circle = new OA.Point({scale: _setting.startPointSize, 
+               inner:{ 
+                  color: 0x498698,
+                  opacity: 1,
+                  size: 1}
+            });
             circle.setColor(3);
          } else {
             if (i === 0) {
@@ -119,6 +124,13 @@ OA.Contour = function(userSetting) {
       openLines = new THREE.Line(geometry, new THREE.LineBasicMaterial({
          linewidth: 3,
          color: _setting.line.color
+         // ,
+         // alphaTest: 0.5,
+         // transparent: true,
+         // depthTest: true,
+         // depthWrite: false,
+         // polygonOffset: true, polygonOffsetFactor: 1000000000, polygonOffsetUnits: 1000000
+
       }), THREE.LinePieces);
 
       openLines.name = "openLines";
@@ -178,7 +190,7 @@ OA.Contour = function(userSetting) {
    };
 
    this.addPosition3D = function(position3D) {
-      if(position3Ds.length>3 && OA.Utils.checkEqualPosition(position3Ds[0], position3D) ){
+      if(position3Ds.length>2 && OA.Utils.checkEqualPosition(position3Ds[0], position3D) ){
          isClosed = true;
          closeContour();
       }

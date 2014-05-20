@@ -1,7 +1,7 @@
 OA.Point = function(userSetting) {
 
     THREE.Object3D.call(this);
-    var colorMap = [0x074CA6, 0xD02C55, 0x5F8A37, 0x5F8A37];
+    var colorMap = [0x074CA6, 0xD02C55, 0x5F8A37, 0x498698];
     //private
     var _def = {
         "scale": 1,

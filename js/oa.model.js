@@ -366,7 +366,7 @@ OA.Model = function(userSetting) {
                 var distFromFitstP;
               try{
                 distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
-                if (pos3Ds.length > 3 && distFromFitstP < gridStep *1.5) {
+                if (pos3Ds.length > 2 && distFromFitstP < gridStep *1.5) {
                   movePoint.setPosition3D(pos3Ds[0]);
                   movePoint.setColor(2);
                 }
