@@ -1,6 +1,6 @@
 var OA = {
    REVISION: 'r01',
-   debugMode: true
+   debugMode: false
 };
 
 OA.Utils = {

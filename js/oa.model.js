@@ -5,7 +5,7 @@ OA.Model = function(userSetting) {
   //private
   var _def = {
     cardW: 64,
-    cardH: 36,
+    cardH: 80,
     gridNum: 20,
     initAngle: 90
   };
@@ -284,6 +284,8 @@ OA.Model = function(userSetting) {
       //   contours
       type: "VFACE",
       opacity: 0,
+      depthTest: false,
+      depthWrite: false,
       borderColor: 0x237BD7,
       addingLine: [[0, 0],[cardW, 0]],
       gridData: {

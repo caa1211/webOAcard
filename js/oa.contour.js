@@ -74,7 +74,10 @@ OA.Contour = function(userSetting) {
             circleGeometry = new THREE.CircleGeometry(r, segments);
             material = new THREE.MeshBasicMaterial({
                color: _setting.point.color,
-               transparent: true
+               transparent: true,
+         transparent: true,
+         depthTest: false,
+         depthWrite: false
             });
             circle = new THREE.Mesh(circleGeometry, material);
 
@@ -100,7 +103,10 @@ OA.Contour = function(userSetting) {
          linewidth: 3,
          color: 0xE69E6E,
          dashSize: 1,
-         gapSize: 0.5
+         gapSize: 0.5,
+         transparent: true,
+         depthTest: false,
+         depthWrite: false
 
       }));
       parent.add(closeLine);
@@ -123,14 +129,10 @@ OA.Contour = function(userSetting) {
       }
       openLines = new THREE.Line(geometry, new THREE.LineBasicMaterial({
          linewidth: 3,
-         color: _setting.line.color
-         // ,
-         // alphaTest: 0.5,
-         // transparent: true,
-         // depthTest: true,
-         // depthWrite: false,
-         // polygonOffset: true, polygonOffsetFactor: 1000000000, polygonOffsetUnits: 1000000
-
+         color: _setting.line.color,
+         transparent: true,
+         depthTest: false,
+         depthWrite: false
       }), THREE.LinePieces);
 
       openLines.name = "openLines";
@@ -230,6 +232,9 @@ OA.Contour = function(userSetting) {
          transparent: true,
          dashSize: 1,
          gapSize: 0.5,
+         transparent: true,
+         depthTest: false,
+         depthWrite: false
       }));
 
 
@@ -238,7 +243,9 @@ OA.Contour = function(userSetting) {
       var material = new THREE.MeshBasicMaterial({
          color: 0xff0000,
          opacity: 0.5,
-         transparent: true
+         transparent: true,
+         depthTest: false,
+         depthWrite: false
       });
       var circleGeometry = new THREE.CircleGeometry(radius, segments);
       var circle = new THREE.Mesh(circleGeometry, material);

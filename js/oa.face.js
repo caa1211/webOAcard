@@ -15,10 +15,12 @@ OA.Face = function(userSetting) {
       borderColor: 0x374F69,
       borderWidth: 3,
       initAngle: 90,
-      addingLine: null
+      addingLine: null,
+      depthTest: true,
+      depthWrite: true,
    };
    var face = this;
-   var isAngleFrom0 = true;
+   var isAngleFrom0 = false;
    var contour = [];
    var rot = [Math.PI / 2, 0, 0];
    var _setting = $.extend({}, _def, userSetting);
@@ -78,9 +80,11 @@ OA.Face = function(userSetting) {
                      
                      border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
                         linewidth: borderWidth,
-                        color: borderColor
+                        color: borderColor,
+                        transparent: true,
+                        linecap: "round"
                      }));
-
+                     border.position.z =-0.1; 
                      face.add(border);
                   }
                }
@@ -94,8 +98,13 @@ OA.Face = function(userSetting) {
            
             border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
                linewidth: borderWidth,
-               color: borderColor
+               color: borderColor,
+               transparent: true,
+               depthTest: _setting.depthTest,
+               depthWrite: _setting.depthWrite,
+               linecap: "round"
             }));
+            border.position.z =-0.1; 
             face.add(border);
          }
       }
@@ -104,17 +113,7 @@ OA.Face = function(userSetting) {
          color: typeOpts[type].color,
          side: THREE.DoubleSide,
          opacity: _setting.opacity,
-         visible: _setting.opacity === 0 ? false : true,
-         transparent: true
-
-         //          ,
-         // alphaTest: 0.5,
-         // depthTest: false,
-         // depthWrite: false,
-         // polygonOffset: false, polygonOffsetFactor: 1000, polygonOffsetUnits: 10
-
-
-
+         visible: _setting.opacity === 0 ? false : true
       }));
       plane.name = "faceBody";
       face.add(plane);
@@ -129,7 +128,7 @@ OA.Face = function(userSetting) {
       }
      
       var addingLines = new THREE.Line(geometry, new THREE.LineDashedMaterial({
-         linewidth: 6,
+         linewidth: 4,
          color: 0x666666
       }));
 
@@ -151,7 +150,9 @@ OA.Face = function(userSetting) {
          color: gridData.color || 0x9699A4,
          linewidth: gridData.linewidth || 1,
          opacity: gridData.opacity || 0.3,
-         transparent: true
+         transparent: true,
+         depthTest: _setting.depthTest,
+         depthWrite: _setting.depthWrite
       });
       var line = new THREE.Line(geometry, material);
       line.type = THREE.LinePieces;
@@ -171,8 +172,8 @@ OA.Face = function(userSetting) {
          createAddingLine(face);
       }
      
-         face.updateMatrix();
-      face.updateMatrixWorld();
+      // face.updateMatrix();
+      // face.updateMatrixWorld();
       applyAngle(face, _setting.initAngle);
       return face;
    };
