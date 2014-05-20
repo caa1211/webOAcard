@@ -98,13 +98,19 @@ OA.Point = function(userSetting) {
         borderMaterial.color.setHex( 0xff0000 );
     };
 
-    this.setColor = function(index) {
+    this.setColorByIndex = function(index) {
         if (index < colorMap.length) {
             borderMaterial.color.setHex(colorMap[index]);
             innerMaterial.color.setHex(colorMap[index]);
         }
     };
 
+    this.setColor = function(color) {
+        if (color) {
+            borderMaterial.color.setHex(color);
+            innerMaterial.color.setHex(color);
+        }
+    };
 
     this.setVisible = function(isVisible){
         OA.Utils.setObject3DVisible(point, isVisible);

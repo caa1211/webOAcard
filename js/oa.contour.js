@@ -10,16 +10,21 @@ OA.Contour = function(userSetting) {
          lineWidth: 2.5
          //color: 0xE7AB6D
       },
-      startPointSize: 1
+      startPointSize: 1,
+      t: 0
    };
    var contour = this;
    var isClosed = false;
-   var position3Ds = [];
+   var userPosition3Ds = [];
+   var point2Ds = [];
    var lineGroup = null;
    var closeLine = null;
    var openLines = null;
    var pointGroup = null;
+   contour.uppers = [];
    var _setting = $.extend({}, _def, userSetting);
+   contour.t = _setting.t;
+
    var hoverLine = null;
    var circleGroup = null;
    var baseT = null;
@@ -36,72 +41,75 @@ OA.Contour = function(userSetting) {
    };
 
    this.getPointSize = function() {
-      return position3Ds.length;
+      return userPosition3Ds.length;
    };
 
    this.getPosition3Ds = function() {
-      return position3Ds;
+      return userPosition3Ds;
    };
 
 
-   function drawPoints() {
+   function drawPoints(p3DAry, userOpt) {
+
+      var defaultOpt = {
+         color: _setting.point.color,
+         radius: 0.6
+      };
+      var drawOpt = $.extend({}, defaultOpt, userOpt);
+
       if (pointGroup) {
          contour.remove(pointGroup);
       }
       pointGroup = new THREE.Object3D();
-      var pLen = position3Ds.length;
-      var radius = 0.6;
+      var pLen = p3DAry.length;
+      var radius = drawOpt.radius;
       var segments = 32;
       var p, r, c;
       var material;
       var circleGeometry;
       var circle;
-
+      var isClosed = contour.checkClosed();
       for (var i = 0; i < pLen; ++i) {
-         p = position3Ds[i];
-         if (i == 0) {
-            circle = new OA.Point({scale: _setting.startPointSize, 
-               inner:{ 
-                  color: 0x498698,
-                  opacity: 1,
-                  size: 1}
+         p = p3DAry[i];
+         if (i == 0 && !isClosed) {
+            circle = new OA.Point({
+               scale: _setting.startPointSize
             });
-            circle.setColor(3);
+            circle.setColor(drawOpt.color);
          } else {
-            if (i === 0) {
+            if (i === 0 && !isClosed) {
                r = radius * 1.3;
             } else {
                r = radius;
             }
             circleGeometry = new THREE.CircleGeometry(r, segments);
             material = new THREE.MeshBasicMaterial({
-               color: _setting.point.color,
+               color: drawOpt.color,
                transparent: true,
-         transparent: true,
-         depthTest: false,
-         depthWrite: false
+               depthTest: false,
+               depthWrite: false
             });
             circle = new THREE.Mesh(circleGeometry, material);
 
          }
-            circle.position.x = p.x;
-            circle.position.y = p.y;
-            circle.position.z = p.z;
-            pointGroup.add(circle);
+         circle.position.x = p.x;
+         circle.position.y = p.y;
+         circle.position.z = p.z;
+         pointGroup.add(circle);
 
       }
       pointGroup.position.z = 0.3;
       contour.add(pointGroup);
    }
 
-   function addCloseLine(parent) {
-      var len = position3Ds.length;
-      var p1 = position3Ds[0],
-         p2 = position3Ds[len - 1];
+   function addCloseLine(p3DAry, parent, addCloseLine) {
+      var len = p3DAry.length;
+      var p1 = p3DAry[0],
+         p2 = p3DAry[len - 1];
       var geometry = new THREE.Geometry();
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
-      var closeLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
+      var openPathMat = new THREE.LineDashedMaterial({
          linewidth: _setting.line.lineWidth,
          color: 0x498698,
          opacity: 0.5,
@@ -110,62 +118,93 @@ OA.Contour = function(userSetting) {
          transparent: true,
          depthTest: false,
          depthWrite: false
+      });
+      var closePathMat = addCloseLine.clone();
 
-      }));
+      var mat = contour.checkClosed() ? closePathMat : openPathMat;
+      var closeLine = new THREE.Line(geometry, mat);
       parent.add(closeLine);
    }
 
-   function drawLines() {
-      if (openLines) {
-         lineGroup.remove(openLines);
-      }
-      if (position3Ds.length < 2) {
-         return;
-      }
-
+   function addUpperLines(parent){
       var geometry = new THREE.Geometry();
-      var len = position3Ds.length;
-      for (var i = 1; i < len; ++i) {
-         var p1 = position3Ds[i],
-            p2 = position3Ds[i - 1];
+      var len = contour.uppers.length;
+      for (var i = 0; i < len; ++i) {
+         var p1 = contour.uppers[i][0],
+             p2 = contour.uppers[i][1];
          geometry.vertices.push(p1, p2);
       }
-      openLines = new THREE.Line(geometry, new THREE.LineBasicMaterial({
-         linewidth: _setting.line.lineWidth,
-         color: _setting.line.color,
+      var lineMaterial = new THREE.LineBasicMaterial({
+         linewidth: 3,
+         color: 0x993333,
          transparent: true,
          depthTest: false,
          depthWrite: false
-      }), THREE.LinePieces);
+      });
+      var upperLines = new THREE.Line(geometry, lineMaterial, THREE.LinePieces);
+      parent.add(upperLines);
+   }
 
-      openLines.name = "openLines";
-      addCloseLine(openLines);
+   function drawLines(p3DAry, userOpt) {
+      var defaultOpt = {
+         color: _setting.line.color,
+         linewidth: _setting.line.lineWidth
+      };
+      var drawOpt = $.extend({}, defaultOpt, userOpt);
+
+      if (openLines) {
+         lineGroup.remove(openLines);
+      }
+
+      if (p3DAry.length < 2) {
+         return;
+      }
+      contour.uppers = [];
+      var geometry = new THREE.Geometry();
+      var len = p3DAry.length;
+      for (var i = 1; i < len; ++i) {
+         var p1 = p3DAry[i],
+             p2 = p3DAry[i - 1];
+         if (contour.checkClosed() && p1.y == p2.y && p1.x > p2.x) {
+            contour.uppers.push([p1, p2]);
+         }
+         geometry.vertices.push(p1, p2);
+      }
+      var lineMaterial = new THREE.LineBasicMaterial({
+         linewidth: drawOpt.linewidth,
+         color: drawOpt.color,
+         transparent: true,
+         depthTest: false,
+         depthWrite: false
+      });
+
+      openLines = new THREE.Line(geometry, lineMaterial, THREE.LinePieces);
+      addCloseLine(p3DAry, openLines, lineMaterial);
+      if(contour.uppers.length > 0){
+         addUpperLines(openLines);
+      }
       lineGroup.add(openLines);
    };
 
-   function updateContour(position3D) {
-      drawLines();
-      drawPoints();
+   function updateContour(p3DAry, pointOpt, lineOpt) {
+      drawLines(p3DAry, lineOpt);
+      drawPoints(p3DAry, pointOpt);
    };
 
-
-   this.moveTo = function(newPos, t){
+   this.moveTo = function(newPos, t) {
       if (newPos) {
-         var geometry = openLines.geometry;
-         geometry.computeBoundingBox();
-         var bb = geometry.boundingBox;
-         var middlePos = new THREE.Vector3();
-         middlePos.x = (bb.min.x + bb.max.x) / 2;
-         middlePos.y = (bb.min.y + bb.max.y) / 2;
-        
-         contour.position.x = lineGroup.position.x + newPos.x - middlePos.x;
-         contour.position.y = lineGroup.position.y + newPos.y - middlePos.y;
-         //contour.position.z = t - contour.baseT;
+         //new pos & t
+         var newPos2D = OA.Utils.D3To2(newPos, t);
+         var newPoint2Ds = movePoint2Ds(point2Ds, newPos2D);
+         point2Ds = newPoint2Ds;
       }
-      if(t){
-         contour.position.z = t - contour.baseT;
+      if (t && t != contour.t) {
+         //new t
+         var newPoint2Ds = movePoint2DsByT(point2Ds, t);
+         point2Ds = newPoint2Ds;
          contour.t = t;
       }
+      drawCloseCoutour();
    };
 
    // this.getPoint2D = function(){
@@ -181,70 +220,140 @@ OA.Contour = function(userSetting) {
    //    return ary;
    // };
 
-
-   function movePoint2D(ary, x, y) {
-      var bounds = ClipperLib.JS.BoundsOfPath(ary, 1);
+   function getMiddlePointFromPath(path) {
+      var bounds = ClipperLib.JS.BoundsOfPath(path, 1);
       var mpx = (bounds.left + bounds.right) / 2;
       var mpy = (bounds.top + bounds.bottom) / 2;
+      return {
+         X: mpx,
+         Y: mpy
+      };
+   }
+
+
+   function movePoint2Ds(ary, newPos) {
       var newAry = [];
-      for (var i = 0; i < ary.length; i++) {
-         var p = ary[i];
-         p.X = p.X - mpx +x;
-         p.Y = p.Y - mpy +y;
-         newAry.push(p);
+      if (newPos != undefined) {
+         var middlePoint = getMiddlePointFromPath(ary);
+         for (var i = 0; i < ary.length; i++) {
+            var p = ary[i];
+            p.X = p.X - middlePoint.X + newPos.X;
+            p.Y = p.Y - middlePoint.Y + newPos.Y;
+            newAry.push(p);
+         }
       }
       return newAry;
    }
 
+   function movePoint2DsByT(ary, t) {
+      var newAry = [];
+      var diffT = contour.t - t;
+      if (t != undefined && t != contour.t) {
+         for (var i = 0; i < ary.length; i++) {
+            var p = ary[i];
+            p.X = p.X;
+            p.Y = p.Y - diffT;
+            newAry.push(p);
+         }
+      }
+      return newAry;
+   }
+
+   function fineTunePath(path, scale) {
+      var tunedPath = ClipperLib.Clipper.CleanPolygon(path, 0.1);
+      var orientation = ClipperLib.Clipper.Orientation(tunedPath);
+      if (!orientation) {
+         tunedPath.reverse();
+      }
+      if (scale) {
+         var mp = getMiddlePointFromPath(tunedPath);
+         if (scale > 0) {
+            ClipperLib.JS.ScaleUpPath(tunedPath, scale);
+         } else if (scale < 0) {
+            ClipperLib.JS.ScaleDownPath(tunedPath, -1 * scale);
+         }
+         movePoint2Ds(tunedPath, mp);
+      }
+      return tunedPath;
+   }
+
    this.getPoint2DAry = function() {
-      contour.updateMatrixWorld();
-      var vector;
-      var ary = [];
-      var t = contour.t;
-      for (var i = 0; i < pointGroup.children.length; i++) {
-         vector = new THREE.Vector3();
-         vector.setFromMatrixPosition(pointGroup.children[i].matrixWorld);
-         ary.push({X: vector.x, Y: t - vector.y});
-      }
-
-      var orientation = ClipperLib.Clipper.Orientation(ary);
-      if(!orientation){
-         ary.reverse();
-      }
-
-      //ClipperLib.JS.ScaleUpPath(ary, 2);
-      //var newAry = movePoint2D(ary,  10, 0);
-      return ary;
+      point2Ds = fineTunePath(point2Ds);
+      return point2Ds;
    };
 
+   function convertPoint2DsTo3Ds(p2Ds) {
+      var closePos3Ds = [];
+      var t = contour.t;
+      //  debugger;
+      for (var i = 0; i < p2Ds.length; i++) {
+         var p3D = OA.Utils.D2To3(p2Ds[i], t, "VFACE");
+         closePos3Ds.push(p3D);
+      }
+      return closePos3Ds;
+   }
+
+   function drawCloseCoutour() {
+      var closePos3Ds = convertPoint2DsTo3Ds(point2Ds);
+      updateContour(closePos3Ds, {
+         color: 0x5F8A37,
+         radius: 0.6
+      }, {
+         color: 0x7EB649
+      });
+   }
 
    function closeContour() {
+      isClosed = true;
+
       if (hoverLine) {
          lineGroup.remove(hoverLine);
       }
+
+      if (userPosition3Ds.length < 2) {
+         return;
+      }
+      var t = contour.t;
+
+      //generate point2Ds from position3Ds;
+      for (var i = 0; i < userPosition3Ds.length; i++) {
+         p = {
+            X: userPosition3Ds[i].x,
+            Y: t - userPosition3Ds[i].y
+         };
+         point2Ds.push(p);
+      }
+
+      // resize contour
+      // var mp =getMiddlePointFromPath(point2Ds);
+      // ClipperLib.JS.ScaleUpPath(point2Ds, 2);
+      // movePoint2Ds(point2Ds, mp.X, mp.Y);
+
+      point2Ds = fineTunePath(point2Ds);
+      drawCloseCoutour();
    }
    //public
 
    this.undo = function() {
-      position3Ds.pop();
-      updateContour();
+      userPosition3Ds.pop();
+      updateContour(userPosition3Ds);
       isClosed = false;
    };
 
-   this.addPosition3D = function(position3D) {
-      if(position3Ds.length>2 && OA.Utils.checkEqualPosition(position3Ds[0], position3D) ){
-         isClosed = true;
+   this.addPosition3D = function(inputP) {
+      if (userPosition3Ds.length > 2 && OA.Utils.checkEqualPosition(userPosition3Ds[0], inputP)) {
+         userPosition3Ds.push(inputP);
          closeContour();
+      } else {
+         userPosition3Ds.push(inputP);
+         updateContour(userPosition3Ds);
       }
 
-      position3Ds.push(position3D);
-      updateContour(position3D);
    };
 
-   this.checkClosed = function(){
+   this.checkClosed = function() {
       return isClosed;
    };
-
 
 
    this.drawHoverLine = function(movePosition3D) {
@@ -255,13 +364,13 @@ OA.Contour = function(userSetting) {
       if (hoverLine) {
          lineGroup.remove(hoverLine);
       }
-      var len = position3Ds.length;
+      var len = userPosition3Ds.length;
       if (len < 1) {
          return;
       }
 
       var p1 = movePosition3D,
-         p2 = position3Ds[len - 1],
+         p2 = userPosition3Ds[len - 1],
          geometry = new THREE.Geometry();
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
@@ -292,7 +401,6 @@ OA.Contour = function(userSetting) {
       circle.position.x = p2.x;
       circle.position.y = p2.y;
       circle.position.z = p2.z;
-      //  contour.add(circle);
       hoverLine.add(circle);
       hoverLine.position.z = 0.2;
       lineGroup.add(hoverLine);

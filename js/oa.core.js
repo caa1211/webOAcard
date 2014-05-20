@@ -9,6 +9,25 @@ OA.Utils = {
          console.error(str)
       }
    },
+   D3To2: function(d3p, t){
+      return {X: d3p.x, Y: t - d3p.y};
+   },
+   D2To3: function(d2p, t, type){
+      var d3p = null;
+      if(type === undefined || type === "VFACE"){
+        d3p = new THREE.Vector3(d2p.X, t - d2p.Y , t);
+      }else if(type === "HFACE"){
+        d3p = new THREE.Vector3(d2p.X, t , t + d2p.y);
+      }
+      return d3p;
+   },
+   cleanObject3D: function(object3D){
+      var children = object3D.children;
+      var len = children.length;
+      for(var i=0; i<len;i++){
+        object3D.remove(children[0]);
+      }
+   },
    ary2Point2Dary: function(ary){
       var point2Dary = ary.map(function(i) {
         return {

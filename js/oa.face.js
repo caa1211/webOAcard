@@ -129,7 +129,7 @@ OA.Face = function(userSetting) {
      
       var addingLines = new THREE.Line(geometry, new THREE.LineDashedMaterial({
          linewidth: 4,
-         color: 0xC6AB8E
+         color: 0x336699
       }));
 
       face.add(addingLines);

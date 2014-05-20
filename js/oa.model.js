@@ -4,8 +4,8 @@ OA.Model = function(userSetting) {
 
   //private
   var _def = {
-    cardW: 64,
-    cardH: 90,
+    cardW: 640,
+    cardH: 400,
     gridNum: 20,
     initAngle: 90
   };
@@ -72,20 +72,20 @@ OA.Model = function(userSetting) {
       model.add(liveContour);
     }
     //cameraCtrl.enabled = false;
-    movePoint.setColor(1);
+    movePoint.setColorByIndex(1);
   }
 
   function enterContourNoEditingState() {
     model.contourState = contourStateType.NO_EDITING;
     model.remove(liveContour);
     liveContour = null;
-    cameraCtrl.enabled = true;
-    movePoint.setColor(0);
+    //cameraCtrl.enabled = true;
+    movePoint.setColorByIndex(0);
   }
 
   function enterContourCloseState() {
     model.contourState = contourStateType.CLOSE;
-    movePoint.setColor(2);
+    movePoint.setColorByIndex(2);
   }
 
 
@@ -328,19 +328,23 @@ OA.Model = function(userSetting) {
 
             if(liveContour!=null){
               if (model.contourState === contourStateType.EDITING) {
-                movePoint.setColor(1);
+                movePoint.setColorByIndex(1);
                 var pos3Ds = liveContour.getPosition3Ds();
                 var movePointPos = movePoint.getPosition3D();
                 var distFromFitstP;
               try{
                 distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
-                if (pos3Ds.length > 2 && distFromFitstP < gridStep *2) {
+                //uto attract
+                if (pos3Ds.length > 2 && distFromFitstP < gridStep*1.5) {
                   movePoint.setPosition3D(pos3Ds[0]);
-                  movePoint.setColor(2);
+                  movePoint.setColorByIndex(2);
                 }
+               // if(  OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
+               //     movePoint.setColorByIndex(2);
+               //  }
                 liveContour.drawHoverLine(movePoint.getPosition3D());
               }catch(e){
-                debugger;
+                console.error("!! distanceTo exception !!");
               }
               }else if(model.contourState === contourStateType.CLOSE){
                 
