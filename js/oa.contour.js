@@ -7,7 +7,7 @@ OA.Contour = function(userSetting) {
       },
       line: {
          color: 0x6ECAE6,
-         lineWidth: 3
+         lineWidth: 2.5
          //color: 0xE7AB6D
       },
       startPointSize: 1
@@ -181,6 +181,21 @@ OA.Contour = function(userSetting) {
    //    return ary;
    // };
 
+
+   function movePoint2D(ary, x, y) {
+      var bounds = ClipperLib.JS.BoundsOfPath(ary, 1);
+      var mpx = (bounds.left + bounds.right) / 2;
+      var mpy = (bounds.top + bounds.bottom) / 2;
+      var newAry = [];
+      for (var i = 0; i < ary.length; i++) {
+         var p = ary[i];
+         p.X = p.X - mpx +x;
+         p.Y = p.Y - mpy +y;
+         newAry.push(p);
+      }
+      return newAry;
+   }
+
    this.getPoint2DAry = function() {
       contour.updateMatrixWorld();
       var vector;
@@ -191,6 +206,14 @@ OA.Contour = function(userSetting) {
          vector.setFromMatrixPosition(pointGroup.children[i].matrixWorld);
          ary.push({X: vector.x, Y: t - vector.y});
       }
+
+      var orientation = ClipperLib.Clipper.Orientation(ary);
+      if(!orientation){
+         ary.reverse();
+      }
+
+      //ClipperLib.JS.ScaleUpPath(ary, 2);
+      //var newAry = movePoint2D(ary,  10, 0);
       return ary;
    };
 
