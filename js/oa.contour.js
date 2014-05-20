@@ -7,7 +7,8 @@ OA.Contour = function(userSetting) {
       },
       line: {
          color: 0x6ECAE6
-      }
+      },
+      startPointSize: 1
    };
    var contour = this;
    var isClosed = false;
@@ -19,7 +20,11 @@ OA.Contour = function(userSetting) {
    var _setting = $.extend({}, _def, userSetting);
    var hoverLine = null;
    var circleGroup = null;
+   var baseT = null;
+
    var init = function() {
+      contour.t = _setting.t;
+      contour.baseT = _setting.t;
       if (!lineGroup) {
          lineGroup = new THREE.Object3D();
          contour.add(lineGroup);
@@ -45,25 +50,35 @@ OA.Contour = function(userSetting) {
       var pLen = position3Ds.length;
       var radius = 0.5;
       var segments = 32;
-      var p;
+      var p, r, c;
       var material;
       var circleGeometry;
       var circle;
 
       for (var i = 0; i < pLen; ++i) {
          p = position3Ds[i];
-         material = new THREE.MeshBasicMaterial({
-            color: _setting.point.color
-         });
-         circleGeometry = new THREE.CircleGeometry(radius, segments);
-         material = new THREE.MeshBasicMaterial({
-            color: _setting.point.color
-         });
-         circle = new THREE.Mesh(circleGeometry, material);
-         circle.position.x = p.x;
-         circle.position.y = p.y;
-         circle.position.z = p.z;
-         pointGroup.add(circle);
+         if (i == 0) {
+            circle = new OA.Point({scale: _setting.startPointSize});
+            circle.setColor(3);
+         } else {
+            if (i === 0) {
+               r = radius * 1.3;
+            } else {
+               r = radius;
+            }
+            circleGeometry = new THREE.CircleGeometry(r, segments);
+            material = new THREE.MeshBasicMaterial({
+               color: _setting.point.color,
+               transparent: true
+            });
+            circle = new THREE.Mesh(circleGeometry, material);
+
+         }
+            circle.position.x = p.x;
+            circle.position.y = p.y;
+            circle.position.z = p.z;
+            pointGroup.add(circle);
+
       }
       pointGroup.position.z = 0.2;
       contour.add(pointGroup);
@@ -84,7 +99,6 @@ OA.Contour = function(userSetting) {
 
       }));
       parent.add(closeLine);
-
    }
 
    function drawLines() {
@@ -107,7 +121,7 @@ OA.Contour = function(userSetting) {
          color: _setting.line.color
       }), THREE.LinePieces);
 
-
+      openLines.name = "openLines";
       addCloseLine(openLines);
       lineGroup.add(openLines);
    };
@@ -117,8 +131,41 @@ OA.Contour = function(userSetting) {
       drawPoints();
    };
 
-   function closeContour(){
-        if (hoverLine) {
+
+   this.moveTo = function(newPos, t){
+      if (newPos) {
+         var geometry = openLines.geometry;
+         geometry.computeBoundingBox();
+         var bb = geometry.boundingBox;
+         var middlePos = new THREE.Vector3();
+         middlePos.x = (bb.min.x + bb.max.x) / 2;
+         middlePos.y = (bb.min.y + bb.max.y) / 2;
+        
+         contour.position.x = lineGroup.position.x + newPos.x - middlePos.x;
+         contour.position.y = lineGroup.position.y + newPos.y - middlePos.y;
+         //contour.position.z = t - contour.baseT;
+      }
+      if(t){
+         contour.position.z = t - contour.baseT;
+         contour.t = t;
+      }
+   };
+
+   this.getPoint2Ds = function(){
+      contour.updateMatrixWorld();
+      var vector;
+      var ary = [];
+      var t = contour.t;
+      for (var i = 0; i < pointGroup.children.length; i++) {
+         vector = new THREE.Vector3();
+         vector.setFromMatrixPosition(pointGroup.children[i].matrixWorld);
+         ary.push([vector.x, t - vector.y]);
+      }
+      return ary;
+   };
+
+   function closeContour() {
+      if (hoverLine) {
          lineGroup.remove(hoverLine);
       }
    }
@@ -135,6 +182,7 @@ OA.Contour = function(userSetting) {
          isClosed = true;
          closeContour();
       }
+
       position3Ds.push(position3D);
       updateContour(position3D);
    };
@@ -143,9 +191,7 @@ OA.Contour = function(userSetting) {
       return isClosed;
    };
 
-   this.closeCoutour = function() {
 
-   };
 
    this.drawHoverLine = function(movePosition3D) {
       if (!lineGroup) {

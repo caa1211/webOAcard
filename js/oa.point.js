@@ -1,7 +1,7 @@
 OA.Point = function(userSetting) {
 
     THREE.Object3D.call(this);
-    var colorMap = [0x074CA6, 0xD02C55, 0x5F8A37];
+    var colorMap = [0x074CA6, 0xD02C55, 0x5F8A37, 0x5F8A37];
     //private
     var _def = {
         "scale": 1,
@@ -34,7 +34,8 @@ OA.Point = function(userSetting) {
             opacity: borderSetting.opacity,
             useScreenCoordinates: false,
             color: borderSetting.color,
-            depthTest: false
+            depthTest: false,
+            depthWrite: false
         });
 
         var particle = new THREE.Particle(borderMaterial);
@@ -47,7 +48,8 @@ OA.Point = function(userSetting) {
             opacity: innerSettng.opacity,
             useScreenCoordinates: false,
             color: innerSettng.color,
-            depthTest: false
+            depthTest: false,
+            depthWrite: false
         });
         particle2.material = innerMaterial;
         particle2.scale.x = particle2.scale.y = particle2.scale.z = _setting.scale * innerSettng.size;

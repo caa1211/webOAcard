@@ -162,6 +162,8 @@ OA.Face = function(userSetting) {
          createAddingLine(face);
       }
      
+         face.updateMatrix();
+      face.updateMatrixWorld();
       applyAngle(face, _setting.initAngle);
       return face;
    };

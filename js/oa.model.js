@@ -48,7 +48,7 @@ OA.Model = function(userSetting) {
 
   function getHoverPosition(intersector) {
     if (intersector.face === null) {
-      OA.log(intersector)
+      //OA.log(intersector)
     }
     var cx = Math.floor((intersector.point.x / gridStep) + 0.5) * gridStep,
       cy = Math.floor((intersector.point.y / gridStep) + 0.5) * gridStep,
@@ -68,10 +68,10 @@ OA.Model = function(userSetting) {
   function enterContourEditingState() {
     model.contourState = contourStateType.EDITING;
     if(liveContour == null){
-      liveContour = new OA.Contour();
+      liveContour = new OA.Contour({startPointSize: gridStep, t: editPlane.oaInfo.t});
       model.add(liveContour);
     }
-    cameraCtrl.enabled = false;
+    //cameraCtrl.enabled = false;
     movePoint.setColor(1);
   }
 
@@ -95,9 +95,8 @@ OA.Model = function(userSetting) {
     if (movePoint.isVisible) {
        cameraCtrl.noZoom = true;
        cameraCtrl.noRotate = true;
-      //add point
-        if(event.which ===1 ){
 
+        if(event.which ===1 ){
            if(liveContour === null){
               enterContourEditingState();
            }
@@ -107,41 +106,70 @@ OA.Model = function(userSetting) {
              if(liveContour.checkClosed()){
                 enterContourCloseState();
              }
+           }else{
+
+              var ary = liveContour.getPoint2Ds();
+              enterContourNoEditingState();
+
+              var newFace = new OA.Face({
+                t: editPlane.oaInfo.t,
+                contours: [{
+                  "outer": ary.map(function(i) {
+                    return {
+                      "X": i[0],
+                      "Y": i[1]
+                    };
+                  }),
+                  "holes": [
+                    [ /*points*/ ]
+                  ]
+                }],
+                type: "VFACE"
+              });
+
+              faces.push(newFace);
+              refreshFaceGroup.add(newFace);
+
            }
         }else if(event.which === 3){
 
-           if(model.contourState !== contourStateType.NO_EDITING){
+           if(model.contourState === contourStateType.EDITING){
              if(liveContour.getPointSize()>1){
                 liveContour.undo();
-                if(model.contourState == contourStateType.CLOSE){
-                   enterContourEditingState();
-                }
+                // if(model.contourState == contourStateType.CLOSE){
+                //    enterContourEditingState();
+                // }
              }else if(liveContour.getPointSize()===1){
                 liveContour.undo();
                 enterContourNoEditingState();
                 event.stopImmediatePropagation();
              }
            }
-
+           else if(model.contourState === contourStateType.CLOSE){
+                $(window).bind("mousemove", onDragContour);
+           }
+        
         }
       
     }
   }
 
+  function onDragContour(event){
+     liveContour.moveTo(movePoint.getPosition3D(), editPlane.oaInfo.t);
+  }
 
   function onMouseup(event){
+    $(window).unbind("mousemove", onDragContour);
     event.preventDefault();
     cameraCtrl.noZoom = false;
     cameraCtrl.noRotate = false;
-    
   }
 
   function onMousewheel(event, delta, deltaX, deltaY) {
     event.preventDefault();
     if(editPlane.isVisible && model.contourState!==contourStateType.EDITING){
-
       var d = ((deltaY < 0) ? 1 : -1);
-      OA.log(delta, deltaX, deltaY);
+      //OA.log(delta, deltaX, deltaY);
       var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d , 4);
       if (d > 0 && newDist < cardH) {
         editPlane.position.z = newDist+0.1;
@@ -151,6 +179,12 @@ OA.Model = function(userSetting) {
         editPlane.position.z = newDist+0.1;
         editPlane.oaInfo.t = newDist;
       }
+
+      if(model.contourState === contourStateType.CLOSE){
+        liveContour.moveTo(null, editPlane.oaInfo.t);
+      }
+
+
     }
 
     if(foldable){
@@ -227,9 +261,10 @@ OA.Model = function(userSetting) {
     faces.push(hFace);
     refreshFaceGroup.add(hFace);
 
+    var editBufferY = gridStep*4;
     var pEditAry = [
-      [0, 5],
-      [cardW, 5],
+      [0, editBufferY],
+      [cardW, editBufferY],
       [cardW, -cardH],
       [0, -cardH]
     ];
@@ -257,7 +292,7 @@ OA.Model = function(userSetting) {
         s: gridStep,
         color: 0x1F6CBD,
         opacity: 0.2,
-        extendY: 5
+        extendY: editBufferY
       }
     });
     editPlane.name = "editPlane";
