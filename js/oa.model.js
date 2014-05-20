@@ -5,7 +5,7 @@ OA.Model = function(userSetting) {
   //private
   var _def = {
     cardW: 64,
-    cardH: 80,
+    cardH: 90,
     gridNum: 20,
     initAngle: 90
   };
@@ -18,7 +18,7 @@ OA.Model = function(userSetting) {
   var gridStep = cardW / _setting.gridNum;
   var movePoint = new OA.Point({scale: gridStep});
   var model = this;
-  var faces = [];
+  var userFaces = [];
   var edges = [];
   var raycaster = null;
   var camera = null;
@@ -89,6 +89,24 @@ OA.Model = function(userSetting) {
   }
 
 
+  function addSimpleFaceToModel(pointAry, faceType, t){
+    var rt = 0;
+    if(editPlane && editPlane.oaInfo && editPlane.oaInfo.t){
+      rt = editPlane.oaInfo.t;
+    }
+    var newFace = new OA.Face({
+      t: rt,
+      contours: [{
+        "outer": pointAry,
+        "holes": [
+          [ /*points*/ ]
+        ]
+      }],
+      type: faceType
+    });
+    userFaces.push(newFace);
+    refreshFaceGroup.add(newFace);
+  }
 
   function onMousedown(event){
     event.preventDefault();
@@ -108,28 +126,11 @@ OA.Model = function(userSetting) {
              }
            }else{
 
-              var ary = liveContour.getPoint2Ds();
+              var ary = liveContour.getPoint2DAry();
               enterContourNoEditingState();
-
-              var newFace = new OA.Face({
-                t: editPlane.oaInfo.t,
-                contours: [{
-                  "outer": ary.map(function(i) {
-                    return {
-                      "X": i[0],
-                      "Y": i[1]
-                    };
-                  }),
-                  "holes": [
-                    [ /*points*/ ]
-                  ]
-                }],
-                type: "VFACE"
-              });
-
-              faces.push(newFace);
-              refreshFaceGroup.add(newFace);
-
+              if(ary.length>2){
+                 addSimpleFaceToModel(ary, "VFACE");
+              }
            }
         }else if(event.which === 3){
 
@@ -183,8 +184,6 @@ OA.Model = function(userSetting) {
       if(model.contourState === contourStateType.CLOSE){
         liveContour.moveTo(null, editPlane.oaInfo.t);
       }
-
-
     }
 
     if(foldable){
@@ -200,35 +199,6 @@ OA.Model = function(userSetting) {
   }
 
   var init = function() {
-    
-    var pAryV = [
-      [0, 0],
-      [cardW, 0],
-      [cardW, -cardH],
-      [0, -cardH]
-    ];
-    //var pAry = [[0, -cardH], [cardW, -cardH], [cardW, 0], [0, 0]];
-
-    var vFace = new OA.Face({
-      contours: [{
-        "outer": pAryV.map(function(i) {
-          return {
-            "X": i[0],
-            "Y": i[1]
-          };
-        }),
-        "holes": [
-          [ /*points*/ ]
-        ]
-      }],
-      //   contours
-      type: "VFACE"
-    });
-
-    faces.push(vFace);
-    refreshFaceGroup.add(vFace);
-
-
     // var tFace = new OA.Face({
     //   contours: OA.Utils.getTestExPolygonTree(),
     //   //   contours
@@ -237,38 +207,13 @@ OA.Model = function(userSetting) {
 
     // faces.push(tFace);
     // refreshFaceGroup.add(tFace);
-
-    var pAryH = [
-      [0, 0],
-      [cardW, 0],
-      [cardW, cardH],
-      [0, cardH]
-    ];
-    var hFace = new OA.Face({
-      contours: [{
-        "outer": pAryH.map(function(i) {
-          return {
-            "X": i[0],
-            "Y": i[1]
-          };
-        }),
-        "holes": [
-          [ /*points*/ ]
-        ]
-      }],
-      type: "HFACE"
-    });
-    faces.push(hFace);
-    refreshFaceGroup.add(hFace);
-
-    var editBufferY = gridStep*4;
+    var editBufferY = gridStep * 4;
     var pEditAry = [
       [0, editBufferY],
       [cardW, editBufferY],
       [cardW, -cardH],
       [0, -cardH]
     ];
-
     editPlane = new OA.Face({
       contours: [{
         "outer": pEditAry.map(function(i) {
@@ -286,7 +231,7 @@ OA.Model = function(userSetting) {
       opacity: 0,
       depthTest: false,
       depthWrite: false,
-      borderColor: 0x237BD7,
+      borderColor: 0x5399E3,
       addingLine: [[0, 0],[cardW, 0]],
       gridData: {
         w: cardW,
@@ -298,9 +243,28 @@ OA.Model = function(userSetting) {
       }
     });
     editPlane.name = "editPlane";
-    //editPlane.isVisible = true;
     model.add(editPlane);
     model.add(movePoint);
+
+
+    var pAryV = [
+      [0, 0],
+      [cardW, 0],
+      [cardW, -cardH],
+      [0, -cardH]
+    ];
+    //base vface
+    addSimpleFaceToModel(OA.Utils.ary2Point2Dary(pAryV), "VFACE");
+    var pAryH = [
+      [0, 0],
+      [cardW, 0],
+      [cardW, cardH],
+      [0, cardH]
+    ];
+    //base hface
+    addSimpleFaceToModel(OA.Utils.ary2Point2Dary(pAryH), "HFACE");
+
+
     bindEvents();
     model.updateCardAngle();
     return model;
@@ -319,13 +283,15 @@ OA.Model = function(userSetting) {
   };
 
   this.updateCardAngle = function() {
+    var faces = userFaces;
     if (refreshFaceGroup.cardAngle !== cardAngle){
       model.remove(refreshFaceGroup)
       refreshFaceGroup = new THREE.Object3D();
       refreshFaceGroup.cardAngle = cardAngle;
       for (var i = 0; i < faces.length; i++) {
-        refreshFaceGroup.add(faces[i]);
-        faces[i].setAngle(cardAngle);
+        var f = faces[i];
+        refreshFaceGroup.add(f);
+        f.setAngle(cardAngle);
       }
       model.add(refreshFaceGroup);
      }
@@ -368,7 +334,7 @@ OA.Model = function(userSetting) {
                 var distFromFitstP;
               try{
                 distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
-                if (pos3Ds.length > 2 && distFromFitstP < gridStep *1.5) {
+                if (pos3Ds.length > 2 && distFromFitstP < gridStep *2) {
                   movePoint.setPosition3D(pos3Ds[0]);
                   movePoint.setColor(2);
                 }

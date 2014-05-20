@@ -12,8 +12,8 @@ OA.Face = function(userSetting) {
       type: "HFACE", //HFACE or VFACE,
       opacity: 1,
       gridData: {},
-      borderColor: 0x374F69,
-      borderWidth: 3,
+      borderColor: 0x333333,
+      borderWidth: 2.5,
       initAngle: 90,
       addingLine: null,
       depthTest: true,
@@ -129,7 +129,7 @@ OA.Face = function(userSetting) {
      
       var addingLines = new THREE.Line(geometry, new THREE.LineDashedMaterial({
          linewidth: 4,
-         color: 0x666666
+         color: 0xC6AB8E
       }));
 
       face.add(addingLines);

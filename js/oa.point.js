@@ -7,12 +7,12 @@ OA.Point = function(userSetting) {
         "scale": 1,
         "border": {
             color: colorMap[0],
-            opacity: 1,
+            opacity: 0.5,
             size: 1.8
         },
         "inner": {
-            color: 0xff0000,
-            opacity: 0.5,
+            color: colorMap[0],
+            opacity: 1,
             size: 1
         }
     };
@@ -101,6 +101,7 @@ OA.Point = function(userSetting) {
     this.setColor = function(index) {
         if (index < colorMap.length) {
             borderMaterial.color.setHex(colorMap[index]);
+            innerMaterial.color.setHex(colorMap[index]);
         }
     };
 

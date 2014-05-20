@@ -1,6 +1,6 @@
 var OA = {
    REVISION: 'r01',
-   debugMode: false
+   debugMode: true
 };
 
 OA.Utils = {
@@ -8,6 +8,15 @@ OA.Utils = {
       if(OA.debugMode){
          console.error(str)
       }
+   },
+   ary2Point2Dary: function(ary){
+      var point2Dary = ary.map(function(i) {
+        return {
+          "X": i[0],
+          "Y": i[1]
+        };
+      });
+      return point2Dary;
    },
    checkEqualPosition: function(pos1, pos2){
         if(pos1 === undefined||pos2===undefined){

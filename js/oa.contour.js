@@ -6,7 +6,9 @@ OA.Contour = function(userSetting) {
          color: 0x498698
       },
       line: {
-         color: 0x6ECAE6
+         color: 0x6ECAE6,
+         lineWidth: 3
+         //color: 0xE7AB6D
       },
       startPointSize: 1
    };
@@ -48,7 +50,7 @@ OA.Contour = function(userSetting) {
       }
       pointGroup = new THREE.Object3D();
       var pLen = position3Ds.length;
-      var radius = 0.5;
+      var radius = 0.6;
       var segments = 32;
       var p, r, c;
       var material;
@@ -88,7 +90,7 @@ OA.Contour = function(userSetting) {
             pointGroup.add(circle);
 
       }
-      pointGroup.position.z = 0.2;
+      pointGroup.position.z = 0.3;
       contour.add(pointGroup);
    }
 
@@ -100,8 +102,9 @@ OA.Contour = function(userSetting) {
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
       var closeLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
-         linewidth: 3,
-         color: 0xE69E6E,
+         linewidth: _setting.line.lineWidth,
+         color: 0x498698,
+         opacity: 0.5,
          dashSize: 1,
          gapSize: 0.5,
          transparent: true,
@@ -128,7 +131,7 @@ OA.Contour = function(userSetting) {
          geometry.vertices.push(p1, p2);
       }
       openLines = new THREE.Line(geometry, new THREE.LineBasicMaterial({
-         linewidth: 3,
+         linewidth: _setting.line.lineWidth,
          color: _setting.line.color,
          transparent: true,
          depthTest: false,
@@ -165,7 +168,20 @@ OA.Contour = function(userSetting) {
       }
    };
 
-   this.getPoint2Ds = function(){
+   // this.getPoint2D = function(){
+   //    contour.updateMatrixWorld();
+   //    var vector;
+   //    var ary = [];
+   //    var t = contour.t;
+   //    for (var i = 0; i < pointGroup.children.length; i++) {
+   //       vector = new THREE.Vector3();
+   //       vector.setFromMatrixPosition(pointGroup.children[i].matrixWorld);
+   //       ary.push([vector.x, t - vector.y]);
+   //    }
+   //    return ary;
+   // };
+
+   this.getPoint2DAry = function() {
       contour.updateMatrixWorld();
       var vector;
       var ary = [];
@@ -173,10 +189,11 @@ OA.Contour = function(userSetting) {
       for (var i = 0; i < pointGroup.children.length; i++) {
          vector = new THREE.Vector3();
          vector.setFromMatrixPosition(pointGroup.children[i].matrixWorld);
-         ary.push([vector.x, t - vector.y]);
+         ary.push({X: vector.x, Y: t - vector.y});
       }
       return ary;
    };
+
 
    function closeContour() {
       if (hoverLine) {
@@ -226,7 +243,7 @@ OA.Contour = function(userSetting) {
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
       hoverLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
-         linewidth: 3,
+         linewidth: _setting.line.lineWidth,
          color: 0xff0000,
          opacity: 0.5,
          transparent: true,
@@ -238,11 +255,11 @@ OA.Contour = function(userSetting) {
       }));
 
 
-      var radius = 0.5;
+      var radius = 0.6;
       var segments = 32;
       var material = new THREE.MeshBasicMaterial({
-         color: 0xff0000,
-         opacity: 0.5,
+         color: 0xD02C55,
+         opacity: 1,
          transparent: true,
          depthTest: false,
          depthWrite: false
