@@ -10,7 +10,7 @@ OA.Face = function(userSetting) {
       }],
       t: 0,
       baseContour: null,
-      uppers2Ds: null,
+      upper2Ds: null,
       type: "HFACE", //HFACE or VFACE,
       opacity: 1,
       gridData: {},
@@ -20,7 +20,7 @@ OA.Face = function(userSetting) {
       addingLine: null,
       depthTest: true,
       depthWrite: true,
-      name: null
+      name: null,
    };
    var face = this;
    var isAngleFrom0 = false;
@@ -47,6 +47,7 @@ OA.Face = function(userSetting) {
          color: _setting.borderColor
       }));
    };
+
 
    var getObject3DByCoutours = function(contours) {
       var exPolygons = contours;
@@ -187,6 +188,15 @@ OA.Face = function(userSetting) {
    this.setAngle = function(angle) {
       applyAngle(this, angle);
    };
+   
+   this.getT = function(){
+      return face.oaInfo.t;
+   };
+
+   this.setT = function(t){
+      face.oaInfo.t = t;
+   };
+
 
    function applyAngle(face, angle) {
 
@@ -269,6 +279,10 @@ OA.Face = function(userSetting) {
       }
 
    }
+
+   this.getUpper2Ds = function(){
+      return _setting.upper2Ds;
+   };
 
    this.getFaceMesh = function() {
       return faceMesh;

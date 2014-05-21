@@ -282,15 +282,15 @@ OA.Contour = function(userSetting) {
       return point2Ds;
    };
 
-   this.getUppers2Ds = function(){
-      var uppers2Ds = [];
+   this.getUpper2Ds = function(){
+      var upper2Ds = [];
       var upper3Ds = contour.uppers;
       var D3To2 = OA.Utils.D3To2;
       var t = contour.t;
       for (i = 0; i < upper3Ds.length; i++) {
-         uppers2Ds.push([D3To2(upper3Ds[i][0], t), D3To2(upper3Ds[i][1], t)]);
+         upper2Ds.push([D3To2(upper3Ds[i][0], t), D3To2(upper3Ds[i][1], t)]);
       }
-      return uppers2Ds;
+      return upper2Ds;
    };
 
    this.getContourData = function(){

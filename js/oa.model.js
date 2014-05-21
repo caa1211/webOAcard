@@ -52,9 +52,15 @@ OA.Model = function(userSetting) {
     if (intersector.face === null) {
       //OA.log(intersector)
     }
+    var intersectorObj = intersector.object;
     var cx = Math.floor((intersector.point.x / gridStep) + 0.5) * gridStep,
       cy = Math.floor((intersector.point.y / gridStep) + 0.5) * gridStep,
-      cz = intersector.object.parent.oaInfo.t;
+      cz = 0;
+    if (intersectorObj.parent instanceof OA.Face) {
+      cz = intersectorObj.parent.getT && intersectorObj.parent.getT();
+    }else{
+      console.error("do not get correct intersector position!");
+    }
     return new THREE.Vector3(cx, cy, cz);
   }
 
@@ -70,7 +76,7 @@ OA.Model = function(userSetting) {
   function enterContourEditingState() {
     model.contourState = contourStateType.EDITING;
     if(liveContour == null){
-      liveContour = new OA.Contour({startPointSize: gridStep, t: editPlane.oaInfo.t});
+      liveContour = new OA.Contour({startPointSize: gridStep, t: editPlane.getT()});
       model.add(liveContour);
     }
     //cameraCtrl.enabled = false;
@@ -94,8 +100,8 @@ OA.Model = function(userSetting) {
     var rt = 0;
     if(t){
       rt = t;
-    }else if(editPlane && editPlane.oaInfo && editPlane.oaInfo.t){
-      rt = editPlane.oaInfo.t;
+    }else if(editPlane && editPlane.getT){
+      rt = editPlane.getT();
     }
     var _opt = {
       t: rt,
@@ -108,9 +114,7 @@ OA.Model = function(userSetting) {
       type: faceType
     }
     $.extend(_opt, opt);
-    var face = new OA.Face(_opt);
-    //face.setAngle(cardAngle);
-    return face;
+    return new OA.Face(_opt);
   }
 
   function addFaceByContour(contour) {
@@ -121,7 +125,7 @@ OA.Model = function(userSetting) {
     if (point2Ds.length > 2) {
       var newFace = createFace(point2Ds, "VFACE", contour.t,{
         baseContour: contour,
-        upper2Ds: contour.getUppers2Ds()
+        upper2Ds: contour.getUpper2Ds()
       });
       //refreshFaceGroup.add(newFace);
       userFaces.push(newFace);
@@ -184,7 +188,7 @@ OA.Model = function(userSetting) {
   }
 
   function onDragContour(event){
-     liveContour.moveTo(movePoint.getPosition3D(), editPlane.oaInfo.t);
+     liveContour.moveTo(movePoint.getPosition3D(), editPlane.getT());
   }
 
   function onMouseup(event){
@@ -199,18 +203,18 @@ OA.Model = function(userSetting) {
     if(editPlane.isVisible && model.contourState!==contourStateType.EDITING){
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
-      var newDist = formatFloat(editPlane.oaInfo.t + gridStep * d , 4);
+      var newDist = formatFloat(editPlane.getT() + gridStep * d , 4);
       if (d > 0 && newDist < cardH) {
         editPlane.position.z = newDist+0.1;
-        editPlane.oaInfo.t = newDist;
+        editPlane.setT(newDist);
         // viewerR += gridStep;
       } else if (d < 0 && newDist >= 0) {
         editPlane.position.z = newDist+0.1;
-        editPlane.oaInfo.t = newDist;
+        editPlane.setT(newDist);
       }
 
       if(model.contourState === contourStateType.CLOSE){
-        liveContour.moveTo(null, editPlane.oaInfo.t);
+        liveContour.moveTo(null, editPlane.getT());
       }
     }
 
