@@ -88,6 +88,28 @@ OA.Model = function(userSetting) {
     movePoint.setColorByIndex(2);
   }
 
+  var oaClipper = function(faces){
+     //### Create hface_list ###
+     //1. create sort_vface_list (sort by t big->small)
+     //2. create upper_list (sort by 2D z)
+     //2. for each uppper in upper_list
+     //3. create HFACE
+     //  3.1 create baseHFace from upper
+     //  3.2 for any vface in sort_vface_list
+     //  3.3 create tmpHFace from upper to vface
+     //  3.4 create tempvface (tempHFace sub vface)
+     //  3.5 baseHFace = baseHFace - tempvface
+     //  3.6 if baseHFace is become 2 pieces 
+     //      3.6.1 baseHFace  = the piece which connect with upper
+     //      3.6.2 if baseHFace is null, break for loop; and else, continue to check next vface
+     //4. store baseHFACE to hface_list
+
+     //###Add to model###
+     //1. add each vface in reverse sort_vface_list to model ()
+     //2. add each hface in hface_list to model
+
+  }
+  
 
   function addSimpleFaceToModel(pointAry, faceType, t){
     var rt = 0;
@@ -104,7 +126,8 @@ OA.Model = function(userSetting) {
       }],
       type: faceType
     });
-    userFaces.push(newFace);
+    userFaces.push(newFace);//
+    //oaClipper(userFaces);
     refreshFaceGroup.add(newFace);
   }
 
@@ -125,12 +148,12 @@ OA.Model = function(userSetting) {
                 enterContourCloseState();
              }
            }else{
-
               var ary = liveContour.getPoint2DAry();
-              enterContourNoEditingState();
-              if(ary.length>2){
-                 addSimpleFaceToModel(ary, "VFACE");
+              if (ary.length > 2) {
+                //has vaild contour
+                addSimpleFaceToModel(ary, "VFACE");
               }
+              enterContourNoEditingState();
            }
         }else if(event.which === 3){
 
