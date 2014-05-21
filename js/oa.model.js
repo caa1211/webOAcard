@@ -7,7 +7,7 @@ OA.Model = function(userSetting) {
     cardW: 640,
     cardH: 400,
     gridNum: 20,
-    initAngle: 130
+    initAngle: 90
   };
 
   var editPlane = null;
@@ -261,9 +261,9 @@ OA.Model = function(userSetting) {
           name: "editPlane"
     });
     model.add(editPlane);
-
+    //refreshFaceGroup.add(editPlane);
     model.add(movePoint);
-
+    
     var pAryV = [
       [0, 0],
       [cardW, 0],
