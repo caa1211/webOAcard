@@ -28,14 +28,14 @@ OA.Utils = {
         object3D.remove(children[0]);
       }
    },
-   ary2Point2Dary: function(ary){
-      var point2Dary = ary.map(function(i) {
+   ary2Point2Ds: function(ary){
+      var point2Ds = ary.map(function(i) {
         return {
           "X": i[0],
           "Y": i[1]
         };
       });
-      return point2Dary;
+      return point2Ds;
    },
    checkEqualPosition: function(pos1, pos2){
         if(pos1 === undefined||pos2===undefined){

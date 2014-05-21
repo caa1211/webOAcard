@@ -11,20 +11,22 @@ OA.Model = function(userSetting) {
   };
 
   var editPlane = null;
-
-  
   var _setting = $.extend({}, _def, userSetting);
   var cardW = _setting.cardW, cardH = _setting.cardH;
   var gridStep = cardW / _setting.gridNum;
   var movePoint = new OA.Point({scale: gridStep});
   var model = this;
   var userFaces = [];
+  var clippedFaces = [];
+  var baseVFace, baseHFace;
   var edges = [];
   var raycaster = null;
-  var camera = null;
   var cardAngle = _setting.initAngle;
   var refreshFaceGroup = new THREE.Object3D();
-  var cameraCtrl = null;
+  var cameraCtrl = {
+    noZoom: false,
+    noRotate: false
+  };
   refreshFaceGroup.cardAngle = null;
   var foldable = true;
   var liveContour = null;
@@ -87,48 +89,47 @@ OA.Model = function(userSetting) {
     model.contourState = contourStateType.CLOSE;
     movePoint.setColorByIndex(2);
   }
-
-  var oaClipper = function(faces){
-     //### Create hface_list ###
-     //1. create sort_vface_list (sort by t big->small)
-     //2. create upper_list (sort by 2D z)
-     //2. for each uppper in upper_list
-     //3. create HFACE
-     //  3.1 create baseHFace from upper
-     //  3.2 for any vface in sort_vface_list
-     //  3.3 create tmpHFace from upper to vface
-     //  3.4 create tempvface (tempHFace sub vface)
-     //  3.5 baseHFace = baseHFace - tempvface
-     //  3.6 if baseHFace is become 2 pieces 
-     //      3.6.1 baseHFace  = the piece which connect with upper
-     //      3.6.2 if baseHFace is null, break for loop; and else, continue to check next vface
-     //4. store baseHFACE to hface_list
-
-     //###Add to model###
-     //1. add each vface in reverse sort_vface_list to model ()
-     //2. add each hface in hface_list to model
-
-  }
   
-
-  function addSimpleFaceToModel(pointAry, faceType, t){
+  function createFace(point2Ds, faceType, t, opt){
     var rt = 0;
-    if(editPlane && editPlane.oaInfo && editPlane.oaInfo.t){
+    if(t){
+      rt = t;
+    }else if(editPlane && editPlane.oaInfo && editPlane.oaInfo.t){
       rt = editPlane.oaInfo.t;
     }
-    var newFace = new OA.Face({
+    var _opt = {
       t: rt,
       contours: [{
-        "outer": pointAry,
+        "outer": point2Ds,
         "holes": [
           [ /*points*/ ]
         ]
       }],
       type: faceType
-    });
-    userFaces.push(newFace);//
-    //oaClipper(userFaces);
-    refreshFaceGroup.add(newFace);
+    }
+    $.extend(_opt, opt);
+    return new OA.Face(_opt);
+  }
+
+  function addFaceByContour(contour) {
+    if(!contour){
+      return;
+    }
+    var point2Ds = contour.getPoint2Ds();
+    if (point2Ds.length > 2) {
+      var newFace = createFace(point2Ds, "VFACE", contour.t,{
+        baseContour: contour,
+        upper2Ds: contour.getUppers2Ds()
+      });
+      //refreshFaceGroup.add(newFace);
+      userFaces.push(newFace);
+
+      clippedFaces = new OA.Clipper({
+          baseFaces: [baseVFace, baseHFace],
+          faces: userFaces
+      });
+      updateModel();
+    }
   }
 
   function onMousedown(event){
@@ -148,10 +149,8 @@ OA.Model = function(userSetting) {
                 enterContourCloseState();
              }
            }else{
-              var ary = liveContour.getPoint2DAry();
-              if (ary.length > 2) {
-                //has vaild contour
-                addSimpleFaceToModel(ary, "VFACE");
+              if(liveContour && liveContour.checkClosed){
+                addFaceByContour(liveContour);
               }
               enterContourNoEditingState();
            }
@@ -237,38 +236,25 @@ OA.Model = function(userSetting) {
       [cardW, -cardH],
       [0, -cardH]
     ];
-    editPlane = new OA.Face({
-      contours: [{
-        "outer": pEditAry.map(function(i) {
-          return {
-            "X": i[0],
-            "Y": i[1]
-          };
-        }),
-        "holes": [
-          [ /*points*/ ]
-        ]
-      }],
-      //   contours
-      type: "VFACE",
-      opacity: 0,
-      depthTest: false,
-      depthWrite: false,
-      borderColor: 0x5399E3,
-      addingLine: [[0, 0],[cardW, 0]],
-      gridData: {
-        w: cardW,
-        h: cardH,
-        s: gridStep,
-        color: 0x1F6CBD,
-        opacity: 0.2,
-        extendY: editBufferY
-      }
+    editPlane = createFace(OA.Utils.ary2Point2Ds(pEditAry), "VFACE", 0, {
+          opacity: 0,
+          depthTest: false,
+          depthWrite: false,
+          borderColor: 0x5399E3,
+          addingLine: [[0, 0],[cardW, 0]],
+          gridData: {
+            w: cardW,
+            h: cardH,
+            s: gridStep,
+            color: 0x1F6CBD,
+            opacity: 0.2,
+            extendY: editBufferY
+          },
+          name: "editPlane"
     });
-    editPlane.name = "editPlane";
     model.add(editPlane);
-    model.add(movePoint);
 
+    model.add(movePoint);
 
     var pAryV = [
       [0, 0],
@@ -277,7 +263,12 @@ OA.Model = function(userSetting) {
       [0, -cardH]
     ];
     //base vface
-    addSimpleFaceToModel(OA.Utils.ary2Point2Dary(pAryV), "VFACE");
+    baseVFace = createFace(OA.Utils.ary2Point2Ds(pAryV), "VFACE", 0, {
+      name: "baseVFace"
+    });
+    refreshFaceGroup.add(baseVFace);
+    clippedFaces.push(baseVFace);
+
     var pAryH = [
       [0, 0],
       [cardW, 0],
@@ -285,8 +276,12 @@ OA.Model = function(userSetting) {
       [0, cardH]
     ];
     //base hface
-    addSimpleFaceToModel(OA.Utils.ary2Point2Dary(pAryH), "HFACE");
-
+    baseHFace = createFace(OA.Utils.ary2Point2Ds(pAryH), "HFACE", 0, {
+      name: "baseHFace"
+    });
+    refreshFaceGroup.add(baseHFace);
+    clippedFaces.push(baseHFace);
+    model.add(refreshFaceGroup);
 
     bindEvents();
     model.updateCardAngle();
@@ -305,19 +300,40 @@ OA.Model = function(userSetting) {
       OA.Utils.setObject3DVisible(editPlane, !!showFlag);
   };
 
+  function updateModel() {
+    var faces = clippedFaces;
+    OA.Utils.cleanObject3D(refreshFaceGroup);
+    for (var i = 0; i < faces.length; i++) {
+      var f = faces[i];
+      refreshFaceGroup.add(f);
+    }
+  }
+
   this.updateCardAngle = function() {
-    var faces = userFaces;
+    var faces = clippedFaces;
     if (refreshFaceGroup.cardAngle !== cardAngle){
-      model.remove(refreshFaceGroup)
-      refreshFaceGroup = new THREE.Object3D();
+      //model.remove(refreshFaceGroup)
+      //refreshFaceGroup = new THREE.Object3D();
+      //OA.Utils.cleanObject3D(refreshFaceGroup);
       refreshFaceGroup.cardAngle = cardAngle;
       for (var i = 0; i < faces.length; i++) {
         var f = faces[i];
-        refreshFaceGroup.add(f);
+        //refreshFaceGroup.add(f);
         f.setAngle(cardAngle);
       }
-      model.add(refreshFaceGroup);
+      //model.add(refreshFaceGroup);
      }
+  };
+
+  this.setCardAngle = function(degree) {
+    if (degree >= 0 && degree <= 180) {
+      cardAngle = degree;
+      model.updateCardAngle();
+    }
+  };
+
+  this.getCardAngle = function() {
+    return cardAngle;
   };
 
   this.setFoldable = function(canFold, angle){
@@ -329,7 +345,6 @@ OA.Model = function(userSetting) {
   };
 
   this.setCameraCtrl = function(ctrl) {
-    camera = ctrl.object;
     cameraCtrl = ctrl;
   };
 

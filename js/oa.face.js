@@ -9,6 +9,8 @@ OA.Face = function(userSetting) {
          ]
       }],
       t: 0,
+      baseContour: null,
+      uppers2Ds: null,
       type: "HFACE", //HFACE or VFACE,
       opacity: 1,
       gridData: {},
@@ -18,6 +20,7 @@ OA.Face = function(userSetting) {
       addingLine: null,
       depthTest: true,
       depthWrite: true,
+      name: null
    };
    var face = this;
    var isAngleFrom0 = false;
@@ -33,6 +36,9 @@ OA.Face = function(userSetting) {
       }
    };
    face.oaInfo = _setting;
+   if(_setting.name){
+      face.name = _setting.name;
+   }
    var type = _setting.type;
 
    var createLine = function(geometry) {

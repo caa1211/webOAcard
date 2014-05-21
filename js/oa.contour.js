@@ -277,15 +277,29 @@ OA.Contour = function(userSetting) {
       return tunedPath;
    }
 
-   this.getPoint2DAry = function() {
-      point2Ds = fineTunePath(point2Ds);
+   this.getPoint2Ds = function() {
+      //point2Ds = fineTunePath(point2Ds);
       return point2Ds;
+   };
+
+   this.getUppers2Ds = function(){
+      var uppers2Ds = [];
+      var upper3Ds = contour.uppers;
+      var D3To2 = OA.Utils.D3To2;
+      var t = contour.t;
+      for (i = 0; i < upper3Ds.length; i++) {
+         uppers2Ds.push([D3To2(upper3Ds[i][0], t), D3To2(upper3Ds[i][1], t)]);
+      }
+      return uppers2Ds;
+   };
+
+   this.getContourData = function(){
+      return {point2Ds: contour.getPoint2Ds(), uppers2Ds: contour.getUppers2Ds() };
    };
 
    function convertPoint2DsTo3Ds(p2Ds) {
       var closePos3Ds = [];
       var t = contour.t;
-      //  debugger;
       for (var i = 0; i < p2Ds.length; i++) {
          var p3D = OA.Utils.D2To3(p2Ds[i], t, "VFACE");
          closePos3Ds.push(p3D);
@@ -294,6 +308,7 @@ OA.Contour = function(userSetting) {
    }
 
    function drawCloseCoutour() {
+      point2Ds = fineTunePath(point2Ds);
       var closePos3Ds = convertPoint2DsTo3Ds(point2Ds);
       updateContour(closePos3Ds, {
          color: 0x5F8A37,
@@ -329,7 +344,6 @@ OA.Contour = function(userSetting) {
       // ClipperLib.JS.ScaleUpPath(point2Ds, 2);
       // movePoint2Ds(point2Ds, mp.X, mp.Y);
 
-      point2Ds = fineTunePath(point2Ds);
       drawCloseCoutour();
    }
    //public
