@@ -7,7 +7,7 @@ OA.Model = function(userSetting) {
     cardW: 640,
     cardH: 400,
     gridNum: 20,
-    initAngle: 90
+    initAngle: 130
   };
 
   var editPlane = null;
@@ -21,7 +21,7 @@ OA.Model = function(userSetting) {
   var baseVFace, baseHFace;
   var edges = [];
   var raycaster = null;
-  var cardAngle = _setting.initAngle;
+  var cardAngle;
   var refreshFaceGroup = new THREE.Object3D();
   var cameraCtrl = {
     noZoom: false,
@@ -108,7 +108,9 @@ OA.Model = function(userSetting) {
       type: faceType
     }
     $.extend(_opt, opt);
-    return new OA.Face(_opt);
+    var face = new OA.Face(_opt);
+    //face.setAngle(cardAngle);
+    return face;
   }
 
   function addFaceByContour(contour) {
@@ -124,11 +126,15 @@ OA.Model = function(userSetting) {
       //refreshFaceGroup.add(newFace);
       userFaces.push(newFace);
 
-      clippedFaces = new OA.Clipper({
+      var clipper = new OA.Clipper({
           baseFaces: [baseVFace, baseHFace],
-          faces: userFaces
+          faces: userFaces,
+          angle: cardAngle
       });
-      updateModel();
+      if(clipper.doClip()){
+        clippedFaces = clipper;
+        updateModel(clippedFaces);
+      }
     }
   }
 
@@ -213,12 +219,14 @@ OA.Model = function(userSetting) {
       //OA.log(delta, deltaX, deltaY);
       var newAngle = cardAngle + d * 5;
       if (newAngle >= 0 && newAngle <= 180) {
-        cardAngle = newAngle;
-      }
+          oaModel.setCardAngle(newAngle);
+      } 
     }
-
-
   }
+
+  this.resetCardAngle = function(){
+     model.setCardAngle(_setting.initAngle);
+  };
 
   var init = function() {
     // var tFace = new OA.Face({
@@ -284,7 +292,7 @@ OA.Model = function(userSetting) {
     model.add(refreshFaceGroup);
 
     bindEvents();
-    model.updateCardAngle();
+    model.setCardAngle(cardAngle);
     return model;
   };
 
@@ -300,8 +308,7 @@ OA.Model = function(userSetting) {
       OA.Utils.setObject3DVisible(editPlane, !!showFlag);
   };
 
-  function updateModel() {
-    var faces = clippedFaces;
+  function updateModel(faces) {
     OA.Utils.cleanObject3D(refreshFaceGroup);
     for (var i = 0; i < faces.length; i++) {
       var f = faces[i];
@@ -309,7 +316,7 @@ OA.Model = function(userSetting) {
     }
   }
 
-  this.updateCardAngle = function() {
+  var updateCardAngle = function() {
     var faces = clippedFaces;
     if (refreshFaceGroup.cardAngle !== cardAngle){
       //model.remove(refreshFaceGroup)
@@ -318,17 +325,15 @@ OA.Model = function(userSetting) {
       refreshFaceGroup.cardAngle = cardAngle;
       for (var i = 0; i < faces.length; i++) {
         var f = faces[i];
-        //refreshFaceGroup.add(f);
         f.setAngle(cardAngle);
       }
-      //model.add(refreshFaceGroup);
      }
   };
 
   this.setCardAngle = function(degree) {
-    if (degree >= 0 && degree <= 180) {
+    if (cardAngle!=degree && degree >= 0 && degree <= 180) {
       cardAngle = degree;
-      model.updateCardAngle();
+      updateCardAngle();
     }
   };
 
@@ -339,8 +344,7 @@ OA.Model = function(userSetting) {
   this.setFoldable = function(canFold, angle){
        foldable = canFold;
        if(angle != undefined && angle !== cardAngle){
-          cardAngle = angle;
-          model.updateCardAngle();
+          model.setCardAngle(angle);
       }
   };
 
@@ -350,9 +354,7 @@ OA.Model = function(userSetting) {
 
   this.tick = function(params) {
       raycaster = params.raycaster;
-      if (foldable) {
-         model.updateCardAngle();
-      }
+
       if (editPlane.isVisible === true) {
         var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
         if (intersects.length > 0) {
