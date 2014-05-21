@@ -265,6 +265,16 @@ OA.Contour = function(userSetting) {
       if (!orientation) {
          tunedPath.reverse();
       }
+      var tunedPath2 = null;
+      try{
+        tunedPath2 = ClipperLib.Clipper.SimplifyPolygons(tunedPath, ClipperLib.PolyFillType.pftNonZero);
+      }catch(e){
+         tunedPath2 = null
+      }
+      if(tunedPath2){
+         tunedPath = tunedPath2;
+      }
+
       if (scale) {
          var mp = getMiddlePointFromPath(tunedPath);
          if (scale > 0) {

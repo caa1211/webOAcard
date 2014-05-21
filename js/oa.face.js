@@ -5,10 +5,11 @@ OA.Face = function(userSetting) {
       contours: [{
          "outer": [],
          "holes": [
-            [ /*points*/ ]
+            /*[ ]*/
          ]
       }],
       t: 0,
+      isBoundaryClipped: false,
       baseContour: null,
       upper2Ds: null,
       type: "HFACE", //HFACE or VFACE,
@@ -49,11 +50,14 @@ OA.Face = function(userSetting) {
    };
 
 
-   var getObject3DByCoutours = function(contours) {
+   var buildByCoutours = function(contours) {
+      OA.Utils.cleanObject3D(face);
       var exPolygons = contours;
       var border, borderGeo, p, a, i, j, jlen, ilen, exPolygon, holes, outer, polygon, outer_shape, hole_shape;
       var alen = exPolygons.length;
       var shapes = new Array(alen);
+      var holeShapes = [];
+      var outerPoints = [];
       var borderWidth = _setting.borderWidth;
       var borderColor = _setting.borderColor;
       for (a = 0; a < alen; a++) {
@@ -63,12 +67,13 @@ OA.Face = function(userSetting) {
          jlen = outer.length;
          if (jlen && jlen > 0) {
             borderGeo = new THREE.Geometry();
+
             for (j = 0; j < jlen; j++) {
                point = outer[j];
                point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
-               outer[j] = point;
+               outerPoints.push(point);
             }
-            outer = new THREE.Shape(outer);
+            outer_shape = new THREE.Shape(outerPoints);
             ilen = holes && holes.length;
             if (ilen && ilen > 0) {
 
@@ -82,36 +87,35 @@ OA.Face = function(userSetting) {
                   }
                   if (jlen > 0) {
                      //hole border
-                     holes[i] = new THREE.Shape(polygon);
-                     borderGeo = holes[i].createPointsGeometry();
-                     
+                     hole_shape = new THREE.Shape(polygon);
+                     holeShapes.push(hole_shape);
+                     borderGeo = hole_shape.createPointsGeometry();
                      border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
                         linewidth: borderWidth,
                         color: borderColor,
-                        transparent: true,
-                        linecap: "round"
+                        transparent: true
                      }));
                      border.position.z =-0.1; 
+                     border.name = "holeBolder";
                      face.add(border);
                   }
                }
                if (polygon.length > 0) {
-                  outer.holes = holes;
+                  outer_shape.holes = holeShapes;
                }
             }
-            shapes[a] = outer;
+            shapes[a] = outer_shape;
             //bouter border
-            borderGeo = outer.createPointsGeometry();
-           
+            borderGeo = outer_shape.createPointsGeometry();
             border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
                linewidth: borderWidth,
                color: borderColor,
                transparent: true,
                depthTest: _setting.depthTest,
-               depthWrite: _setting.depthWrite,
-               linecap: "round"
+               depthWrite: _setting.depthWrite
             }));
             border.position.z =-0.1; 
+            border.name = "outerBolder";
             face.add(border);
          }
       }
@@ -171,19 +175,28 @@ OA.Face = function(userSetting) {
    var init = function() {
       //debugger;
       face.rotation.set(rot[0], rot[1], rot[2]);
-      getObject3DByCoutours(_setting.contours)
+      buildByCoutours(_setting.contours);
+
       if (_setting.gridData) {
          createFaceGrid(face, _setting.gridData);
       }
      if (_setting.addingLine) {
          createAddingLine(face);
       }
-     
       // face.updateMatrix();
       // face.updateMatrixWorld();
       applyAngle(face, _setting.initAngle);
       return face;
    };
+
+   this.getExPolygons = function(){
+      return _setting.contours;
+   };
+
+   this.setExPolygons = function(exPolygons){
+       _setting.contours = exPolygons;
+   };
+
 
    this.setAngle = function(angle) {
       applyAngle(this, angle);
@@ -279,6 +292,17 @@ OA.Face = function(userSetting) {
       }
 
    }
+
+   this.clone = function(){
+      return new OA.Face(_setting);
+   }
+
+   this.rebuild = function(contours){
+      if(contours){
+         _setting.contours = contours;
+      }
+      buildByCoutours(_setting.contours);
+   };
 
    this.getUpper2Ds = function(){
       return _setting.upper2Ds;

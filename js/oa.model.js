@@ -129,11 +129,13 @@ OA.Model = function(userSetting) {
       });
       //refreshFaceGroup.add(newFace);
       userFaces.push(newFace);
-
+      //newFace.redraw(OA.Utils.getTestExPolygon());
       var clipper = new OA.Clipper({
           baseFaces: [baseVFace, baseHFace],
           faces: userFaces,
-          angle: cardAngle
+          angle: cardAngle,
+          cardW: cardW,
+          cardH: cardH
       });
       if(clipper.doClip()){
         clippedFaces = clipper;

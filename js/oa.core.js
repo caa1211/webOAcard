@@ -9,6 +9,13 @@ OA.Utils = {
          console.error(str)
       }
    },
+   facesClone: function(faces) {
+    var newFaces = [];
+    $.each(faces, function(i, f) {
+      newFaces.push(f.clone());
+    });
+    return newFaces;
+   },
    D3To2: function(d3p, t){
       return {X: d3p.x, Y: t - d3p.y};
    },
@@ -21,7 +28,34 @@ OA.Utils = {
       }
       return d3p;
    },
-   cleanObject3D: function(object3D){
+   simplePathToPoly: function(path){
+      return [{ "outer": path, "holes": []}];
+   },
+   scaleDownExPolygon: function(exPolygons, scale) {
+    var a, i, j, exPolygon, holes, outer, polygon;
+    if (!scale) scale = 1;
+    for (a = 0, alen = exPolygons.length; a < alen; a++) {
+      exPolygon = exPolygons[a];
+      holes = exPolygon.holes;
+      outer = exPolygon.outer;
+      for (i = 0, ilen = holes.length; i < ilen; i++) {
+        polygon = holes[i];
+
+        for (j = 0, jlen = polygon.length; j < jlen; j++) {
+          point = polygon[j];
+          point.X = Number(point.X) / scale;
+          point.Y = Number(point.Y) / scale;
+        }
+      }
+      for (j = 0, jlen = outer.length; j < jlen; j++) {
+        point = outer[j];
+        point.X = Number(point.X) / scale;
+        point.Y = Number(point.Y) / scale;
+      }
+    }
+    return exPolygons;
+  },
+  cleanObject3D: function(object3D) {
       var children = object3D.children;
       var len = children.length;
       for(var i=0; i<len;i++){
