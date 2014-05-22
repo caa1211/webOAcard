@@ -76,7 +76,7 @@ OA.Model = function(userSetting) {
   function enterContourEditingState() {
     model.contourState = contourStateType.EDITING;
     if(liveContour == null){
-      liveContour = new OA.Contour({startPointSize: gridStep, t: editPlane.getT()});
+      liveContour = new OA.Contour({gridStep: gridStep, t: editPlane.getT()});
       model.add(liveContour);
     }
     //cameraCtrl.enabled = false;
@@ -129,7 +129,7 @@ OA.Model = function(userSetting) {
       });
       //refreshFaceGroup.add(newFace);
       userFaces.push(newFace);
-      //newFace.redraw(OA.Utils.getTestExPolygon());
+      //newFace.rebuild(OA.Utils.getTestExPolygon());
       var clipper = new OA.Clipper({
           baseFaces: [baseVFace, baseHFace],
           faces: userFaces,
@@ -235,14 +235,9 @@ OA.Model = function(userSetting) {
   };
 
   var init = function() {
-    // var tFace = new OA.Face({
-    //   contours: OA.Utils.getTestExPolygonTree(),
-    //   //   contours
-    //   type: "VFACE"
-    // });
 
-    // faces.push(tFace);
-    // refreshFaceGroup.add(tFace);
+
+
     var editBufferY = gridStep * 4;
     var pEditAry = [
       [0, editBufferY],
@@ -299,6 +294,22 @@ OA.Model = function(userSetting) {
 
     bindEvents();
     model.setCardAngle(cardAngle);
+
+
+    
+//========
+    // OA.Utils.cleanObject3D(model);
+    // var tFace = new OA.Face({
+    //   contours: OA.Utils.getTestExPolygonTree(),
+    //   //   contours
+    //   type: "HFACE"
+    // });
+
+  //  faces.push(tFace);
+  //  model.add(tFace);
+
+
+
     return model;
   };
 

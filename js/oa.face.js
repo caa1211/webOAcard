@@ -50,75 +50,78 @@ OA.Face = function(userSetting) {
    };
 
 
+   var addBolderInShape = function(shape, face) {
+      var borderGeo = shape.createPointsGeometry();
+      var borderWidth = _setting.borderWidth;
+      var borderColor = _setting.borderColor;
+      var border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+         linewidth: borderWidth,
+         color: borderColor,
+         transparent: true,
+         linecap: "round"
+      }));
+      border.position.z = -0.1;
+
+      face.add(border);
+   };
+
    var buildByCoutours = function(contours) {
       OA.Utils.cleanObject3D(face);
       var exPolygons = contours;
-      var border, borderGeo, p, a, i, j, jlen, ilen, exPolygon, holes, outer, polygon, outer_shape, hole_shape;
       var alen = exPolygons.length;
-      var shapes = new Array(alen);
-      var holeShapes = [];
-      var outerPoints = [];
-      var borderWidth = _setting.borderWidth;
-      var borderColor = _setting.borderColor;
+      var shapes = [];
+      var outer_shape;
+
+      var a, j, i, k;
+
       for (a = 0; a < alen; a++) {
-         exPolygon = exPolygons[a];
-         holes = exPolygon.holes;
-         outer = exPolygon.outer;
-         jlen = outer.length;
+         var exPolygon = exPolygons[a];
+         var outer = exPolygon.outer;
+         var holes = exPolygon.holes;
+         var jlen = outer.length;
+         var p2dAry = [];
          if (jlen && jlen > 0) {
-            borderGeo = new THREE.Geometry();
-
             for (j = 0; j < jlen; j++) {
-               point = outer[j];
-               point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
-               outerPoints.push(point);
+               var point = outer[j];
+               var p2d = new THREE.Vector2(point.X, point.Y);
+               p2dAry.push(p2d);
             }
-            outer_shape = new THREE.Shape(outerPoints);
-            ilen = holes && holes.length;
-            if (ilen && ilen > 0) {
 
-               for (i = 0; i < ilen; i++) {
+            //check orientation before create shape
+            OA.Utils.modifyPathOrientation(p2dAry)
+
+            outer_shape = new THREE.Shape(p2dAry);
+            var hlen = holes && holes.length;
+            var hole_shapes = [];
+            if (hlen && hlen > 0) {
+
+               for (i = 0; i < hlen; i++) {
                   polygon = holes[i];
-                  borderGeo = new THREE.Geometry();
-                  for (j = 0, jlen = polygon.length; j < jlen; j++) {
-                     point = polygon[j];
-                     point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
-                     polygon[j] = point;
+                  var holeP2dAry = [];
+
+                  for (k = 0; k < polygon.length; k++) {
+                     var point = polygon[k];
+                     var p2d = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
+                     holeP2dAry.push(p2d);
                   }
-                  if (jlen > 0) {
-                     //hole border
-                     hole_shape = new THREE.Shape(polygon);
-                     holeShapes.push(hole_shape);
-                     borderGeo = hole_shape.createPointsGeometry();
-                     border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
-                        linewidth: borderWidth,
-                        color: borderColor,
-                        transparent: true
-                     }));
-                     border.position.z =-0.1; 
-                     border.name = "holeBolder";
-                     face.add(border);
+                  if (polygon.length > 0) {
+                     //check orientation before create shape
+                     OA.Utils.modifyPathOrientation(holeP2dAry)
+
+                     hole_shape = new THREE.Shape(holeP2dAry);
+                     hole_shapes.push(hole_shape);
+                     addBolderInShape(hole_shape, face);
                   }
                }
-               if (polygon.length > 0) {
-                  outer_shape.holes = holeShapes;
-               }
+               outer_shape.holes = hole_shapes;
             }
-            shapes[a] = outer_shape;
-            //bouter border
-            borderGeo = outer_shape.createPointsGeometry();
-            border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
-               linewidth: borderWidth,
-               color: borderColor,
-               transparent: true,
-               depthTest: _setting.depthTest,
-               depthWrite: _setting.depthWrite
-            }));
-            border.position.z =-0.1; 
-            border.name = "outerBolder";
-            face.add(border);
+         }
+         if (outer_shape) {
+            addBolderInShape(outer_shape, face);
+            shapes.push(outer_shape);
          }
       }
+
       var planeGeom = new THREE.ShapeGeometry(shapes);
       var plane = new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({
          color: typeOpts[type].color,
@@ -128,7 +131,6 @@ OA.Face = function(userSetting) {
       }));
       plane.name = "faceBody";
       face.add(plane);
-
    };
 
    function createAddingLine(face){

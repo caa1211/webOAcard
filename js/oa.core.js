@@ -1,6 +1,7 @@
 var OA = {
    REVISION: 'r01',
-   debugMode: true
+   debugMode: true,
+   tunePath: false
 };
 
 OA.Utils = {
@@ -8,6 +9,33 @@ OA.Utils = {
       if(OA.debugMode){
          console.error(str)
       }
+   },
+   modifyPathOrientation: function(p2dAry, flag){
+      if(flag === undefined){
+         flag = true;
+      }
+      var orientation = ClipperLib.Clipper.Orientation(p2dAry);
+      if (orientation === flag) {
+         p2dAry.reverse();
+         console.error("=reverse hole path=");
+      }
+   },
+   exPolygonsClean: function(exPolygons, distance){
+      // $.each(exPolygons, function(i, exPoly){
+      //   exPoly.outer = ClipperLib.Clipper.CleanPolygon(exPoly.outer, distance);
+      //   exPoly.holes = ClipperLib.Clipper.CleanPolygons(exPoly.holes, distance);
+      // });
+
+      $.each(exPolygons, function(i, exPoly){
+        exPoly.outer = ClipperLib.JS.Clean(exPoly.outer, distance);
+        //exPoly.outer = ClipperLib.Clipper.SimplifyPolygons(exPoly.outer, ClipperLib.PolyFillType.pftEvenOdd);
+        exPoly.holes = ClipperLib.JS.Clean(exPoly.holes, distance);
+        //exPoly.holes = ClipperLib.Clipper.SimplifyPolygons(exPoly.holes, ClipperLib.PolyFillType.pftEvenOdd);
+      });
+
+      //tunedPath2 = ClipperLib.Clipper.SimplifyPolygons(tunedPath, ClipperLib.PolyFillType.pftNonZero);
+
+
    },
    facesClone: function(faces) {
     var newFaces = [];
@@ -140,7 +168,32 @@ OA.Utils = {
    getTestExPolygon: function(){
 
      return [{"outer":[{"X":50,"Y":150},{"X":50,"Y":110},{"X":10,"Y":110},{"X":10,"Y":10},{"X":110,"Y":10},{"X":110,"Y":50},{"X":150,"Y":50},{"X":150,"Y":150}],"holes":[[{"X":60,"Y":140},{"X":140,"Y":140},{"X":140,"Y":60},{"X":110,"Y":60},{"X":110,"Y":110},{"X":60,"Y":110}],[{"X":20,"Y":100},{"X":50,"Y":100},{"X":50,"Y":50},{"X":100,"Y":50},{"X":100,"Y":20},{"X":20,"Y":20}],[{"X":60,"Y":100},{"X":100,"Y":100},{"X":100,"Y":60},{"X":60,"Y":60}]]}];
+   },  
+    getTestExPolygon2: function(){
+
+     return [{  
+         "outer": [{"X":0,"Y":450},{"X":500,"Y":310},{"X":10,"Y":310}],
+         "holes": [
+            /*[ ]*/
+         ]
+      },
+
+       { "outer":[{"X":50,"Y":150},{"X":50,"Y":110},{"X":10,"Y":110},{"X":10,"Y":10},{"X":110,"Y":10},{"X":110,"Y":50},{"X":150,"Y":50},{"X":150,"Y":150}],"holes":[[{"X":60,"Y":140},{"X":140,"Y":140},{"X":140,"Y":60},{"X":110,"Y":60},{"X":110,"Y":110},{"X":60,"Y":110}],[{"X":20,"Y":100},{"X":50,"Y":100},{"X":50,"Y":50},{"X":100,"Y":50},{"X":100,"Y":20},{"X":20,"Y":20}],[{"X":60,"Y":100},{"X":100,"Y":100},{"X":100,"Y":60},{"X":60,"Y":60}]]}];
+   },   
+    getTestExPolygon3: function(){
+
+     return [
+         {  
+         "outer": [{"X":0,"Y":30},{"X":60,"Y":60},{"X":80,"Y":30}, {"X":0,"Y":0} ]
+         },
+         {  
+         "outer": [{"X":0,"Y":-30},{"X":60,"Y":-60},{"X":80,"Y":-30}],
+         "holes": []
+         }
+      ];
+      
    },
+       
    boolenPoly: function(){
 
    var vertices1 = [

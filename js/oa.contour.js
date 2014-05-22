@@ -10,7 +10,7 @@ OA.Contour = function(userSetting) {
          lineWidth: 2.5
          //color: 0xE7AB6D
       },
-      startPointSize: 1,
+      gridStep: 1,
       t: 0
    };
    var contour = this;
@@ -73,7 +73,7 @@ OA.Contour = function(userSetting) {
          p = p3DAry[i];
          if (i == 0 && !isClosed) {
             circle = new OA.Point({
-               scale: _setting.startPointSize
+               scale: _setting.gridStep
             });
             circle.setColor(drawOpt.color);
          } else {
@@ -260,31 +260,37 @@ OA.Contour = function(userSetting) {
    }
 
    function fineTunePath(path, scale) {
-      var tunedPath = ClipperLib.Clipper.CleanPolygon(path, 0.1);
-      var orientation = ClipperLib.Clipper.Orientation(tunedPath);
-      if (!orientation) {
-         tunedPath.reverse();
-      }
-      var tunedPath2 = null;
-      try{
-        tunedPath2 = ClipperLib.Clipper.SimplifyPolygons(tunedPath, ClipperLib.PolyFillType.pftNonZero);
-      }catch(e){
-         tunedPath2 = null
-      }
-      if(tunedPath2){
-         tunedPath = tunedPath2;
-      }
+      if (OA.tunePath) {
+         //var tunedPath = ClipperLib.Clipper.CleanPolygon(path, _setting.gridStep / 2);
+         var tunedPath = ClipperLib.JS.Clean(path, _setting.gridStep/2);
+         //var tunedPath = ClipperLib.JS.Lighten(path,100);
+         OA.Utils.modifyPathOrientation(tunedPath, false);
 
-      if (scale) {
-         var mp = getMiddlePointFromPath(tunedPath);
-         if (scale > 0) {
-            ClipperLib.JS.ScaleUpPath(tunedPath, scale);
-         } else if (scale < 0) {
-            ClipperLib.JS.ScaleDownPath(tunedPath, -1 * scale);
+         // var tunedPath2 = null;
+         // try {
+         //    tunedPath2 = ClipperLib.Clipper.SimplifyPolygon(tunedPath, ClipperLib.PolyFillType.pftEvenOdd);
+         // } catch (e) {
+         //    tunedPath2 = null
+         // }
+         // if (tunedPath2) {
+         //    tunedPath = tunedPath2;
+         // }
+
+         if (scale) {
+            var mp = getMiddlePointFromPath(tunedPath);
+            if (scale > 0) {
+               ClipperLib.JS.ScaleUpPath(tunedPath, scale);
+            } else if (scale < 0) {
+               ClipperLib.JS.ScaleDownPath(tunedPath, -1 * scale);
+            }
+            movePoint2Ds(tunedPath, mp);
          }
-         movePoint2Ds(tunedPath, mp);
+         return tunedPath;
+      } else {
+         OA.Utils.modifyPathOrientation(path, false);
+         return path;
       }
-      return tunedPath;
+  
    }
 
    this.getPoint2Ds = function() {

@@ -10,7 +10,7 @@ OA.Clipper = function(userSetting) {
     };
     var _setting = $.extend({}, _def, userSetting);
     var clipper = this;
-    var baseFaces = _setting.baseFaces;
+    var baseFaces = OA.Utils.facesClone(_setting.baseFaces);
     var faces = _setting.faces;
     var angle = _setting.angle;
     var sort_vface_list = [];
@@ -64,11 +64,13 @@ OA.Clipper = function(userSetting) {
     function polyBoolean(subjPoly, clipPoly, clipType) {
         var success = null;
         try {
+          
             //Number ClipType {ctIntersection: 0, ctUnion: 1, ctDifference: 2, ctXor: 3};
             var subj_paths = ClipperLib.JS.ExPolygonsToPaths(subjPoly);
             var clip_paths = ClipperLib.JS.ExPolygonsToPaths(clipPoly);
             var solution_paths = new ClipperLib.PolyTree();
-
+            subj_paths = ClipperLib.JS.Clone(subj_paths);
+            clip_paths = ClipperLib.JS.Clone(clip_paths);
             ClipperLib.JS.ScaleUpPaths(subj_paths, clipScale);
             ClipperLib.JS.ScaleUpPaths(clip_paths, clipScale);
 
@@ -78,11 +80,19 @@ OA.Clipper = function(userSetting) {
             cpr.AddPaths(clip_paths, 1, true);
             success = cpr.Execute(clipType, solution_paths, 1, 1);
         } catch (e) {
+            debugger;
             console.error("clip failed !");
 
         }
+
+        //ClipperLib.JS.ScaleDownPaths(subj_paths, clipScale);
+        //ClipperLib.JS.ScaleDownPaths(clip_paths, clipScale);
+
         if (success) {
             var expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_paths);
+            if(OA.tunePath){
+                 OA.Utils.exPolygonsClean(expolygons, 0.1);
+            }
             OA.Utils.scaleDownExPolygon(expolygons, clipScale);
             return expolygons;
         } else {
@@ -132,6 +142,75 @@ OA.Clipper = function(userSetting) {
             }
         });
         upper_list.sort(compareUpperY);
+
+
+        //test
+
+       
+
+        // sort_vface_list.reverse(); //small -> big
+        // $.each(sort_vface_list, function(i, f) {
+        //     var subj = f.getExPolygons();
+
+        //     for (var j = i + 1; j < sort_vface_list.length; j++) {
+        //         var ff = sort_vface_list[j];
+        //         var clip = ff.getExPolygons();
+        //         var resPoly = polyBoolean(subj, clip, 2);
+        //         if (resPoly) {
+        //             subj = resPoly;
+        //         }
+        //     }
+
+        //     f.rebuild(subj);
+        // });
+
+
+
+        sort_vface_list.reverse(); //small -> big
+        $.each(sort_vface_list, function(i, f) {
+            var subj; // = f.getExPolygons();
+            var clip;
+
+            var frontPoly;
+            for (var j = i + 1; j < sort_vface_list.length; j++) {
+                var ff = sort_vface_list[j];
+                if (j == i + 1) {
+                    frontPoly = ff.getExPolygons();
+                } else {
+
+                    clip = ff.getExPolygons();
+                    var resPoly = polyBoolean(frontPoly, clip, 1);
+                    if (resPoly) {
+                        frontPoly = resPoly;
+                    }
+                }
+            }
+            if (frontPoly) {
+                subj = f.getExPolygons();
+                clip = frontPoly
+                var resPoly = polyBoolean(subj, clip, 2);
+                if (resPoly) {
+                    subj = resPoly;
+                }
+                f.rebuild(subj);
+            }
+        });
+
+        $.each(baseFaces, function(i, f){
+            var subj = f.getExPolygons();
+            $.each(sort_vface_list, function(j, ff) {
+                 var clip = ff.getExPolygons();
+                 var resPoly = polyBoolean(subj, clip, 2);
+                 if (resPoly) {
+                    subj = resPoly;
+                 }else{
+                    console.error("failed !");
+                 }
+            });
+            f.rebuild(subj);
+        });
+
+
         // console.error("==upper_list=======")
         // $.each(upper_list, function(i, t) {
         //     console.error("t: " + t.points[0].Y);

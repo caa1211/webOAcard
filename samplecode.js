@@ -1,3 +1,86 @@
+   var buildByCoutours = function(contours) {
+      OA.Utils.cleanObject3D(face);
+      var exPolygons = contours;
+      var border, borderGeo, p, a, i, j, jlen, ilen, exPolygon, holes, outer, polygon, outer_shape, hole_shape;
+      var alen = exPolygons.length;
+      var shapes = new Array(alen);
+      var holeShapes = [];
+      var outerPoints = [];
+      var borderWidth = _setting.borderWidth;
+      var borderColor = _setting.borderColor;
+      for (a = 0; a < alen; a++) {
+         exPolygon = exPolygons[a];
+         holes = exPolygon.holes;
+         outer = exPolygon.outer;
+         jlen = outer.length;
+         if (jlen && jlen > 0) {
+            borderGeo = new THREE.Geometry();
+
+            for (j = 0; j < jlen; j++) {
+               point = outer[j];
+               point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
+               outerPoints.push(point);
+            }
+            outer_shape = new THREE.Shape(outerPoints);
+            ilen = holes && holes.length;
+            if (ilen && ilen > 0) {
+
+               for (i = 0; i < ilen; i++) {
+                  polygon = holes[i];
+                  borderGeo = new THREE.Geometry();
+                  for (j = 0, jlen = polygon.length; j < jlen; j++) {
+                     point = polygon[j];
+                     point = new THREE.Vector2(point.X, point.Y); // convert Clipper point to THREE.Vector2
+                     polygon[j] = point;
+                  }
+                  if (jlen > 0) {
+                     //hole border
+                     hole_shape = new THREE.Shape(polygon);
+                     holeShapes.push(hole_shape);
+                     borderGeo = hole_shape.createPointsGeometry();
+                     border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+                        linewidth: borderWidth,
+                        color: borderColor,
+                        transparent: true
+                     }));
+                     border.position.z =-0.1; 
+                     border.name = "holeBolder";
+                     face.add(border);
+                  }
+               }
+               if (polygon.length > 0) {
+                  outer_shape.holes = holeShapes;
+               }
+            }
+            shapes[a] = outer_shape;
+            //bouter border
+            borderGeo = outer_shape.createPointsGeometry();
+            border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+               linewidth: borderWidth,
+               color: borderColor,
+               transparent: true,
+               depthTest: _setting.depthTest,
+               depthWrite: _setting.depthWrite
+            }));
+            border.position.z =-0.1; 
+            border.name = "outerBolder";
+            face.add(border);
+         }
+      }
+      var planeGeom = new THREE.ShapeGeometry(shapes);
+      var plane = new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({
+         color: typeOpts[type].color,
+         side: THREE.DoubleSide,
+         opacity: _setting.opacity,
+         visible: _setting.opacity === 0 ? false : true
+      }));
+      plane.name = "faceBody";
+      face.add(plane);
+   };
+
+        
+
+
         $.each(sort_vface_list, function(i, f) {
            var f;
            var t = f.getT();
@@ -66,7 +149,7 @@
 
 
 
-     
+
 
    if(!isReset){
         var resetAngle = face.angle;
