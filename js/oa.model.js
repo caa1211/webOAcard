@@ -4,8 +4,8 @@ OA.Model = function(userSetting) {
 
   //private
   var _def = {
-    cardW: 64,
-    cardH: 40,
+    cardW: 100,
+    cardH: 100,
     gridNum: 20,
     initAngle: 90
   };
@@ -13,7 +13,8 @@ OA.Model = function(userSetting) {
   var editPlane = null;
   var _setting = $.extend({}, _def, userSetting);
   var cardW = _setting.cardW, cardH = _setting.cardH;
-  var gridStep = cardW / _setting.gridNum;
+  var maxWidth = cardW > cardH ? cardW : cardH;
+  var gridStep = maxWidth / _setting.gridNum;
   var movePoint = new OA.Point({scale: gridStep});
   var model = this;
   var userFaces = [];
@@ -236,8 +237,6 @@ OA.Model = function(userSetting) {
 
   var init = function() {
 
-
-
     var editBufferY = gridStep * 4;
     var pEditAry = [
       [0, editBufferY],
@@ -256,7 +255,7 @@ OA.Model = function(userSetting) {
             h: cardH,
             s: gridStep,
             color: 0x1F6CBD,
-            opacity: 0.2,
+            opacity: 0.3,
             extendY: editBufferY
           },
           name: "editPlane"

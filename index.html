@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>three.js webgl - interactive - voxel painter</title>
+    <title>OA Card</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
@@ -47,9 +47,10 @@
         cardH: 50,
         gridNum: 40
     };
+    OA.Utils.texture.loadAllTexture(modelOption);
     var oaModel = new OA.Model(modelOption);
     var sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
-    var viewerR = oaModel.getCardH() * 2.0;
+    var viewerR = oaModel.getCardH() * 2.5;
     var mouse2D = new THREE.Vector3(0, 10000, 0.5);
     var orbitCtrls;
     var raycaster, projector;
@@ -66,7 +67,11 @@
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
         scene.add(camera);
-       
+        var fogNear = viewerR/18000;
+        var fogFar = viewerR*2.2;
+        //scene.fog=new THREE.FogExp2( 0xffffff, fogNear );
+        scene.fog=new THREE.Fog( 0xffffff, fogNear, fogFar );
+
         camera.position.set(0, 0, oaModel.getCardH() * 2.5);
 
         if (Detector.webgl)
@@ -76,8 +81,22 @@
         else
             renderer = new THREE.CanvasRenderer();
 
+        renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0xf0f0f0);
+
+
+
+        if(OA.light){
+            var ambientLight = new THREE.AmbientLight(0xFFE4C4);
+            scene.add(ambientLight);
+            var spotLight = new THREE.SpotLight( 0xffffff);
+            spotLight.position.set( -viewerR*30, viewerR*30, viewerR*45);
+            spotLight.castShadow = true;
+            scene.add( spotLight );
+
+        // var light = new THREE.AmbientLight(0x444444);
+        // scene.add(light);
+        }
 
         container = document.getElementById('container');
         container.appendChild(renderer.domElement);
@@ -87,6 +106,7 @@
         orbitCtrls.panUp(sceneOffset.y);
         orbitCtrls.maxPolarAngle = 120*Math.PI/180;
         orbitCtrls.rotateUp(15*Math.PI/180);
+        orbitCtrls.rotateLeft(-10*Math.PI/180);
         orbitCtrls.zoomSpeed = 0.1;
         orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
         oaModel.setCameraCtrl(orbitCtrls);

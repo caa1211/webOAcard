@@ -16,7 +16,7 @@ OA.Face = function(userSetting) {
       opacity: 1,
       gridData: {},
       borderColor: 0x333333,
-      borderWidth: 2.5,
+      borderWidth: 2.0,
       initAngle: 90,
       addingLine: null,
       depthTest: true,
@@ -123,12 +123,44 @@ OA.Face = function(userSetting) {
       }
 
       var planeGeom = new THREE.ShapeGeometry(shapes);
-      var plane = new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({
+
+
+
+      var paperTexture = null;
+      if (OA.paperTexture) {
+         var textures = OA.Utils.texture.getTexture();
+         var paperTexture = textures.paper;
+        // paperTexture.repeat.set(0.05, 0.05);
+      }
+
+
+      var baseMaterial = new THREE.MeshBasicMaterial({
+         map: paperTexture,
          color: typeOpts[type].color,
          side: THREE.DoubleSide,
          opacity: _setting.opacity,
          visible: _setting.opacity === 0 ? false : true
-      }));
+      });
+
+      var lightMaterial = new THREE.MeshPhongMaterial({
+         map: paperTexture,
+         ambient: 0x555555,
+         color: typeOpts[type].color,
+         side: THREE.DoubleSide,
+         opacity: _setting.opacity,
+         visible: _setting.opacity === 0 ? false : true,
+         side: THREE.DoubleSide,
+         specular: 0x555555,
+         shininess: 50,
+         shading: THREE.SmoothShading
+      });
+
+      var planeMat = OA.light ? lightMaterial : baseMaterial;
+ 
+      var plane = new THREE.Mesh(planeGeom, planeMat);
+      if (OA.light) {
+         plane.receiveShadow = true;
+      }
       plane.name = "faceBody";
       face.add(plane);
    };

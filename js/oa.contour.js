@@ -6,8 +6,9 @@ OA.Contour = function(userSetting) {
          color: 0x498698
       },
       line: {
-         color: 0x6ECAE6,
-         lineWidth: 2.5
+         color: 0xFFAC55,
+         lineWidth: 2.5,
+         opacity: 0.5
          //color: 0xE7AB6D
       },
       gridStep: 1,
@@ -112,7 +113,7 @@ OA.Contour = function(userSetting) {
       var openPathMat = new THREE.LineDashedMaterial({
          linewidth: _setting.line.lineWidth,
          color: 0x498698,
-         opacity: 0.5,
+         opacity: _setting.line.opacity,
          dashSize: 1,
          gapSize: 0.5,
          transparent: true,
@@ -165,9 +166,18 @@ OA.Contour = function(userSetting) {
       for (var i = 1; i < len; ++i) {
          var p1 = p3DAry[i],
              p2 = p3DAry[i - 1];
-         if (contour.checkClosed() && p1.y == p2.y && p1.x > p2.x) {
-            contour.uppers.push([p1, p2]);
+         if (p1.y == p2.y && p1.x > p2.x) {
+            if(contour.checkClosed()){
+              contour.uppers.push([p1, p2]);
+            }
          }
+
+         if (p1.y == p2.y) {
+            if(!contour.checkClosed()){
+              contour.uppers.push([p1, p2]);
+            }
+         }
+
          geometry.vertices.push(p1, p2);
       }
       var lineMaterial = new THREE.LineBasicMaterial({
@@ -408,7 +418,7 @@ OA.Contour = function(userSetting) {
       hoverLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
          linewidth: _setting.line.lineWidth,
          color: 0xff0000,
-         opacity: 0.5,
+         opacity: _setting.line.opacity,
          transparent: true,
          dashSize: 1,
          gapSize: 0.5,

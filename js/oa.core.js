@@ -1,7 +1,28 @@
 var OA = {
    REVISION: 'r01',
-   debugMode: true,
-   tunePath: true
+   debugMode: false,
+   tunePath: true,
+   light: true, 
+   paperTexture: true,
+   paperTextureInfo:{
+
+     // src: "img/p7.jpg",
+     // size: 128,
+     // isFill: false
+
+     src: "img/paper0.jpg",
+     size: 128,
+     isFill: false
+
+
+     // src: "img/picture1.jpg",
+     // size: 500,
+     // isFill: true,
+     // offset:{
+     //  x:0,
+     //  y:0.5
+     // }
+   }
 };
 
 OA.Utils = {
@@ -121,10 +142,37 @@ OA.Utils = {
       movePointTexture: null,
       movePointFillTexture: null,
      },
-     loadAllTexture: function(){
-       OA.Utils.texture.ready = true;
-       OA.Utils.texture.data.movePointTexture = THREE.ImageUtils.loadTexture("img/cborder.png");
-       OA.Utils.texture.data.movePointFillTexture = THREE.ImageUtils.loadTexture("img/cfill.png");
+     adjustTextureSize: function(maxWidth, imageSize, isFill){
+        if(isFill){
+          var w = imageSize/100;
+        }else{
+          var w = 2000/imageSize; 
+        }
+        var repeateSize = w/(maxWidth*10);//for 128 * 128 image
+        return repeateSize;
+      },
+     loadAllTexture: function(modelOption){
+      OA.Utils.texture.ready = true;
+      OA.Utils.texture.data.movePointTexture = THREE.ImageUtils.loadTexture("img/cborder.png");
+      OA.Utils.texture.data.movePointFillTexture = THREE.ImageUtils.loadTexture("img/cfill.png");
+
+      var maxW = modelOption.cardW > modelOption.cardH ? modelOption.cardW : modelOption.cardH;
+      if (OA.paperTexture) {
+        var info = OA.paperTextureInfo;
+        OA.Utils.texture.data.paper = THREE.ImageUtils.loadTexture(info.src);
+        var imageSize = info.size; //must change this vaule by loaded image
+        var paperT = OA.Utils.texture.data.paper;
+        if (info.isFill) {
+          //paperT.repeat = 0;
+        }
+        paperT.wrapS = paperT.wrapT = THREE.RepeatWrapping;
+        //paperT.anisotropy = 1;
+        paperT.offset.y = info.offset && info.offset.y?info.offset.y: 0;
+        paperT.offset.x = info.offset && info.offset.x?info.offset.x: 0;
+        paperT.flipY = false;
+        var repeateSize = OA.Utils.texture.adjustTextureSize(maxW, imageSize, info.isFill); //isFull(true) or repeat
+        paperT.repeat.set(repeateSize, repeateSize);
+      }
      },
      getTexture: function(){
        if(OA.Utils.texture.ready){
@@ -405,4 +453,4 @@ OA.Utils = {
 };
 
 OA.log = OA.Utils.log;
-OA.Utils.texture.loadAllTexture();
+
