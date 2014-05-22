@@ -145,76 +145,48 @@ OA.Clipper = function(userSetting) {
 
 
         //test
-
-       
-
-        // sort_vface_list.reverse(); //small -> big
-        // $.each(sort_vface_list, function(i, f) {
-        //     var subj = f.getExPolygons();
-
-        //     for (var j = i + 1; j < sort_vface_list.length; j++) {
-        //         var ff = sort_vface_list[j];
-        //         var clip = ff.getExPolygons();
-        //         var resPoly = polyBoolean(subj, clip, 2);
-        //         if (resPoly) {
-        //             subj = resPoly;
-        //         }
-        //     }
-
-        //     f.rebuild(subj);
-        // });
-
-
-
         sort_vface_list.reverse(); //small -> big
-        $.each(sort_vface_list, function(i, f) {
-            var subj; // = f.getExPolygons();
-            var clip;
 
-            var frontPoly;
+        var fff = sort_vface_list[0]
+        var unionPolys = fff.getExPolygons();
+
+        for (var j = 1; j < sort_vface_list.length; j++) {
+            var clip = sort_vface_list[j].getExPolygons();
+            unionRes = polyBoolean(unionPolys, clip, 1);
+            if (unionRes) {
+                //console.error("union")
+                unionPolys = unionRes;
+            }
+        }
+
+        $.each(baseFaces, function(i, f) {
+            var subj = f.getExPolygons();
+            var clip = unionPolys;
+            var resPoly = polyBoolean(subj, clip, 2);
+            if (resPoly) {
+                subj = resPoly;
+            } else {
+                console.error("failed !");
+            }
+
+            f.rebuild(subj);
+        });
+
+        $.each(sort_vface_list, function(i, f) {
+            var subj = f.getExPolygons();
             for (var j = i + 1; j < sort_vface_list.length; j++) {
                 var ff = sort_vface_list[j];
-                if (j == i + 1) {
-                    frontPoly = ff.getExPolygons();
-                } else {
-
-                    clip = ff.getExPolygons();
-                    var resPoly = polyBoolean(frontPoly, clip, 1);
-                    if (resPoly) {
-                        frontPoly = resPoly;
-                    }
-                }
-            }
-            if (frontPoly) {
-                subj = f.getExPolygons();
-                clip = frontPoly
+                var clip = ff.getExPolygons();
                 var resPoly = polyBoolean(subj, clip, 2);
                 if (resPoly) {
                     subj = resPoly;
                 }
-                f.rebuild(subj);
             }
-        });
-
-        $.each(baseFaces, function(i, f){
-            var subj = f.getExPolygons();
-            $.each(sort_vface_list, function(j, ff) {
-                 var clip = ff.getExPolygons();
-                 var resPoly = polyBoolean(subj, clip, 2);
-                 if (resPoly) {
-                    subj = resPoly;
-                 }else{
-                    console.error("failed !");
-                 }
-            });
             f.rebuild(subj);
+
         });
 
 
-        // console.error("==upper_list=======")
-        // $.each(upper_list, function(i, t) {
-        //     console.error("t: " + t.points[0].Y);
-        // });
         return clipper;
     };
 

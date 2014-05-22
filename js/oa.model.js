@@ -4,8 +4,8 @@ OA.Model = function(userSetting) {
 
   //private
   var _def = {
-    cardW: 640,
-    cardH: 400,
+    cardW: 64,
+    cardH: 40,
     gridNum: 20,
     initAngle: 90
   };
@@ -386,16 +386,25 @@ OA.Model = function(userSetting) {
             if(liveContour!=null){
               if (model.contourState === contourStateType.EDITING) {
                 movePoint.setColorByIndex(1);
-                var pos3Ds = liveContour.getPosition3Ds();
-                var movePointPos = movePoint.getPosition3D();
-                var distFromFitstP;
-              try{
-                distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
-                //uto attract
-                if (pos3Ds.length > 2 && distFromFitstP < gridStep*1.5) {
-                  movePoint.setPosition3D(pos3Ds[0]);
-                  movePoint.setColorByIndex(2);
-                }
+
+
+                try{
+                  
+                  //auto attract
+                  var pos3Ds = liveContour.getPosition3Ds();
+                  var movePointPos = movePoint.getPosition3D();
+                  var distFromFitstP;
+                  var plen = pos3Ds.length;
+                  var firstP = pos3Ds[0];
+                  var lastP = pos3Ds[plen-1];
+                  if (plen > 2 && (firstP.y === lastP.y || firstP.x === lastP.x)) {
+                    distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
+                    if( distFromFitstP < gridStep*2){
+                       movePoint.setPosition3D(pos3Ds[0]);
+                       movePoint.setColorByIndex(2);
+                    }
+                  }
+
                // if(  OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
                //     movePoint.setColorByIndex(2);
                //  }

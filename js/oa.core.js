@@ -1,7 +1,7 @@
 var OA = {
    REVISION: 'r01',
    debugMode: true,
-   tunePath: false
+   tunePath: true
 };
 
 OA.Utils = {
@@ -17,7 +17,7 @@ OA.Utils = {
       var orientation = ClipperLib.Clipper.Orientation(p2dAry);
       if (orientation === flag) {
          p2dAry.reverse();
-         console.error("=reverse hole path=");
+         console.error("=reverse path=");
       }
    },
    exPolygonsClean: function(exPolygons, distance){
@@ -34,8 +34,6 @@ OA.Utils = {
       });
 
       //tunedPath2 = ClipperLib.Clipper.SimplifyPolygons(tunedPath, ClipperLib.PolyFillType.pftNonZero);
-
-
    },
    facesClone: function(faces) {
     var newFaces = [];

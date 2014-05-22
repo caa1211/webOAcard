@@ -260,9 +260,10 @@ OA.Contour = function(userSetting) {
    }
 
    function fineTunePath(path, scale) {
+      //debugger;
       if (OA.tunePath) {
-         //var tunedPath = ClipperLib.Clipper.CleanPolygon(path, _setting.gridStep / 2);
-         var tunedPath = ClipperLib.JS.Clean(path, _setting.gridStep/2);
+         var tunedPath = ClipperLib.Clipper.CleanPolygon(path, 0.1);
+         //var tunedPath = ClipperLib.JS.Clean(path, 0.1);
          //var tunedPath = ClipperLib.JS.Lighten(path,100);
          OA.Utils.modifyPathOrientation(tunedPath, false);
 

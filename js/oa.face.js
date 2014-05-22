@@ -88,7 +88,7 @@ OA.Face = function(userSetting) {
             }
 
             //check orientation before create shape
-            OA.Utils.modifyPathOrientation(p2dAry)
+            //OA.Utils.modifyPathOrientation(p2dAry)
 
             outer_shape = new THREE.Shape(p2dAry);
             var hlen = holes && holes.length;
@@ -106,7 +106,7 @@ OA.Face = function(userSetting) {
                   }
                   if (polygon.length > 0) {
                      //check orientation before create shape
-                     OA.Utils.modifyPathOrientation(holeP2dAry)
+                     //OA.Utils.modifyPathOrientation(holeP2dAry)
 
                      hole_shape = new THREE.Shape(holeP2dAry);
                      hole_shapes.push(hole_shape);
