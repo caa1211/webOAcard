@@ -144,6 +144,9 @@ OA.Clipper = function(userSetting) {
         upper_list.sort(compareUpperY);
 
 
+
+
+
         //test
         sort_vface_list.reverse(); //small -> big
 

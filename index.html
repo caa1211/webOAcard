@@ -48,6 +48,11 @@
         gridNum: 40
     };
     OA.Utils.texture.loadAllTexture(modelOption);
+     var cardW = modelOption.cardW,
+         cardH = modelOption.cardH;
+     var maxWidth = cardW > cardH ? cardW : cardH;
+     var gridStep = maxWidth / modelOption.gridNum;
+
     var oaModel = new OA.Model(modelOption);
     var sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
     var viewerR = oaModel.getCardH() * 2.5;
@@ -61,7 +66,7 @@
  
     var cardMode = 0;
     var stats;
-
+    var pointLight;
     function init(oa) {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
@@ -90,12 +95,18 @@
             var ambientLight = new THREE.AmbientLight(0xFFE4C4);
             scene.add(ambientLight);
             var spotLight = new THREE.SpotLight( 0xffffff);
-            spotLight.position.set( -viewerR*30, viewerR*30, viewerR*40);
-            spotLight.castShadow = true;
+            spotLight.position.set( -viewerR*30, viewerR*25, viewerR*40);
+            //spotLight.castShadow = true;
             scene.add( spotLight );
 
-        // var light = new THREE.AmbientLight(0x444444);
-        // scene.add(light);
+            if (OA.pointLight) {
+                pointLight = new THREE.PointLight(0xcccccc, 1, maxWidth/6);
+                pointLight.position.x = modelOption.cardW / 2;
+                pointLight.position.y = viewerR;
+                pointLight.position.z = viewerR;
+
+                scene.add(pointLight);
+            }
         }
 
         container = document.getElementById('container');
@@ -105,7 +116,7 @@
         orbitCtrls.panLeft(-sceneOffset.x);
         orbitCtrls.panUp(sceneOffset.y);
         orbitCtrls.maxPolarAngle = 120*Math.PI/180;
-        orbitCtrls.rotateUp(15*Math.PI/180);
+        orbitCtrls.rotateUp(10*Math.PI/180);
         orbitCtrls.rotateLeft(-10*Math.PI/180);
         orbitCtrls.zoomSpeed = 0.1;
         orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
@@ -155,6 +166,13 @@
         var opt = cardModeOpts[cardMode];
         orbitCtrls.enabled = opt.cameraControl;
         oaModel.showEditPlane(opt.showEditPlane);
+
+        if(pointLight&&opt.showEditPlane){
+            scene.add(pointLight);
+        }else if(pointLight){
+            scene.remove(pointLight);
+        }
+
         if(opt.angleFixed === -1){
             oaModel.setFoldable(true);
         }else{

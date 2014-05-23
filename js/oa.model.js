@@ -380,6 +380,11 @@ OA.Model = function(userSetting) {
             if(!movePoint.isEqualPosition(hoverPos)){
               movePoint.setPosition3D(hoverPos);
               movePoint.setVisible(true);
+              if (pointLight) {
+                pointLight.position.x = hoverPos.x;
+                pointLight.position.y = hoverPos.y + gridStep;
+                pointLight.position.z = hoverPos.z + gridStep;
+              }
             }
 
             if(liveContour!=null){
@@ -403,10 +408,9 @@ OA.Model = function(userSetting) {
                        movePoint.setColorByIndex(2);
                     }
                   }
-
-               // if(  OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
-               //     movePoint.setColorByIndex(2);
-               //  }
+                  if(  OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
+                     movePoint.setColorByIndex(2);
+                  }
                 liveContour.drawHoverLine(movePoint.getPosition3D());
               }catch(e){
                 console.error("!! distanceTo exception !!");

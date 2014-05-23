@@ -1,12 +1,13 @@
 var OA = {
    REVISION: 'r01',
-   debugMode: false,
+   debugMode: true,
    tunePath: true,
    light: true, 
+   pointLight: true,
    paperTexture: true,
    paperTextureInfo:{
 
-     // src: "img/p7.jpg",
+     // src: "img/p2.jpg",
      // size: 128,
      // isFill: false
 
