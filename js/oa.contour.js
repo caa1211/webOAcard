@@ -382,7 +382,11 @@ OA.Contour = function(userSetting) {
    };
 
    this.addPosition3D = function(inputP) {
-      if (userPosition3Ds.length > 2 && OA.Utils.checkEqualPosition(userPosition3Ds[0], inputP)) {
+      var plen = userPosition3Ds.length;
+      if(plen > 1 && OA.Utils.checkEqualPosition(inputP, userPosition3Ds[plen-1])){
+         return;
+      }
+      if (plen > 2 && OA.Utils.checkEqualPosition(userPosition3Ds[0], inputP)) {
          userPosition3Ds.push(inputP);
          closeContour();
       } else {

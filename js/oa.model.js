@@ -15,7 +15,11 @@ OA.Model = function(userSetting) {
   var cardW = _setting.cardW, cardH = _setting.cardH;
   var maxWidth = cardW > cardH ? cardW : cardH;
   var gridStep = maxWidth / _setting.gridNum;
-  var movePoint = new OA.Point({scale: gridStep});
+  var pointLight = null;
+  if (OA.pointLight) {
+     pointLight = new THREE.PointLight(0x0000ff, 1, maxWidth / 2);
+  }
+  var movePoint = new OA.Point({scale: gridStep, pointLight: pointLight});
   var model = this;
   var userFaces = [];
   var clippedFaces = [];
@@ -32,6 +36,7 @@ OA.Model = function(userSetting) {
   var foldable = true;
   var liveContour = null;
   var contourStateType = {"NO_EDITING" : 0, "EDITING": 1, "CLOSE": 2};
+  var createFace = OA.Utils.createFace;
   this.contourState = contourStateType.NO_EDITING;
 
   var bindEvents = function() {
@@ -97,26 +102,7 @@ OA.Model = function(userSetting) {
     movePoint.setColorByIndex(2);
   }
   
-  function createFace(point2Ds, faceType, t, opt){
-    var rt = 0;
-    if(t){
-      rt = t;
-    }else if(editPlane && editPlane.getT){
-      rt = editPlane.getT();
-    }
-    var _opt = {
-      t: rt,
-      contours: [{
-        "outer": point2Ds,
-        "holes": [
-          [ /*points*/ ]
-        ]
-      }],
-      type: faceType
-    }
-    $.extend(_opt, opt);
-    return new OA.Face(_opt);
-  }
+
 
   function addFaceByContour(contour) {
     if(!contour){
@@ -294,6 +280,12 @@ OA.Model = function(userSetting) {
     bindEvents();
     model.setCardAngle(cardAngle);
 
+    if (pointLight) {
+      pointLight.position.x = modelOption.cardW / 2;
+      pointLight.position.y = viewerR;
+      pointLight.position.z = viewerR;
+      model.add(pointLight);
+    }
 
     
 //========
@@ -322,6 +314,13 @@ OA.Model = function(userSetting) {
 
   this.showEditPlane = function(showFlag){
       OA.Utils.setObject3DVisible(editPlane, !!showFlag);
+
+    if (pointLight && !!showFlag) {
+      model.add(pointLight);
+    } else if (pointLight) {
+      model.remove(pointLight);
+    }
+
   };
 
   function updateModel(faces) {
@@ -382,8 +381,8 @@ OA.Model = function(userSetting) {
               movePoint.setVisible(true);
               if (pointLight) {
                 pointLight.position.x = hoverPos.x;
-                pointLight.position.y = hoverPos.y + gridStep;
-                pointLight.position.z = hoverPos.z + gridStep;
+                pointLight.position.y = hoverPos.y + gridStep+0.1;
+                pointLight.position.z = hoverPos.z + gridStep+0.1;
               }
             }
 
@@ -408,7 +407,7 @@ OA.Model = function(userSetting) {
                        movePoint.setColorByIndex(2);
                     }
                   }
-                  if(  OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
+                  if( plen > 2 && OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
                      movePoint.setColorByIndex(2);
                   }
                 liveContour.drawHoverLine(movePoint.getPosition3D());

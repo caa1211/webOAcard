@@ -99,14 +99,7 @@
             //spotLight.castShadow = true;
             scene.add( spotLight );
 
-            if (OA.pointLight) {
-                pointLight = new THREE.PointLight(0xcccccc, 1, maxWidth/6);
-                pointLight.position.x = modelOption.cardW / 2;
-                pointLight.position.y = viewerR;
-                pointLight.position.z = viewerR;
-
-                scene.add(pointLight);
-            }
+ 
         }
 
         container = document.getElementById('container');
@@ -166,12 +159,6 @@
         var opt = cardModeOpts[cardMode];
         orbitCtrls.enabled = opt.cameraControl;
         oaModel.showEditPlane(opt.showEditPlane);
-
-        if(pointLight&&opt.showEditPlane){
-            scene.add(pointLight);
-        }else if(pointLight){
-            scene.remove(pointLight);
-        }
 
         if(opt.angleFixed === -1){
             oaModel.setFoldable(true);

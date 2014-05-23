@@ -3,7 +3,7 @@ var OA = {
    debugMode: true,
    tunePath: true,
    light: true, 
-   pointLight: false,
+   pointLight: true,
    paperTexture: true,
    paperTextureInfo:{
 
@@ -32,6 +32,26 @@ OA.Utils = {
          console.error(str)
       }
    },
+  createFace: function (point2Ds, faceType, t, opt) {
+    var rt = 0;
+    if (t) {
+      rt = t;
+    } else  {
+      //console.error("need t to create face");
+    }
+    var _opt = {
+      t: rt,
+      contours: [{
+        "outer": point2Ds,
+        "holes": [
+          [ /*points*/ ]
+        ]
+      }],
+      type: faceType
+    }
+    $.extend(_opt, opt);
+    return new OA.Face(_opt);
+  },
    modifyPathOrientation: function(p2dAry, flag){
       if(flag === undefined){
          flag = true;

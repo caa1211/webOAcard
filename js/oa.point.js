@@ -14,14 +14,16 @@ OA.Point = function(userSetting) {
             color: colorMap[0],
             opacity: 1,
             size: 1
-        }
+        }, pointLight: null
     };
-   
+
     var _setting = $.extend({}, _def, userSetting);
     var point = this;
     var position3D = THREE.Vector3();
     var borderMaterial;
     var innerMaterial;
+    var pointLight = _setting.pointLight;
+
     var init = function() {
         var movePointSetting = _setting;
         var movePointTexture = OA.Utils.texture.getTexture().movePointTexture;
@@ -61,6 +63,10 @@ OA.Point = function(userSetting) {
         particles.add(particle2);
         point.add(particles);
 
+        if(pointLight){
+            pointLight.color.setHex(colorMap[0])
+        }
+        
         return point;
     };
     this.isEqualPosition = function(pos){
@@ -102,6 +108,9 @@ OA.Point = function(userSetting) {
         if (index < colorMap.length) {
             borderMaterial.color.setHex(colorMap[index]);
             innerMaterial.color.setHex(colorMap[index]);
+              if(pointLight){
+                 pointLight.color.setHex(colorMap[index]);
+            }
         }
     };
 
