@@ -15,11 +15,8 @@ OA.Model = function(userSetting) {
   var cardW = _setting.cardW, cardH = _setting.cardH;
   var maxWidth = cardW > cardH ? cardW : cardH;
   var gridStep = maxWidth / _setting.gridNum;
-  var pointLight = null;
-  if (OA.pointLight) {
-     pointLight = new THREE.PointLight(0x0000ff, 1, maxWidth / 2);
-  }
-  var movePoint = new OA.Point({scale: gridStep, pointLight: pointLight});
+
+  var movePoint;
   var model = this;
   var userFaces = [];
   var clippedFaces = [];
@@ -133,7 +130,7 @@ OA.Model = function(userSetting) {
 
   function onMousedown(event){
     event.preventDefault();
-    if (movePoint.isVisible) {
+    if (movePoint.inEditplane) {
        cameraCtrl.noZoom = true;
        cameraCtrl.noRotate = true;
 
@@ -223,6 +220,10 @@ OA.Model = function(userSetting) {
 
   var init = function() {
 
+    movePoint = new OA.Point({scale: gridStep});
+    model.add(movePoint);
+    //movePoint.setVisible(true);
+
     var editBufferY = gridStep * 4;
     var pEditAry = [
       [0, editBufferY],
@@ -248,8 +249,8 @@ OA.Model = function(userSetting) {
     });
     model.add(editPlane);
     //refreshFaceGroup.add(editPlane);
-    model.add(movePoint);
-    
+
+
     var pAryV = [
       [0, 0],
       [cardW, 0],
@@ -279,14 +280,6 @@ OA.Model = function(userSetting) {
 
     bindEvents();
     model.setCardAngle(cardAngle);
-
-    if (pointLight) {
-      pointLight.position.x = modelOption.cardW / 2;
-      pointLight.position.y = viewerR;
-      pointLight.position.z = viewerR;
-      model.add(pointLight);
-    }
-
     
 //========
     // OA.Utils.cleanObject3D(model);
@@ -312,15 +305,13 @@ OA.Model = function(userSetting) {
     return null;
   }
 
-  this.showEditPlane = function(showFlag){
-      OA.Utils.setObject3DVisible(editPlane, !!showFlag);
-
-    if (pointLight && !!showFlag) {
-      model.add(pointLight);
-    } else if (pointLight) {
-      model.remove(pointLight);
+  this.showEditPlane = function(showFlag) {
+    OA.Utils.setObject3DVisible(editPlane, !!showFlag);
+    if (!showFlag) {
+      movePoint.setVisible(false);
+    }else{
+      movePoint.setVisible(true);
     }
-
   };
 
   function updateModel(faces) {
@@ -378,18 +369,11 @@ OA.Model = function(userSetting) {
             var hoverPos = getHoverPosition(intersector);
             if(!movePoint.isEqualPosition(hoverPos)){
               movePoint.setPosition3D(hoverPos);
-              movePoint.setVisible(true);
-              if (pointLight) {
-                pointLight.position.x = hoverPos.x;
-                pointLight.position.y = hoverPos.y + gridStep+0.1;
-                pointLight.position.z = hoverPos.z + gridStep+0.1;
-              }
+              movePoint.inEditplane = true;
             }
-
             if(liveContour!=null){
               if (model.contourState === contourStateType.EDITING) {
                 movePoint.setColorByIndex(1);
-
 
                 try{
                   
@@ -420,10 +404,10 @@ OA.Model = function(userSetting) {
             }
           }
         }else{
-          movePoint.setVisible(false);
+          movePoint.inEditplane = false;
         }
       }else{
-        movePoint.setVisible(false);
+        movePoint.inEditplane = false;
       }
   };
 

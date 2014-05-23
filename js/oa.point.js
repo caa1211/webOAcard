@@ -14,7 +14,7 @@ OA.Point = function(userSetting) {
             color: colorMap[0],
             opacity: 1,
             size: 1
-        }, pointLight: null
+        }
     };
 
     var _setting = $.extend({}, _def, userSetting);
@@ -22,7 +22,7 @@ OA.Point = function(userSetting) {
     var position3D = THREE.Vector3();
     var borderMaterial;
     var innerMaterial;
-    var pointLight = _setting.pointLight;
+    var pointLight = null;
 
     var init = function() {
         var movePointSetting = _setting;
@@ -56,19 +56,23 @@ OA.Point = function(userSetting) {
         particle2.material = innerMaterial;
         particle2.scale.x = particle2.scale.y = particle2.scale.z = _setting.scale * innerSettng.size;
         particle.name = "inner";
-        //material.color.setHex( 0xff0000 );
 
         var particles = new THREE.ParticleSystem();
         particles.add(particle);
         particles.add(particle2);
         point.add(particles);
 
-        if(pointLight){
-            pointLight.color.setHex(colorMap[0])
+
+        if (OA.pointLight) {
+            pointLight = new THREE.PointLight(0x00ffff, 1, _setting.scale * 6);
+            pointLight.position.x = 0;
+            pointLight.position.y = _setting.scale;
+            pointLight.position.z = _setting.scale;
+            point.add(pointLight);
         }
-        
         return point;
     };
+
     this.isEqualPosition = function(pos){
         if(position3D === undefined){
             return false;
@@ -86,6 +90,7 @@ OA.Point = function(userSetting) {
         position3D = hoverPos.clone();
         point.position = hoverPos.clone();
         point.position.z = point.position.z + 0.3;
+
     };
 
     this.getPosition3D = function(){
@@ -108,7 +113,7 @@ OA.Point = function(userSetting) {
         if (index < colorMap.length) {
             borderMaterial.color.setHex(colorMap[index]);
             innerMaterial.color.setHex(colorMap[index]);
-              if(pointLight){
+            if(pointLight){
                  pointLight.color.setHex(colorMap[index]);
             }
         }
@@ -118,11 +123,21 @@ OA.Point = function(userSetting) {
         if (color) {
             borderMaterial.color.setHex(color);
             innerMaterial.color.setHex(color);
+            if (pointLight) {
+                pointLight.color.setHex(color);
+            }
         }
     };
 
     this.setVisible = function(isVisible){
-        OA.Utils.setObject3DVisible(point, isVisible);
+        if (point.isVisible == undefined || point.isVisible != isVisible) {
+            OA.Utils.setObject3DVisible(point, isVisible);
+            if (pointLight) {
+                pointLight.visible = isVisible;
+            }
+        }
+
+        //debugger;
     };
 
     return init();

@@ -29,15 +29,21 @@ OA.Contour = function(userSetting) {
    var hoverLine = null;
    var circleGroup = null;
    var baseT = null;
-
+   var startPoint = null;
    var init = function() {
       contour.t = _setting.t;
       contour.baseT = _setting.t;
-      if (!lineGroup) {
-         lineGroup = new THREE.Object3D();
-         contour.add(lineGroup);
-         lineGroup.position.z = 0.1;
-      }
+     
+      lineGroup = new THREE.Object3D();
+      contour.add(lineGroup);
+      lineGroup.position.z = 0.1;
+
+      pointGroup = new THREE.Object3D();
+      contour.add(pointGroup);
+      pointGroup.position.z = 0.2;
+      startPoint = new OA.Point({
+         scale: _setting.gridStep
+      });
       return contour;
    };
 
@@ -59,9 +65,9 @@ OA.Contour = function(userSetting) {
       var drawOpt = $.extend({}, defaultOpt, userOpt);
 
       if (pointGroup) {
-         contour.remove(pointGroup);
+         OA.Utils.cleanObject3D(pointGroup);
       }
-      pointGroup = new THREE.Object3D();
+      //pointGroup = new THREE.Object3D();
       var pLen = p3DAry.length;
       var radius = drawOpt.radius;
       var segments = 32;
@@ -73,9 +79,7 @@ OA.Contour = function(userSetting) {
       for (var i = 0; i < pLen; ++i) {
          p = p3DAry[i];
          if (i == 0 && !isClosed) {
-            circle = new OA.Point({
-               scale: _setting.gridStep
-            });
+            circle = startPoint;
             circle.setColor(drawOpt.color);
          } else {
             if (i === 0 && !isClosed) {
@@ -91,7 +95,6 @@ OA.Contour = function(userSetting) {
                depthWrite: false
             });
             circle = new THREE.Mesh(circleGeometry, material);
-
          }
          circle.position.x = p.x;
          circle.position.y = p.y;

@@ -66,8 +66,10 @@
  
     var cardMode = 0;
     var stats;
-    var pointLight;
+   
     function init(oa) {
+       
+      //   debugger;
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
