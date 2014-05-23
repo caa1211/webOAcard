@@ -253,7 +253,7 @@ OA.Model = function(userSetting) {
       scale: gridStep
     });
     movePoint.position.x = cardW/2;
-    movePoint.position.y = 0;
+    movePoint.position.y = gridStep*2;
     movePoint.position.z = initEditT;
     model.add(movePoint);
     //refreshFaceGroup.add(editPlane);
