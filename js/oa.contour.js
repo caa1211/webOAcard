@@ -6,9 +6,9 @@ OA.Contour = function(userSetting) {
          color: 0x498698
       },
       line: {
-         color: 0xFFAC55,
+         color: 0x374F69,
          lineWidth: 2.5,
-         opacity: 0.5
+         opacity: 0.8
          //color: 0xE7AB6D
       },
       gridStep: 1,
@@ -30,6 +30,8 @@ OA.Contour = function(userSetting) {
    var circleGroup = null;
    var baseT = null;
    var startPoint = null;
+   var modifyFloatPoint = OA.Utils.modifyFloatPoint;
+
    var init = function() {
       contour.t = _setting.t;
       contour.baseT = _setting.t;
@@ -133,6 +135,7 @@ OA.Contour = function(userSetting) {
    function addUpperLines(parent){
       var geometry = new THREE.Geometry();
       var len = contour.uppers.length;
+
       for (var i = 0; i < len; ++i) {
          var p1 = contour.uppers[i][0],
              p2 = contour.uppers[i][1];
@@ -169,15 +172,14 @@ OA.Contour = function(userSetting) {
       for (var i = 1; i < len; ++i) {
          var p1 = p3DAry[i],
              p2 = p3DAry[i - 1];
-         if (p1.y == p2.y && p1.x > p2.x) {
-            if(contour.checkClosed()){
-              contour.uppers.push([p1, p2]);
-            }
-         }
 
-         if (p1.y == p2.y) {
-            if(!contour.checkClosed()){
-              contour.uppers.push([p1, p2]);
+         if (!contour.checkClosed()) {
+            if (p1.y === p2.y) {
+               contour.uppers.push([p1, p2]);
+            }
+         } else {
+            if (p1.y === p2.y && p1.x > p2.x) {
+               contour.uppers.push([p1, p2]);
             }
          }
 
@@ -279,7 +281,6 @@ OA.Contour = function(userSetting) {
          //var tunedPath = ClipperLib.JS.Clean(path, 0.1);
          //var tunedPath = ClipperLib.JS.Lighten(path,100);
          OA.Utils.modifyPathOrientation(tunedPath, false);
-
          // var tunedPath2 = null;
          // try {
          //    tunedPath2 = ClipperLib.Clipper.SimplifyPolygon(tunedPath, ClipperLib.PolyFillType.pftEvenOdd);
@@ -290,15 +291,15 @@ OA.Contour = function(userSetting) {
          //    tunedPath = tunedPath2;
          // }
 
-         if (scale) {
-            var mp = getMiddlePointFromPath(tunedPath);
-            if (scale > 0) {
-               ClipperLib.JS.ScaleUpPath(tunedPath, scale);
-            } else if (scale < 0) {
-               ClipperLib.JS.ScaleDownPath(tunedPath, -1 * scale);
-            }
-            movePoint2Ds(tunedPath, mp);
-         }
+         // if (scale) {
+         //    var mp = getMiddlePointFromPath(tunedPath);
+         //    if (scale > 0) {
+         //       ClipperLib.JS.ScaleUpPath(tunedPath, scale);
+         //    } else if (scale < 0) {
+         //       ClipperLib.JS.ScaleDownPath(tunedPath, -1 * scale);
+         //    }
+         //    movePoint2Ds(tunedPath, mp);
+         // }
          return tunedPath;
       } else {
          OA.Utils.modifyPathOrientation(path, false);
@@ -320,6 +321,7 @@ OA.Contour = function(userSetting) {
       for (i = 0; i < upper3Ds.length; i++) {
          upper2Ds.push([D3To2(upper3Ds[i][0], t), D3To2(upper3Ds[i][1], t)]);
       }
+      //d2->d3 and d3->d2 maybe an issue here
       return upper2Ds;
    };
 
@@ -337,14 +339,30 @@ OA.Contour = function(userSetting) {
       return closePos3Ds;
    }
 
+   function collectUpper2Ds(point2Ds){
+      var ary = [];
+      $.each(point2Ds, function(i, p2d){
+            // if (p1.y === p2.y && p1.x > p2.x) {
+            //    contour.uppers.push([p1, p2]);
+            // }
+
+         debugger;
+      })
+      return ary;
+   }
+
    function drawCloseCoutour() {
-      point2Ds = fineTunePath(point2Ds);
+
+      point2Ds = fineTunePath(point2Ds);//also modify Orientation 
+      //upper2Ds = collectUpper2Ds(point2Ds);
+
       var closePos3Ds = convertPoint2DsTo3Ds(point2Ds);
+      //collect uppers?
       updateContour(closePos3Ds, {
          color: 0x5F8A37,
          radius: 0.6
       }, {
-         color: 0x7EB649
+         color: 0x376938
       });
    }
 
@@ -362,10 +380,7 @@ OA.Contour = function(userSetting) {
 
       //generate point2Ds from position3Ds;
       for (var i = 0; i < userPosition3Ds.length; i++) {
-         p = {
-            X: userPosition3Ds[i].x,
-            Y: t - userPosition3Ds[i].y
-         };
+         p = OA.Utils.D3To2(userPosition3Ds[i], t);
          point2Ds.push(p);
       }
 
@@ -386,6 +401,7 @@ OA.Contour = function(userSetting) {
 
    this.addPosition3D = function(inputP) {
       var plen = userPosition3Ds.length;
+      //inputP = OA.Utils.adjustFloat(inputP);
       if(plen > 1 && OA.Utils.checkEqualPosition(inputP, userPosition3Ds[plen-1])){
          return;
       }
@@ -424,7 +440,7 @@ OA.Contour = function(userSetting) {
       geometry.computeLineDistances();
       hoverLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
          linewidth: _setting.line.lineWidth,
-         color: 0xff0000,
+         color: _setting.line.color,
          opacity: _setting.line.opacity,
          transparent: true,
          dashSize: 1,

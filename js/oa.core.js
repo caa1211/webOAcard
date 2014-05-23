@@ -1,10 +1,12 @@
 var OA = {
    REVISION: 'r01',
    debugMode: true,
+   logLevel: 2, //0: error, 1: warning, 2: info
    tunePath: true,
    light: true, 
-   pointLight: true,
+   pointLight: false,
    paperTexture: true,
+   clipScale: 100,
    paperTextureInfo:{
 
      // src: "img/p2.jpg",
@@ -14,7 +16,6 @@ var OA = {
      src: "img/paper0.jpg",
      size: 128,
      isFill: false
-
 
      // src: "img/picture1.jpg",
      // size: 500,
@@ -27,11 +28,14 @@ var OA = {
 };
 
 OA.Utils = {
-   log: function(str){
-      if(OA.debugMode){
-         console.error(str)
-      }
-   },
+  log: function(str, logLevel) {
+    if (!logLevel) {
+      logLevel = 2;
+    }
+    if (logLevel <= OA.logLevel) {
+      console.error(str);
+    }
+  },
   createFace: function (point2Ds, faceType, t, opt) {
     var rt = 0;
     if (t) {
@@ -51,6 +55,25 @@ OA.Utils = {
     }
     $.extend(_opt, opt);
     return new OA.Face(_opt);
+  },
+  log10: function(val) {
+    return Math.log(val) / Math.LN10;
+  },
+  modifyFloatPoint: function(num) {
+    var clipScale = OA.clipScale;
+    var size = OA.Utils.log10(clipScale);
+    size = Math.floor(size+0.5); //!!! Javascript float error @@!
+    return OA.Utils.formatFloat(num, size);
+  },
+  mf: function(num){
+    return OA.Utils.modifyFloatPoint(num);
+  },
+  adjustFloat: function(obj) {
+     var mf = OA.Utils.modifyFloatPoint;
+     if(obj instanceof THREE.Vector3){
+        var p = new THREE.Vector3(mf(obj.x), mf(obj.y), mf(obj.z));
+        return p;
+     }
   },
    modifyPathOrientation: function(p2dAry, flag){
       if(flag === undefined){
@@ -85,7 +108,9 @@ OA.Utils = {
     return newFaces;
    },
    D3To2: function(d3p, t){
-      return {X: d3p.x, Y: t - d3p.y};
+      //return {X: d3p.x, Y: t - d3p.y};
+      var mf = OA.Utils.mf;
+      return {X: mf(d3p.x), Y: mf(t - d3p.y)};
    },
    D2To3: function(d2p, t, type){
       var d3p = null;
@@ -93,6 +118,9 @@ OA.Utils = {
         d3p = new THREE.Vector3(d2p.X, t - d2p.Y , t);
       }else if(type === "HFACE"){
         d3p = new THREE.Vector3(d2p.X, t , t + d2p.y);
+      }
+      if(d3p!=null){
+        d3p = OA.Utils.adjustFloat(d3p);
       }
       return d3p;
    },

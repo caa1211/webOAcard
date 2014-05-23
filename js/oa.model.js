@@ -15,7 +15,9 @@ OA.Model = function(userSetting) {
   var cardW = _setting.cardW, cardH = _setting.cardH;
   var maxWidth = cardW > cardH ? cardW : cardH;
   var gridStep = maxWidth / _setting.gridNum;
+  var mf = OA.Utils.mf;
   var initEditT = Math.floor(_setting.gridNum/4) * gridStep;
+  initEditT = mf(initEditT);
   var movePoint;
   var model = this;
   var userFaces = [];
@@ -24,6 +26,7 @@ OA.Model = function(userSetting) {
   var edges = [];
   var raycaster = null;
   var cardAngle;
+
   var refreshFaceGroup = new THREE.Object3D();
   var cameraCtrl = {
     noZoom: false,
@@ -189,7 +192,7 @@ OA.Model = function(userSetting) {
     if(editPlane.isVisible && model.contourState!==contourStateType.EDITING){
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
-      var newDist = formatFloat(editPlane.getT() + gridStep * d , 4);
+      var newDist = mf(editPlane.getT() + gridStep * d);
       if (d > 0 && newDist < cardH) {
         editPlane.position.z = newDist+0.1;
         editPlane.setT(newDist);

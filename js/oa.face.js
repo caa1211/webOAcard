@@ -332,10 +332,17 @@ OA.Face = function(userSetting) {
    }
 
    this.rebuild = function(contours){
-      if(contours){
-         _setting.contours = contours;
+      try {
+         if(!contours || contours.length === 0){
+            return false;
+         }
+         if (contours) {
+            _setting.contours = contours;
+         }
+         buildByCoutours(_setting.contours);
+      } catch (e) {
+         OA.log("rebuild contour failed " +JSON.stringify(contours), 0);
       }
-      buildByCoutours(_setting.contours);
    };
 
    this.getUpper2Ds = function(){

@@ -14,12 +14,14 @@ OA.Clipper = function(userSetting) {
     var faces = _setting.faces;
     var angle = _setting.angle;
     var vface_list = [];
+    var mf = OA.Utils.mf;
     var hface_list = [];
     var upper_list = [];
     var cardW = _setting.cardW,
         cardH = _setting.cardH;
-    var clipScale = 100;
+    var clipScale = OA.clipScale;
     var createFace = OA.Utils.createFace;
+    var modifyFloatPoint = OA.Utils.modifyFloatPoint;
     var totalCardArea = [{
         X: 0,
         Y: -cardH
@@ -42,14 +44,12 @@ OA.Clipper = function(userSetting) {
     //3. create HFACE
     //  3.1 create baseHFace from upper
     //  3.2 for any vface in vface_list
-    //  3.3 create tmpHFace from upper to vface
-    //  3.4 create tempvface (tempHFace sub vface)
-    //  3.5 baseHFace = baseHFace - tempvface
-    //  3.6 if baseHFace is become 2 pieces 
+    //  3.3 create small fakeHFace from upper to vface
+    //  3.4 create tempvface (vface diff small fakeHFace)
+    //  3.5 HFace = baseHFace - tempvface
+    //  3.6 if baseHFace is become 2 pieces (check connection)
     //      3.6.1 baseHFace  = the piece which connect with upper
-    //      3.6.2 if baseHFace is null, break for loop; and else, continue to check next vface
-    //4. store baseHFACE to hface_list
-
+    
     //###Add to model###
     //1. add each vface in reverse vface_list to model ()
     //2. add each hface in hface_list to model
@@ -76,6 +76,7 @@ OA.Clipper = function(userSetting) {
     //     console.error("t: " + t.getT());
     // });
 
+    var clipType = {ctIntersection: 0, ctUnion: 1, ctDifference: 2, ctXor: 3};
     function polyBoolean(subjPoly, clipPoly, clipType) {
         var success = null;
         try {
@@ -106,11 +107,13 @@ OA.Clipper = function(userSetting) {
         if (success) {
             var expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_paths);
             if (OA.tunePath) {
-                OA.Utils.exPolygonsClean(expolygons, 0.1);
+                OA.Utils.exPolygonsClean(expolygons, 1/clipScale);
             }
             OA.Utils.scaleDownExPolygon(expolygons, clipScale);
             return expolygons;
         } else {
+            debugger;
+            console.error("polygon boolean failed !");
             return null;
         }
 
@@ -168,56 +171,114 @@ OA.Clipper = function(userSetting) {
         return fakeHFace;
     }
 
+
+    function getConnectedPoly(upper, polys) {
+        var resPolys = [];
+        var upperMaxX = modifyFloatPoint(upper.points[0].X);
+        var upperMinX = modifyFloatPoint(upper.points[1].X);
+        var upperY = modifyFloatPoint(upper.points[0].Y);
+
+        $.each(polys, function(i, poly) {
+            var vaildPoly = null;
+            $.each(poly && poly.outer, function(j, p2d) {
+                if (p2d.Y === upperY && p2d.X <= upperMaxX && p2d.X >= upperMinX) {
+                    vaildPoly = poly;
+                }
+            });
+            if (vaildPoly) {
+                resPolys.push(vaildPoly);
+            }
+        });
+
+        if(resPolys.length === 0){
+            OA.log("no remain hface !", 2);
+            resPolys = null;
+        }
+
+        return resPolys;
+    }
+
+    function getPolyHeight(poly){
+        var paths = ClipperLib.JS.ExPolygonsToPaths(poly);
+        var bounds = ClipperLib.Clipper.GetBounds(paths);
+        var polyHeight = Math.abs(bounds.top - bounds.bottom);
+        polyHeight = modifyFloatPoint(polyHeight);
+        console.error("polyHeight--" + polyHeight);
+        return polyHeight;
+    }
+
     function createHFaces(upper_list, vface_list) {
 
         var res_list = [];
         var ut, p2ds, hFace, ft, smallFakeHface;
+        var resPoly, cntPoly, clippedPoly;
         $.each(upper_list, function(i, upper) {
-           
-            //debugger;
             var ut = upper.t;
+
+            ut = modifyFloatPoint(ut);
             var hFace = fakeHface(upper);
 
-            //res_list.push(hFace);
-
-            $.each(vface_list, function(j, f){
+            console.error("ut--" + ut);
+            $.each(vface_list, function(j, f) {
                 ft = f.getT();
-                // if (ft <= ut) {
-                //     return true;
-                // }
-                
-            if (ft < ut) {
+                ft = modifyFloatPoint(ft);
+                if (ft >= ut) {
+                    clippedPoly = polyBoolean(
+                        hFace.getExPolygons(),
+                        f.getExPolygons(),
+                        clipType.ctDifference
+                    );
+                    cntPoly = getConnectedPoly(upper, clippedPoly);
+                    if (cntPoly /*&& getPolyHeight(cntPoly) >=ut*/) {
+                        hFace.rebuild(cntPoly);
+                        return true;
+                    }
+                }
+                if (ft < ut) {
+                    //create smallFakeHface from upper to pervious vface
+                    var smallFakeHface = fakeHface(upper, ut - ft);
 
-                var smallFakeHface = fakeHface(upper, ut-ft);
-                 res_list.push(smallFakeHface);
-             }
+                    //create clipedVpoly which is the vface diff smallFakeHface
+                    var clipedVpoly = polyBoolean(
+                        f.getExPolygons(),
+                        smallFakeHface.getExPolygons(),
+                        clipType.ctDifference
+                    );
+                    // hface diff clipedVpoly
+                    var clipedHPoly = polyBoolean(
+                        hFace.getExPolygons(),
+                        clipedVpoly,
+                        clipType.ctDifference
+                    );
 
-            //  var clip = vface_list[j].getExPolygons();
-            // unionRes = polyBoolean(unionPolys, clip, 1);
-
-
-
-
-
+                    if(clipedHPoly){
+                        //clipedHPoly may be several pieces, 
+                        //but only need connected poly for hface
+                        cntPoly = getConnectedPoly(upper, clipedHPoly);
+                        if (cntPoly) {
+                            hFace.rebuild(cntPoly);
+                        }else{
+                            hFace = null;
+                        }
+                    }
+                }
             });
-
-            //--
+            if(hFace != null){
+                res_list.push(hFace);
+            }
         });
-
         return res_list;
-
-
     }
 
     var init = function() {
 
         clipBoundary(faces);
-        //step 1
+        //##step 1 create vface_list (sort by t big->small) 
         //vface_list = faces.slice(0); //not deep copy
         vface_list = OA.Utils.facesClone(faces);
         vface_list.sort(compareFaceT);
 
-        //step 2
+        //##step 2 create upper_list (sort by 2D z)
         $.each(vface_list, function(i, f) {
             var upper2Ds = f.getUpper2Ds();
             if (upper2Ds) {
@@ -231,13 +292,11 @@ OA.Clipper = function(userSetting) {
         });
         upper_list.sort(compareUpperY);
 
+        //##step 3 create HFACE
+        hface_list = createHFaces(upper_list, vface_list);
 
-     hface_list = createHFaces(upper_list, vface_list);
 
-        // $.each(hface_list, function(i, f) {
-          
-        //     f.rebuild(subj);
-        // });
+        //##step 4 
 
         //test
         vface_list.reverse(); //small -> big
