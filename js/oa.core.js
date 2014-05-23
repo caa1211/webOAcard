@@ -3,17 +3,17 @@ var OA = {
    debugMode: true,
    tunePath: true,
    light: true, 
-   pointLight: true,
+   pointLight: false,
    paperTexture: true,
    paperTextureInfo:{
 
-     // src: "img/p2.jpg",
-     // size: 128,
-     // isFill: false
-
-     src: "img/paper0.jpg",
+     src: "img/p2.jpg",
      size: 128,
      isFill: false
+
+     // src: "img/paper0.jpg",
+     // size: 128,
+     // isFill: false
 
 
      // src: "img/picture1.jpg",

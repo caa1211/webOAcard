@@ -151,7 +151,7 @@ OA.Face = function(userSetting) {
          visible: _setting.opacity === 0 ? false : true,
          side: THREE.DoubleSide,
          specular: 0x333333,
-         shininess: 100,
+         shininess: 40,
          shading: THREE.SmoothShading
       });
 
