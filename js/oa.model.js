@@ -15,7 +15,7 @@ OA.Model = function(userSetting) {
   var cardW = _setting.cardW, cardH = _setting.cardH;
   var maxWidth = cardW > cardH ? cardW : cardH;
   var gridStep = maxWidth / _setting.gridNum;
-
+  var initEditT = Math.floor(_setting.gridNum/4) * gridStep;
   var movePoint;
   var model = this;
   var userFaces = [];
@@ -193,10 +193,12 @@ OA.Model = function(userSetting) {
       if (d > 0 && newDist < cardH) {
         editPlane.position.z = newDist+0.1;
         editPlane.setT(newDist);
+        movePoint.setT(newDist);
         // viewerR += gridStep;
       } else if (d < 0 && newDist >= 0) {
         editPlane.position.z = newDist+0.1;
         editPlane.setT(newDist);
+        movePoint.setT(newDist);
       }
 
       if(model.contourState === contourStateType.CLOSE){
@@ -219,10 +221,6 @@ OA.Model = function(userSetting) {
   };
 
   var init = function() {
-
-    movePoint = new OA.Point({scale: gridStep});
-    model.add(movePoint);
-    //movePoint.setVisible(true);
 
     var editBufferY = gridStep * 4;
     var pEditAry = [
@@ -247,9 +245,18 @@ OA.Model = function(userSetting) {
           },
           name: "editPlane"
     });
+    editPlane.position.z = initEditT;
+    editPlane.setT(initEditT);
     model.add(editPlane);
-    //refreshFaceGroup.add(editPlane);
 
+    movePoint = new OA.Point({
+      scale: gridStep
+    });
+    movePoint.position.x = cardW/2;
+    movePoint.position.y = 0;
+    movePoint.position.z = initEditT;
+    model.add(movePoint);
+    //refreshFaceGroup.add(editPlane);
 
     var pAryV = [
       [0, 0],
@@ -376,7 +383,6 @@ OA.Model = function(userSetting) {
                 movePoint.setColorByIndex(1);
 
                 try{
-                  
                   //auto attract
                   var pos3Ds = liveContour.getPosition3Ds();
                   var movePointPos = movePoint.getPosition3D();

@@ -105,6 +105,11 @@ OA.Point = function(userSetting) {
         return position3D.z;
     };
 
+    this.setT = function(t){
+        position3D.z = t;
+        point.position.z = t + 0.3;
+    };
+
     this.setBorderColor = function(color){
         borderMaterial.color.setHex( 0xff0000 );
     };

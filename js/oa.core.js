@@ -3,7 +3,7 @@ var OA = {
    debugMode: true,
    tunePath: true,
    light: true, 
-   pointLight: false,
+   pointLight: true,
    paperTexture: true,
    paperTextureInfo:{
 
