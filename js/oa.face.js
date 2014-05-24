@@ -21,7 +21,7 @@ OA.Face = function(userSetting) {
       addingLine: null,
       depthTest: true,
       depthWrite: true,
-      name: null,
+      name: null
    };
    var face = this;
    var isAngleFrom0 = false;

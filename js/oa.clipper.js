@@ -423,24 +423,26 @@ OA.Clipper = function(userSetting) {
         makeModel();
     }
 
-    this.doClip = function() {
+    this.doClip = function(cardAngle) {
         //return clipped faces
         for (var i = 0; i < baseFaces.length; i++) {
-           // baseFaces[i].setAngle(angle);
+            baseFaces[i].setAngle(cardAngle);
             clipper.push(baseFaces[i]);
         }
 
         for (var i = 0; i < vface_list.length; i++) {
-           // vface_list[i].setAngle(angle);
+            vface_list[i].setAngle(cardAngle);
             clipper.push(vface_list[i]);
         }
 
 
         for (var i = 0; i < hface_list.length; i++) {
-            //hface_list[i].setAngle(angle);
+            hface_list[i].setAngle(cardAngle);
             clipper.push(hface_list[i]);
         }
-        return true;
+       
+        return clipper.length>0;
+        
     };
 
 

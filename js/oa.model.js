@@ -1,4 +1,4 @@
-OA.Model = function(userSetting) {
+OA.Model = function(userSetting, isPattern2D) {
 
   THREE.Object3D.call(this);
 
@@ -12,16 +12,18 @@ OA.Model = function(userSetting) {
 
   var editPlane = null;
   var _setting = $.extend({}, _def, userSetting);
-  var cardW = _setting.cardW, cardH = _setting.cardH;
+  var cardW = _setting.cardW,
+    cardH = _setting.cardH;
   var maxWidth = cardW > cardH ? cardW : cardH;
   var gridStep = maxWidth / _setting.gridNum;
   var mf = OA.Utils.mf;
-  var initEditT = Math.floor(_setting.gridNum/4) * gridStep;
+  var initEditT = Math.floor(_setting.gridNum / 4) * gridStep;
   initEditT = mf(initEditT);
   var movePoint;
   var model = this;
   var userFaces = [];
   var clippedFaces = [];
+  var cloned180ClippedFaces = [];
   var baseVFace, baseHFace;
   var edges = [];
   var raycaster = null;
@@ -35,9 +37,34 @@ OA.Model = function(userSetting) {
   refreshFaceGroup.cardAngle = null;
   var foldable = true;
   var liveContour = null;
-  var contourStateType = {"NO_EDITING" : 0, "EDITING": 1, "CLOSE": 2};
+  var contourStateType = {
+    "NO_EDITING": 0,
+    "EDITING": 1,
+    "CLOSE": 2
+  };
   var createFace = OA.Utils.createFace;
   this.contourState = contourStateType.NO_EDITING;
+
+  var modeType = {
+    "pattern3D": 0,
+    "pattern2D": 1
+  };
+
+
+  var model2D = null;
+  var mode = modeType.pattern3D
+  if (isPattern2D === true) {
+      mode = modeType.pattern2D
+  } else {
+    var setting2D = $.extend({}, _setting, {
+      initAngle: 180,
+      gridNum: 1
+    });
+    model2D = new OA.Model(setting2D, true);
+    model2D.unbindEvents();
+    mode = modeType.pattern3D;
+  }
+
 
   var bindEvents = function() {
     $(window).bind("mousewheel", onMousewheel);
@@ -64,7 +91,7 @@ OA.Model = function(userSetting) {
       cz = 0;
     if (intersectorObj.parent instanceof OA.Face) {
       cz = intersectorObj.parent.getT && intersectorObj.parent.getT();
-    }else{
+    } else {
       console.error("do not get correct intersector position!");
     }
     return new THREE.Vector3(cx, cy, cz);
@@ -81,8 +108,11 @@ OA.Model = function(userSetting) {
 
   function enterContourEditingState() {
     model.contourState = contourStateType.EDITING;
-    if(liveContour == null){
-      liveContour = new OA.Contour({gridStep: gridStep, t: editPlane.getT()});
+    if (liveContour == null) {
+      liveContour = new OA.Contour({
+        gridStep: gridStep,
+        t: editPlane.getT()
+      });
       model.add(liveContour);
     }
     //cameraCtrl.enabled = false;
@@ -101,16 +131,16 @@ OA.Model = function(userSetting) {
     model.contourState = contourStateType.CLOSE;
     movePoint.setColorByIndex(2);
   }
-  
+
 
 
   function addFaceByContour(contour) {
-    if(!contour){
+    if (!contour) {
       return;
     }
     var point2Ds = contour.getPoint2Ds();
     if (point2Ds.length > 2) {
-      var newFace = createFace(point2Ds, "VFACE", contour.t,{
+      var newFace = createFace(point2Ds, "VFACE", contour.t, {
         baseContour: contour,
         upper2Ds: contour.getUpper2Ds()
       });
@@ -118,69 +148,71 @@ OA.Model = function(userSetting) {
       userFaces.push(newFace);
       //newFace.rebuild(OA.Utils.getTestExPolygon());
       var clipper = new OA.Clipper({
-          baseFaces: [baseVFace, baseHFace],
-          faces: userFaces,
-          angle: cardAngle,
-          cardW: cardW,
-          cardH: cardH
+        baseFaces: [baseVFace, baseHFace],
+        faces: userFaces,
+        angle: cardAngle,
+        cardW: cardW,
+        cardH: cardH
       });
-      if(clipper.doClip()){
-        clippedFaces = clipper;
-        updateModel(clippedFaces);
+
+      if (clipper.doClip(cardAngle)) {
+         clippedFaces = clipper;
+         //for 2D plattern display
+         cloned180ClippedFaces = model.doCloneClippedFaces(180);
+         updateModel(clippedFaces);
       }
     }
   }
 
-  function onMousedown(event){
+  function onMousedown(event) {
     event.preventDefault();
     if (movePoint.inEditplane) {
-       cameraCtrl.noZoom = true;
-       cameraCtrl.noRotate = true;
+      cameraCtrl.noZoom = true;
+      cameraCtrl.noRotate = true;
 
-        if(event.which ===1 ){
-           if(liveContour === null){
-              enterContourEditingState();
-           }
-           if(!liveContour.checkClosed()){
-             var p = movePoint.getPosition3D();
-             liveContour.addPosition3D(p);
-             if(liveContour.checkClosed()){
-                enterContourCloseState();
-             }
-           }else{
-              if(liveContour && liveContour.checkClosed){
-                addFaceByContour(liveContour);
-              }
-              enterContourNoEditingState();
-           }
-        }else if(event.which === 3){
-
-           if(model.contourState === contourStateType.EDITING){
-             if(liveContour.getPointSize()>1){
-                liveContour.undo();
-                // if(model.contourState == contourStateType.CLOSE){
-                //    enterContourEditingState();
-                // }
-             }else if(liveContour.getPointSize()===1){
-                liveContour.undo();
-                enterContourNoEditingState();
-                event.stopImmediatePropagation();
-             }
-           }
-           else if(model.contourState === contourStateType.CLOSE){
-                $(window).bind("mousemove", onDragContour);
-           }
-        
+      if (event.which === 1) {
+        if (liveContour === null) {
+          enterContourEditingState();
         }
-      
+        if (!liveContour.checkClosed()) {
+          var p = movePoint.getPosition3D();
+          liveContour.addPosition3D(p);
+          if (liveContour.checkClosed()) {
+            enterContourCloseState();
+          }
+        } else {
+          if (liveContour && liveContour.checkClosed) {
+            addFaceByContour(liveContour);
+          }
+          enterContourNoEditingState();
+        }
+      } else if (event.which === 3) {
+
+        if (model.contourState === contourStateType.EDITING) {
+          if (liveContour.getPointSize() > 1) {
+            liveContour.undo();
+            // if(model.contourState == contourStateType.CLOSE){
+            //    enterContourEditingState();
+            // }
+          } else if (liveContour.getPointSize() === 1) {
+            liveContour.undo();
+            enterContourNoEditingState();
+            event.stopImmediatePropagation();
+          }
+        } else if (model.contourState === contourStateType.CLOSE) {
+          $(window).bind("mousemove", onDragContour);
+        }
+
+      }
+
     }
   }
 
-  function onDragContour(event){
-     liveContour.moveTo(movePoint.getPosition3D(), editPlane.getT());
+  function onDragContour(event) {
+    liveContour.moveTo(movePoint.getPosition3D(), editPlane.getT());
   }
 
-  function onMouseup(event){
+  function onMouseup(event) {
     $(window).unbind("mousemove", onDragContour);
     event.preventDefault();
     cameraCtrl.noZoom = false;
@@ -189,41 +221,53 @@ OA.Model = function(userSetting) {
 
   function onMousewheel(event, delta, deltaX, deltaY) {
     event.preventDefault();
-    if(editPlane.isVisible && model.contourState!==contourStateType.EDITING){
+    if (editPlane.isVisible && model.contourState !== contourStateType.EDITING) {
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
       var newDist = mf(editPlane.getT() + gridStep * d);
       if (d > 0 && newDist < cardH) {
-        editPlane.position.z = newDist+0.1;
+        editPlane.position.z = newDist + 0.1;
         editPlane.setT(newDist);
         movePoint.setT(newDist);
         // viewerR += gridStep;
       } else if (d < 0 && newDist >= 0) {
-        editPlane.position.z = newDist+0.1;
+        editPlane.position.z = newDist + 0.1;
         editPlane.setT(newDist);
         movePoint.setT(newDist);
       }
 
-      if(model.contourState === contourStateType.CLOSE){
+      if (model.contourState === contourStateType.CLOSE) {
         liveContour.moveTo(null, editPlane.getT());
       }
     }
 
-    if(foldable){
+    if (foldable) {
       var d = ((deltaY < 0) ? -1 : 1);
       //OA.log(delta, deltaX, deltaY);
       var newAngle = cardAngle + d * 5;
       if (newAngle >= 0 && newAngle <= 180) {
-          oaModel.setCardAngle(newAngle);
-      } 
+        oaModel.setCardAngle(newAngle);
+      }
     }
   }
 
-  this.resetCardAngle = function(){
-     model.setCardAngle(_setting.initAngle);
+  this.resetCardAngle = function() {
+    model.setCardAngle(_setting.initAngle);
   };
 
   var init = function() {
+
+    if (mode === modeType.pattern2D) {
+      model.add(refreshFaceGroup);
+      // movePoint = new OA.Point({
+      //   scale: gridStep
+      // });
+      // movePoint.position.x = cardW / 2;
+      // movePoint.position.y = gridStep * 2;
+      // movePoint.position.z = initEditT;
+      // model.add(movePoint);
+      return model;
+    }
 
     var editBufferY = gridStep * 4;
     var pEditAry = [
@@ -233,20 +277,23 @@ OA.Model = function(userSetting) {
       [0, -cardH]
     ];
     editPlane = createFace(OA.Utils.ary2Point2Ds(pEditAry), "VFACE", 0, {
-          opacity: 0,
-          depthTest: false,
-          depthWrite: false,
-          borderColor: 0x5399E3,
-          addingLine: [[0, 0],[cardW, 0]],
-          gridData: {
-            w: cardW,
-            h: cardH,
-            s: gridStep,
-            color: 0x1F6CBD,
-            opacity: 0.3,
-            extendY: editBufferY
-          },
-          name: "editPlane"
+      opacity: 0,
+      depthTest: false,
+      depthWrite: false,
+      borderColor: 0x5399E3,
+      addingLine: [
+        [0, 0],
+        [cardW, 0]
+      ],
+      gridData: {
+        w: cardW,
+        h: cardH,
+        s: gridStep,
+        color: 0x1F6CBD,
+        opacity: 0.3,
+        extendY: editBufferY
+      },
+      name: "editPlane"
     });
     editPlane.position.z = initEditT;
     editPlane.setT(initEditT);
@@ -255,8 +302,8 @@ OA.Model = function(userSetting) {
     movePoint = new OA.Point({
       scale: gridStep
     });
-    movePoint.position.x = cardW/2;
-    movePoint.position.y = gridStep*2;
+    movePoint.position.x = cardW / 2;
+    movePoint.position.y = gridStep * 2;
     movePoint.position.z = initEditT;
     model.add(movePoint);
     //refreshFaceGroup.add(editPlane);
@@ -284,14 +331,16 @@ OA.Model = function(userSetting) {
     baseHFace = createFace(OA.Utils.ary2Point2Ds(pAryH), "HFACE", 0, {
       name: "baseHFace"
     });
+
     refreshFaceGroup.add(baseHFace);
     clippedFaces.push(baseHFace);
     model.add(refreshFaceGroup);
 
+
     bindEvents();
     model.setCardAngle(cardAngle);
-    
-//========
+
+    //========
     // OA.Utils.cleanObject3D(model);
     // var tFace = new OA.Face({
     //   contours: OA.Utils.getTestExPolygonTree(),
@@ -299,13 +348,58 @@ OA.Model = function(userSetting) {
     //   type: "HFACE"
     // });
 
-  //  faces.push(tFace);
-  //  model.add(tFace);
+    //  faces.push(tFace);
+    //  model.add(tFace);
 
+    cloned180ClippedFaces = model.doCloneClippedFaces(180);
 
 
     return model;
   };
+
+
+
+  this.doCloneClippedFaces = function(angle) {
+    var ary = [];
+    if (angle === undefined) {
+      angle = 90;
+    }
+    $.each(clippedFaces, function(i, f) {
+      var s = $.extend({}, f.oaInfo);
+      var f = new OA.Face(s);
+      f.setAngle(angle);
+      ary.push(f);
+    });
+    return ary;
+  };
+
+  this.getCloneClippedFaces = function() {
+     return cloned180ClippedFaces;
+  };
+
+
+  this.unbindEvents = function() {
+    unbindEvents();
+  };
+  this.setClippedFaces = function(c) {
+    clippedFaces = c;
+  };
+
+  this.updateModel = function(fs) {
+    updateModel(fs);
+  };
+
+  this.get2DPattern = function() {
+    //model2D.cardAngle = 180
+    var clippedFaces = model.getCloneClippedFaces();
+    // for (var i = 0; i < clippedFaces.length; i++) {
+    //     clippedFaces[i].setAngle(180);
+    // }
+    model2D.setClippedFaces(clippedFaces);
+    model2D.updateModel(clippedFaces);
+
+    return model2D;
+  }
 
   function getRealIntersector(intersects) {
     for (i = 0; i < intersects.length; i++) {
@@ -319,7 +413,7 @@ OA.Model = function(userSetting) {
     OA.Utils.setObject3DVisible(editPlane, !!showFlag);
     if (!showFlag) {
       movePoint.setVisible(false);
-    }else{
+    } else {
       movePoint.setVisible(true);
     }
   };
@@ -334,7 +428,7 @@ OA.Model = function(userSetting) {
 
   var updateCardAngle = function() {
     var faces = clippedFaces;
-    if (refreshFaceGroup.cardAngle !== cardAngle){
+    if (refreshFaceGroup.cardAngle !== cardAngle) {
       //model.remove(refreshFaceGroup)
       //refreshFaceGroup = new THREE.Object3D();
       //OA.Utils.cleanObject3D(refreshFaceGroup);
@@ -343,11 +437,11 @@ OA.Model = function(userSetting) {
         var f = faces[i];
         f.setAngle(cardAngle);
       }
-     }
+    }
   };
 
   this.setCardAngle = function(degree) {
-    if (cardAngle!=degree && degree >= 0 && degree <= 180) {
+    if (cardAngle != degree && degree >= 0 && degree <= 180) {
       cardAngle = degree;
       updateCardAngle();
     }
@@ -357,11 +451,11 @@ OA.Model = function(userSetting) {
     return cardAngle;
   };
 
-  this.setFoldable = function(canFold, angle){
-       foldable = canFold;
-       if(angle != undefined && angle !== cardAngle){
-          model.setCardAngle(angle);
-      }
+  this.setFoldable = function(canFold, angle) {
+    foldable = canFold;
+    if (angle != undefined && angle !== cardAngle) {
+      model.setCardAngle(angle);
+    }
   };
 
   this.setCameraCtrl = function(ctrl) {
@@ -369,58 +463,58 @@ OA.Model = function(userSetting) {
   };
 
   this.tick = function(params) {
-      raycaster = params.raycaster;
+    raycaster = params.raycaster;
 
-      if (editPlane.isVisible === true) {
-        var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
-        if (intersects.length > 0) {
-          intersector = getRealIntersector(intersects);
-          if (intersector) {
-            var hoverPos = getHoverPosition(intersector);
-            if(!movePoint.isEqualPosition(hoverPos)){
-              movePoint.setPosition3D(hoverPos);
-              movePoint.inEditplane = true;
-            }
-            if(liveContour!=null){
-              if (model.contourState === contourStateType.EDITING) {
-                movePoint.setColorByIndex(1);
+    if (editPlane.isVisible === true) {
+      var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
+      if (intersects.length > 0) {
+        intersector = getRealIntersector(intersects);
+        if (intersector) {
+          var hoverPos = getHoverPosition(intersector);
+          if (!movePoint.isEqualPosition(hoverPos)) {
+            movePoint.setPosition3D(hoverPos);
+            movePoint.inEditplane = true;
+          }
+          if (liveContour != null) {
+            if (model.contourState === contourStateType.EDITING) {
+              movePoint.setColorByIndex(1);
 
-                try{
-                  //auto attract
-                  var pos3Ds = liveContour.getPosition3Ds();
-                  var movePointPos = movePoint.getPosition3D();
-                  var distFromFitstP;
-                  var plen = pos3Ds.length;
-                  var firstP = pos3Ds[0];
-                  var lastP = pos3Ds[plen-1];
-                  if (plen > 2 && (firstP.y === lastP.y || firstP.x === lastP.x)) {
-                    distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
-                    if( distFromFitstP < gridStep*2){
-                       movePoint.setPosition3D(pos3Ds[0]);
-                       movePoint.setColorByIndex(2);
-                    }
+              try {
+                //auto attract
+                var pos3Ds = liveContour.getPosition3Ds();
+                var movePointPos = movePoint.getPosition3D();
+                var distFromFitstP;
+                var plen = pos3Ds.length;
+                var firstP = pos3Ds[0];
+                var lastP = pos3Ds[plen - 1];
+                if (plen > 2 && (firstP.y === lastP.y || firstP.x === lastP.x)) {
+                  distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
+                  if (distFromFitstP < gridStep * 2) {
+                    movePoint.setPosition3D(pos3Ds[0]);
+                    movePoint.setColorByIndex(2);
                   }
-                  if( plen > 2 && OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos) ){
-                     movePoint.setColorByIndex(2);
-                  }
+                }
+                if (plen > 2 && OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos)) {
+                  movePoint.setColorByIndex(2);
+                }
                 liveContour.drawHoverLine(movePoint.getPosition3D());
-              }catch(e){
+              } catch (e) {
                 console.error("!! distanceTo exception !!");
               }
-              }else if(model.contourState === contourStateType.CLOSE){
-                
-              }
+            } else if (model.contourState === contourStateType.CLOSE) {
+
             }
           }
-        }else{
-          movePoint.inEditplane = false;
         }
-      }else{
+      } else {
         movePoint.inEditplane = false;
       }
+    } else {
+      movePoint.inEditplane = false;
+    }
   };
 
-  
+
 
   //public
   this.destory = function() {

@@ -23,6 +23,11 @@
         <img>
       
     </div>
+
+    <div id="c2" style="z-index: 2; overflow;hidden;
+    position: absolute; right:0px; top:0px; border: solid 1px gray; 
+    width:250px; height:250px;"></div>
+
     
     <script src="js/three.min.js"></script>
     <script src="js/stats.min.js"></script>
@@ -42,17 +47,19 @@
     <script src="js/oa.contour.js"></script>
     <script src="js/oa.clipper.js"></script>
     <script src="js/oa.point.js"></script>
+    <script src="js/testFunctions.js"></script>
     <script>
     if (!Detector.webgl) Detector.addGetWebGLMessage();
     var debugMode = OA.debugMode;
     var camera, scene, renderer;
     var modelOption = {
         angle: 90,
-        cardW: 64,
-        cardH: 50,
+        cardW: 100,
+        cardH: 100,
         gridNum: 40
     };
     OA.Utils.texture.loadAllTexture(modelOption);
+
      var cardW = modelOption.cardW,
          cardH = modelOption.cardH;
      var maxWidth = cardW > cardH ? cardW : cardH;
@@ -71,10 +78,43 @@
  
     var cardMode = 0;
     var stats;
-    var doPreview = false;
+    //for preview
+    var camera2, scene2, renderer2 , cam2, model2d;
+
     function init(oa) {
        
-      //   debugger;
+
+    //==preview===
+
+    var $previewContainer = $("#c2");
+    var previewW = $previewContainer.width();
+    var previewH = $previewContainer.height();
+    scene2 = new THREE.Scene();
+    renderer2 = new THREE.WebGLRenderer({
+        antialias: true,
+        precision: "highp",
+        preserveDrawingBuffer: true,
+        alpha: true
+    });
+    renderer2.setClearColor(0xffffff);
+    $previewContainer.append(renderer2.domElement);
+    cam2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+
+    cam2.position.set(0, viewerR, 0);
+
+    scene2.position.x = cardW / 2;
+    cam2.position.x = cardW / 2;
+
+    cam2.lookAt(scene2.position);
+    cam2.rotation.z = 0 * Math.PI / 180;
+
+    cam2.aspect = previewW / previewH;
+    cam2.updateProjectionMatrix();
+    renderer2.setSize(previewW, previewH);
+
+    //==========
+
+
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
@@ -141,25 +181,6 @@
         $(window).bind("mousedown", onDocumentMouseDown);
 
 
- 
-
-/*** ADDING SCREEN SHOT ABILITY ***/
-window.addEventListener("keyup", function(e){
-    var imgData, imgNode;
-    //Listen to 'P' key
-    if(e.which !== 80) return;  
- 
- doPreview = true;
- makePreviewImg();
-   //  debugger;
-   // imgNode = document.createElement("img");
-   // imgNode.src = imgData;
-   // document.body.appendChild(imgNode);
-});
-
-
-
-
         changeCardMode(cardMode);
         // document.addEventListener('mousemove', onDocumentMouseMove, false);
         //document.addEventListener('mousedown', onDocumentMouseDown, false);
@@ -217,69 +238,83 @@ window.addEventListener("keyup", function(e){
             stats.update();
         }
         orbitCtrls.update();
+
+       
+    }
+    function render() {
+        raycaster = projector.pickingRay(mouse2D.clone(), camera);
+        oaModel.tick({
+            raycaster: raycaster
+        });
+        renderer.render(scene, camera);
     }
 
 
-//preview
-var _aspectResize = function(srcUrl, dstW, dstH, callback) {
-    // to compute the width/height while keeping aspect
-    var cpuScaleAspect = function(maxW, maxH, curW, curH) {
-            var ratio = curH / curW;
-            if (curW >= maxW && ratio <= 1) {
-                curW = maxW;
-                curH = maxW * ratio;
-            } else if (curH >= maxH) {
-                curH = maxH;
-                curW = maxH / ratio;
-            }
-            return {
-                width: curW,
-                height: curH
-            };
+    init(oaModel);
+    animate();
+
+
+
+    function animate2() {
+
+        if (model2d != null) {
+            scene2.remove(model2d);
         }
-        // callback once the image is loaded
-    var __bind = function(fn, me) {
-        return function() {
-            return fn.apply(me, arguments);
-        };
-    };
-    var onLoad = __bind(function() {
-        // init the canvas
-        var canvas = document.createElement('canvas');
-        canvas.width = dstW;
-        canvas.height = dstH;
-        var ctx = canvas.getContext('2d');
+        model2d = oaModel.get2DPattern();
+        scene2.add(model2d);
 
-        // TODO is this needed
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        requestAnimationFrame(animate2);
+        renderer2.render(scene2, cam2);
+    }
 
-        // scale the image while preserving the aspect
-        var scaled = cpuScaleAspect(canvas.width, canvas.height, image.width, image.height);
+    //animate2();
+    setTimeout(animate2, 500);
 
-        // actually draw the image on canvas
-        var offsetX = (canvas.width - scaled.width) / 2;
-        var offsetY = (canvas.height - scaled.height) / 2;
-        ctx.drawImage(image, offsetX, offsetY, scaled.width, scaled.height);
 
-        // dump the canvas to an URL        
-        var mimetype = "image/png";
-        var newDataUrl = canvas.toDataURL(mimetype);
-        // notify the url to the caller
-        callback && callback(newDataUrl)
-    }, this);
 
-    // Create new Image object
-    var image = new Image();
-    image.onload = onLoad;
-    image.src = srcUrl;
-}
+//======================================
 
-function toDataURL(renderer, mimetype) {
-    mimetype = mimetype || "image/png";
-    var dataUrl = renderer.domElement.toDataURL(mimetype);
-    return dataUrl;
-};
+
+
+ 
+
+/*** ADDING SCREEN SHOT ABILITY ***/
+window.addEventListener("keyup", function(e){
+    var imgData, imgNode;
+    //Listen to 'P' key
+        if (e.which == 80) {//p
+          //  doPreview = true;
+            makePreviewImg();
+        }
+
+    if (e.which == 82) { //r
+       //  oaModel.setCardAngle(180)
+        // m2 = new OA.Model(modelOption)//oaModel.clone();
+        // var cfs = oaModel.getCloneClippedFaces();
+        // m2.setClippedFaces(cfs);
+        // m2.updateModel(cfs);
+        // m2.unbindEvents();
+     
+        // m2.setCardAngle(180)
+      if (model2d != null) {
+          scene2.remove(model2d)
+
+      }
+      model2d = oaModel.get2DPattern();
+      scene2.add(model2d);
+
+//oaModel.setCardAngle(90)
+  //      m2.setCardAngle(180)
+    
+    }
+   //  debugger;
+   // imgNode = document.createElement("img");
+   // imgNode.src = imgData;
+   // document.body.appendChild(imgNode);
+});
+
+
+
 
 
 function makePreviewImg() {
@@ -312,19 +347,13 @@ function makePreviewImg() {
 }
 
 
-    function render() {
-        raycaster = projector.pickingRay(mouse2D.clone(), camera);
-        oaModel.tick({raycaster: raycaster});
-        // if(doPreview){
-        //     makePreviewImg();
-        //     doPreview = false;
-        // }
-        renderer.render(scene, camera);
-    }
 
-    init(oaModel);
-    animate();
 
+
+
+
+
+//========================================
         </script>
 
         
