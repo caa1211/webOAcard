@@ -332,6 +332,45 @@ OA.Face = function(userSetting) {
       return new OA.Face(_setting);
    }
 
+   function collectUpperLower(storeAry, pAry, isUpCollect, isOuter) {
+      var uppers = [];
+      var lowers = [];
+      var len = pAry.length;
+
+      if (isUpCollect) {
+         uppers = storeAry;
+      } else {
+         lowers = storeAry;
+      }
+      if (isOuter) {
+         OA.Utils.modifyPathOrientation(pAry, true)
+      } else {
+         //is hole
+         OA.Utils.modifyPathOrientation(pAry, false)
+      }
+      for (var i = 0; i < len; ++i) {
+         if (i != len - 1) {
+            p1 = pAry[i];
+            p2 = pAry[i + 1];
+         } else {
+            p1 = pAry[i],
+            p2 = pAry[0];
+         }
+
+         if (isUpCollect && p1.Y === p2.Y && p1.X > p2.X) {
+            uppers.push([p1, p2]);
+         }
+
+         if (!isUpCollect && p1.Y === p2.Y && p1.X < p2.X) {
+            lowers.push([p1, p2]);
+         }
+      }
+      return {
+         uppers: uppers,
+         lowers: lowers
+      };
+   }
+
    function updateUpper2Ds(contours) {
       
       //OA.Utils.modifyPathOrientation(contours, false);
@@ -342,22 +381,15 @@ OA.Face = function(userSetting) {
       var upper2Dary = [];
       $.each(contours, function(i, poly) {
          var outer = poly.outer;
+         var holes = poly.holes;
          OA.Utils.modifyPathOrientation(outer, true);
          var len = outer.length;
-         //todo: need to consider hole
-         for (var i = 0; i < len; ++i) {
-
-            if (i != len - 1) {
-               p1 = outer[i];
-               p2 = outer[i + 1];
-            } else {
-               p1 = outer[i],
-               p2 = outer[0];
-            }
-
-            if (p1.Y === p2.Y && p1.X > p2.X) {
-               upper2Dary.push([p1, p2]);
-            }
+         collectUpperLower(upper2Dary, outer, true, true);
+         var hlen = holes 
+         if(holes.length>0){
+            $.each(holes, function(j, holePoly) {
+               collectUpperLower(upper2Dary, holePoly, true, false);
+            });
          }
       });
       _setting.upper2Ds = upper2Dary;

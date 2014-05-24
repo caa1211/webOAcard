@@ -75,12 +75,12 @@ OA.Utils = {
         return p;
      }
   },
-   modifyPathOrientation: function(p2dAry, flag){
-      if(flag === undefined){
-         flag = true;
+   modifyPathOrientation: function(p2dAry, isCW){
+      if(isCW === undefined){
+         isCW = true;
       }
       var orientation = ClipperLib.Clipper.Orientation(p2dAry);
-      if (orientation === flag) {
+      if (orientation === isCW) {
          p2dAry.reverse();
          console.error("=reverse path=");
       }

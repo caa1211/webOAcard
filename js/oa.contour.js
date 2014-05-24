@@ -108,16 +108,17 @@ OA.Contour = function(userSetting) {
       contour.add(pointGroup);
    }
 
-   function addCloseLine(p3DAry, parent, addCloseLine) {
+   function addCloseLine(p3DAry, parent, lineMaterial) {
       var len = p3DAry.length;
       var p1 = p3DAry[0],
-         p2 = p3DAry[len - 1];
+          p2 = p3DAry[len - 1];
       var geometry = new THREE.Geometry();
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
+
       var openPathMat = new THREE.LineDashedMaterial({
          linewidth: _setting.line.lineWidth,
-         color: 0x498698,
+         color: 0xFF8F19,
          opacity: _setting.line.opacity,
          dashSize: 1,
          gapSize: 0.5,
@@ -125,7 +126,7 @@ OA.Contour = function(userSetting) {
          depthTest: false,
          depthWrite: false
       });
-      var closePathMat = addCloseLine.clone();
+      var closePathMat = lineMaterial.clone();
 
       var mat = contour.checkClosed() ? closePathMat : openPathMat;
       var closeLine = new THREE.Line(geometry, mat);
@@ -171,6 +172,7 @@ OA.Contour = function(userSetting) {
       var len = p3DAry.length;
       for (var i = 0; i < len; ++i) {
          var p1, p2;
+
          if (i != len-1) {
             p1 = p3DAry[i];
             p2 = p3DAry[i+1];
@@ -188,8 +190,9 @@ OA.Contour = function(userSetting) {
                contour.uppers.push([p1, p2]);
             }
          }
-
-         geometry.vertices.push(p1, p2);
+         if (i != len - 1) {
+            geometry.vertices.push(p1, p2);
+         }
       }
       var lineMaterial = new THREE.LineBasicMaterial({
          linewidth: drawOpt.linewidth,
@@ -257,8 +260,8 @@ OA.Contour = function(userSetting) {
       var mf = modifyFloatPoint;
       if (newPos != undefined) {
          var middlePoint = getMiddlePointFromPath(ary);
-         middlePoint.X = Math.floor((middlePoint.X / gridStep)) * gridStep;
-         middlePoint.Y = Math.floor((middlePoint.Y / gridStep)) * gridStep;
+         // middlePoint.X = Math.floor((middlePoint.X / gridStep)) * gridStep;
+         // middlePoint.Y = Math.floor((middlePoint.Y / gridStep)) * gridStep;
          for (var i = 0; i < ary.length; i++) {
             var p = ary[i];
             p.X = mf(p.X - middlePoint.X + newPos.X);
