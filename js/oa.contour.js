@@ -25,7 +25,7 @@ OA.Contour = function(userSetting) {
    contour.uppers = [];
    var _setting = $.extend({}, _def, userSetting);
    contour.t = _setting.t;
-
+   var gridStep = _setting.gridStep;
    var hoverLine = null;
    var circleGroup = null;
    var baseT = null;
@@ -248,12 +248,15 @@ OA.Contour = function(userSetting) {
 
    function movePoint2Ds(ary, newPos) {
       var newAry = [];
+      var mf = modifyFloatPoint;
       if (newPos != undefined) {
          var middlePoint = getMiddlePointFromPath(ary);
+         middlePoint.X = Math.floor((middlePoint.X / gridStep)) * gridStep;
+         middlePoint.Y = Math.floor((middlePoint.Y / gridStep)) * gridStep;
          for (var i = 0; i < ary.length; i++) {
             var p = ary[i];
-            p.X = p.X - middlePoint.X + newPos.X;
-            p.Y = p.Y - middlePoint.Y + newPos.Y;
+            p.X = mf(p.X - middlePoint.X + newPos.X);
+            p.Y = mf(p.Y - middlePoint.Y + newPos.Y);
             newAry.push(p);
          }
       }
@@ -262,12 +265,13 @@ OA.Contour = function(userSetting) {
 
    function movePoint2DsByT(ary, t) {
       var newAry = [];
+      var mf = modifyFloatPoint;
       var diffT = contour.t - t;
       if (t != undefined && t != contour.t) {
          for (var i = 0; i < ary.length; i++) {
             var p = ary[i];
-            p.X = p.X;
-            p.Y = p.Y - diffT;
+            p.X = mf(p.X);
+            p.Y = mf(p.Y - diffT);
             newAry.push(p);
          }
       }
