@@ -82,7 +82,7 @@ OA.Utils = {
       var orientation = ClipperLib.Clipper.Orientation(p2dAry);
       if (orientation === isCW) {
          p2dAry.reverse();
-         console.error("=reverse path=");
+         //console.error("=reverse path=");
       }
    },
    exPolygonsClean: function(exPolygons, distance){

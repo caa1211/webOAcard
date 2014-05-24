@@ -26,7 +26,7 @@
 
     <div id="c2" style="z-index: 2; overflow;hidden;
     position: absolute; right:0px; top:0px; border: solid 1px gray; 
-    width:250px; height:250px;"></div>
+    width:250px; height:250px; opacity: 0.6;"></div>
 
     
     <script src="js/three.min.js"></script>
@@ -94,7 +94,7 @@
         antialias: true,
         precision: "highp",
         preserveDrawingBuffer: true,
-        alpha: true
+        alpha: false
     });
     renderer2.setClearColor(0xffffff);
     $previewContainer.append(renderer2.domElement);
@@ -267,8 +267,8 @@
         renderer2.render(scene2, cam2);
     }
 
-    //animate2();
-    setTimeout(animate2, 500);
+    animate2();
+    //setTimeout(animate2, 10);
 
 
 

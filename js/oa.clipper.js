@@ -207,7 +207,7 @@ OA.Clipper = function(userSetting) {
             ut = modifyFloatPoint(ut);
             var hFace = fakeHface(upper);
 
-            OA.log("ut--" + ut, 2);
+            //OA.log("ut--" + ut, 2);
             $.each(vface_list, function(j, f) {
                 ft = f.getT();
                 ft = modifyFloatPoint(ft);

@@ -42,8 +42,19 @@ OA.Model = function(userSetting, isPattern2D) {
     "EDITING": 1,
     "CLOSE": 2
   };
+  var foldType = {
+    "valley": 0,
+    "mountain": 1
+  };
   var createFace = OA.Utils.createFace;
   this.contourState = contourStateType.NO_EDITING;
+
+  this.foldLines = {
+    mountain: [],
+    valley: []
+  };
+
+  var foldLineGroup = new THREE.Object3D();
 
   var modeType = {
     "pattern3D": 0,
@@ -157,8 +168,12 @@ OA.Model = function(userSetting, isPattern2D) {
 
       if (clipper.doClip(cardAngle)) {
          clippedFaces = clipper;
-         //for 2D plattern display
-         cloned180ClippedFaces = model.doCloneClippedFaces(180);
+
+        if (mode === modeType.pattern3D) {
+          //for 2D plattern display
+          cloned180ClippedFaces = model.doCloneClippedFaces(180);
+        }
+
          updateModel(clippedFaces);
       }
     }
@@ -259,6 +274,7 @@ OA.Model = function(userSetting, isPattern2D) {
 
     if (mode === modeType.pattern2D) {
       model.add(refreshFaceGroup);
+      model.add(foldLineGroup);
       // movePoint = new OA.Point({
       //   scale: gridStep
       // });
@@ -359,17 +375,124 @@ OA.Model = function(userSetting, isPattern2D) {
 
 
 
+  function getFoldLine(l1, l2, type1, type2) {
+    function minP(pnts) {
+      return pnts[0].X < pnts[1].X ? pnts[0] : pnts[1];
+    }
+
+    function maxP(pnts) {
+      return pnts[0].X > pnts[1].X ? pnts[0] : pnts[1];
+    }
+
+    function isIn(p, ln) {
+      return minP(ln).X <= p.X && p.X <= maxP(ln).X;
+    }
+
+    function maxLP(ln1, ln2) {
+      var maxP1 = maxP(ln1);
+      var maxP2 = maxP(ln2);
+      return maxP1 >= maxP2 ? maxP1 : maxP2;
+    }
+
+    function minLP(ln1, ln2) {
+      var minP1 = minP(ln1);
+      var minP2 = minP(ln2);
+      return minP1 <= minP2 ? minP1 : minP2;
+
+    }
+    var p3D_L1P1 = OA.Utils.D2To3(l1.pnts[0], l1.t, type1);
+    var p3D_L2P1 = OA.Utils.D2To3(l2.pnts[0], l2.t, type2);
+    var foldLine = null;
+    if (l1.pnts[0].Y === l2.pnts[0].Y && p3D_L1P1.y === p3D_L2P1.y) {
+      if (isIn(minP(l1.pnts), l2.pnts) || isIn(maxP(l1.pnts), l2.pnts)) {
+        foldLine = [maxLP(l1.pnts, l2.pnts), minLP(l1.pnts, l2.pnts)];
+      }
+    }
+    return foldLine;
+  }
+
+  var buildFoldLine = function (clippedFaces){
+   
+    var vupper = [ /*{  t: 0, pnts: [X:0, Y:0] }*/  ];
+    var vlower = [ ];
+    var hupper = [ ];
+    var hlower = [ ];
+    var mountainLine = [];
+    var valleyLine=[];
+    //collect Fold line
+    $.each(clippedFaces, function(i, f) {
+      var uppers = f.oaInfo.upper2Ds;
+      var lowers = f.oaInfo.lower2Ds;
+      var t = f.getT();
+      var type = f.oaInfo.type;
+
+      $.each(uppers, function(j, pnts) {
+        var obj = {
+          t: t,
+          pnts: pnts
+        };
+        if (type === "HFACE") {
+          hupper.push(obj);
+        } else if (type === "VFACE") {
+          vupper.push(obj);
+        }
+      });
+      $.each(lowers, function(k, pnts) {
+        var obj = {
+          t: t,
+          pnts: pnts
+        };
+        if (type === "HFACE") {
+          hlower.push(obj);
+        } else if (type === "VFACE") {
+          vlower.push(obj);
+        }
+      });
+    });
+    
+    //find mountain line
+    $.each(vupper, function(i, vuLine){
+        $.each(hlower, function(j, hlLine){
+            var foldLine = getFoldLine(vuLine, hlLine, "VFACE", "HFACE");
+            if(foldLine){
+              mountainLine.push(foldLine);
+            }
+        });
+    });
+    //find valley line
+    $.each(hupper, function(i, huLine){
+        $.each(vlower, function(j, vlLine){
+            var foldLine = getFoldLine(huLine, vlLine, "HFACE", "VFACE");
+            if(foldLine){
+              valleyLine.push(foldLine);
+            }
+        });
+    });
+
+    return {
+      mountain: mountainLine,
+      valley: valleyLine
+    };
+
+  };
+
   this.doCloneClippedFaces = function(angle) {
     var ary = [];
     if (angle === undefined) {
       angle = 90;
     }
+    var _setting2D = {
+      oaMode: modeType.pattern2D
+    };
     $.each(clippedFaces, function(i, f) {
-      var s = $.extend({}, f.oaInfo);
+      var s = $.extend({}, f.oaInfo, _setting2D);
       var f = new OA.Face(s);
       f.setAngle(angle);
       ary.push(f);
     });
+
+    model.foldLines = buildFoldLine(clippedFaces);
+
     return ary;
   };
 
@@ -392,14 +515,69 @@ OA.Model = function(userSetting, isPattern2D) {
   this.get2DPattern = function() {
     //model2D.cardAngle = 180
     var clippedFaces = model.getCloneClippedFaces();
-    // for (var i = 0; i < clippedFaces.length; i++) {
-    //     clippedFaces[i].setAngle(180);
-    // }
     model2D.setClippedFaces(clippedFaces);
     model2D.updateModel(clippedFaces);
-
+    model2D.drawFoldLines(model.foldLines);
     return model2D;
   }
+
+  this.drawFoldLines = function(foldLines) {
+    OA.Utils.cleanObject3D(foldLineGroup);
+    // if(foldLineGroup){
+    //     model.remove(foldLineGroup);
+    //     foldLineGroup = new THREE.Object3D();
+    //     model.add(foldLineGroup);
+    // }
+    $.each(foldLines.mountain, function(i, ln) {
+      drawFoldLine(ln, foldType.mountain);
+    });
+
+    $.each(foldLines.valley, function(i, ln) {
+      drawFoldLine(ln, foldType.valley);
+    });
+
+    function drawFoldLine(ln, ftype) {
+      var foldOpt = {
+          color:0xffffff,
+          linewidth: 2,
+          dashSize: 1,
+          gapSize: 0.5
+      };
+      if(ftype === foldType.mountain){
+          foldOpt.dashSize = 1;
+          foldOpt.gapSize = 1;
+      }else{
+          foldOpt.dashSize = 2;
+          foldOpt.gapSize = 4;
+          //foldOpt.color = 0xff0000;
+      }
+
+      var p1 = ln[0],
+        p2 = ln[1];
+      var d3p1 = new THREE.Vector3(p1.X, 1 , p1.Y);
+      var d3p2 = new THREE.Vector3(p2.X, 1 , p2.Y);
+      var geometry = new THREE.Geometry();
+      geometry.vertices.push(d3p1, d3p2);
+      geometry.computeLineDistances();
+      var mat = new THREE.LineDashedMaterial({
+        linewidth: foldOpt.linewidth,
+        color: foldOpt.color,
+        dashSize: foldOpt.dashSize,
+        gapSize: foldOpt.gapSize,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false
+      });
+
+      var foldLine = new THREE.Line(geometry, mat);
+      foldLineGroup.add(foldLine);
+    }
+
+
+  };
+  
+
+
 
   function getRealIntersector(intersects) {
     for (i = 0; i < intersects.length; i++) {

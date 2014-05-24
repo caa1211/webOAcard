@@ -12,6 +12,7 @@ OA.Face = function(userSetting) {
       isBoundaryClipped: false,
       baseContour: null,
       upper2Ds: null,
+      lower2Ds: null,
       type: "HFACE", //HFACE or VFACE,
       opacity: 1,
       gridData: {},
@@ -21,7 +22,8 @@ OA.Face = function(userSetting) {
       addingLine: null,
       depthTest: true,
       depthWrite: true,
-      name: null
+      name: null,
+      oaMode: 0 //0: pattern3D, 1: pattern2D
    };
    var face = this;
    var isAngleFrom0 = false;
@@ -55,12 +57,22 @@ OA.Face = function(userSetting) {
       var borderGeo = shape.createPointsGeometry();
       var borderWidth = _setting.borderWidth;
       var borderColor = _setting.borderColor;
-      var border = new THREE.Line(borderGeo, new THREE.LineBasicMaterial({
+
+      var borderMat = new THREE.LineBasicMaterial({
          linewidth: borderWidth,
          color: borderColor,
          transparent: true,
          linecap: "round"
-      }));
+      });
+
+      if (_setting.oaMode === 1) {
+         borderMat = new THREE.LineBasicMaterial({
+            linewidth: 1,
+            color: 0x000000
+         });
+      }
+
+      var border = new THREE.Line(borderGeo, borderMat);
       border.position.z = -0.1;
 
       face.add(border);
@@ -158,12 +170,26 @@ OA.Face = function(userSetting) {
 
       var planeMat = OA.light ? lightMaterial : baseMaterial;
  
+
+      if (_setting.oaMode === 1) {
+         planeMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            linewidth: 0.5
+         });
+      }
+
       var plane = new THREE.Mesh(planeGeom, planeMat);
       if (OA.light) {
          plane.receiveShadow = true;
       }
       plane.name = "faceBody";
       face.add(plane);
+
+      if(_setting.oaMode === 0){
+         //update upper and lower for finding fold line when draw preview
+         updateUpperLower2Ds(_setting.contours, true);
+      }
+
    };
 
    function createAddingLine(face){
@@ -332,16 +358,19 @@ OA.Face = function(userSetting) {
       return new OA.Face(_setting);
    }
 
-   function collectUpperLower(storeAry, pAry, isUpCollect, isOuter) {
+   function collectUpperLower(upperStore, lowerStore, pAry, isOuter) {
+      var len = pAry.length;
       var uppers = [];
       var lowers = [];
-      var len = pAry.length;
 
-      if (isUpCollect) {
-         uppers = storeAry;
-      } else {
-         lowers = storeAry;
+      if (upperStore) {
+         uppers = upperStore;
       }
+
+      if (lowerStore) {
+         lowers = lowerStore;
+      }
+
       if (isOuter) {
          OA.Utils.modifyPathOrientation(pAry, true)
       } else {
@@ -357,11 +386,11 @@ OA.Face = function(userSetting) {
             p2 = pAry[0];
          }
 
-         if (isUpCollect && p1.Y === p2.Y && p1.X > p2.X) {
+         if (p1.Y === p2.Y && p1.X > p2.X) {
             uppers.push([p1, p2]);
          }
 
-         if (!isUpCollect && p1.Y === p2.Y && p1.X < p2.X) {
+         if (p1.Y === p2.Y && p1.X < p2.X) {
             lowers.push([p1, p2]);
          }
       }
@@ -369,6 +398,31 @@ OA.Face = function(userSetting) {
          uppers: uppers,
          lowers: lowers
       };
+   }
+
+   function updateUpperLower2Ds(contours, isforce) {
+      //OA.Utils.modifyPathOrientation(contours, false);
+      if(!_setting.upper2Ds && !isforce){
+         //do not have upper
+         return;
+      }
+      var upper2Dary = [];
+      var lower2Dary = [];
+      $.each(contours, function(i, poly) {
+         var outer = poly.outer;
+         var holes = poly.holes;
+         OA.Utils.modifyPathOrientation(outer, true);
+         var len = outer.length;
+         collectUpperLower(upper2Dary, lower2Dary, outer, true);
+         var hlen = holes 
+         if(holes.length>0){
+            $.each(holes, function(j, holePoly) {
+               collectUpperLower(upper2Dary, lower2Dary, holePoly, false);
+            });
+         }
+      });
+      _setting.upper2Ds = upper2Dary;
+      _setting.lower2Ds = lower2Dary;
    }
 
    function updateUpper2Ds(contours) {
@@ -384,11 +438,11 @@ OA.Face = function(userSetting) {
          var holes = poly.holes;
          OA.Utils.modifyPathOrientation(outer, true);
          var len = outer.length;
-         collectUpperLower(upper2Dary, outer, true, true);
+         collectUpperLower(upper2Dary, null, outer, true);
          var hlen = holes 
          if(holes.length>0){
             $.each(holes, function(j, holePoly) {
-               collectUpperLower(upper2Dary, holePoly, true, false);
+               collectUpperLower(upper2Dary, null, holePoly, false);
             });
          }
       });
@@ -403,7 +457,7 @@ OA.Face = function(userSetting) {
          }
 
          if (contours && updateUpper) {
-            updateUpper2Ds(contours);
+            updateUpperLower2Ds(contours);
          }
 
          if (contours) {
