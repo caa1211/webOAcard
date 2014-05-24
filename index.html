@@ -18,6 +18,11 @@
 
 <body>
     <div id="container" style="z-index: 1; position: absolute; left:0px; top:0px"></div>
+    <div id="imgContainer" style="display:none;right:50px;overflow:hidden; z-index: 3; border: solid 1px red; position: absolute;  top:0px; width:200px; height:200px">
+         <a href="" download="card.png" style="font-size:10px;">download</a>
+        <img>
+      
+    </div>
     
     <script src="js/three.min.js"></script>
     <script src="js/stats.min.js"></script>
@@ -66,7 +71,7 @@
  
     var cardMode = 0;
     var stats;
-   
+    var doPreview = false;
     function init(oa) {
        
       //   debugger;
@@ -135,6 +140,26 @@
         $(window).bind("mousemove", onDocumentMouseMove);
         $(window).bind("mousedown", onDocumentMouseDown);
 
+
+ 
+
+/*** ADDING SCREEN SHOT ABILITY ***/
+window.addEventListener("keyup", function(e){
+    var imgData, imgNode;
+    //Listen to 'P' key
+    if(e.which !== 80) return;  
+ 
+ doPreview = true;
+ makePreviewImg();
+   //  debugger;
+   // imgNode = document.createElement("img");
+   // imgNode.src = imgData;
+   // document.body.appendChild(imgNode);
+});
+
+
+
+
         changeCardMode(cardMode);
         // document.addEventListener('mousemove', onDocumentMouseMove, false);
         //document.addEventListener('mousedown', onDocumentMouseDown, false);
@@ -195,9 +220,105 @@
     }
 
 
+//preview
+var _aspectResize = function(srcUrl, dstW, dstH, callback) {
+    // to compute the width/height while keeping aspect
+    var cpuScaleAspect = function(maxW, maxH, curW, curH) {
+            var ratio = curH / curW;
+            if (curW >= maxW && ratio <= 1) {
+                curW = maxW;
+                curH = maxW * ratio;
+            } else if (curH >= maxH) {
+                curH = maxH;
+                curW = maxH / ratio;
+            }
+            return {
+                width: curW,
+                height: curH
+            };
+        }
+        // callback once the image is loaded
+    var __bind = function(fn, me) {
+        return function() {
+            return fn.apply(me, arguments);
+        };
+    };
+    var onLoad = __bind(function() {
+        // init the canvas
+        var canvas = document.createElement('canvas');
+        canvas.width = dstW;
+        canvas.height = dstH;
+        var ctx = canvas.getContext('2d');
+
+        // TODO is this needed
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // scale the image while preserving the aspect
+        var scaled = cpuScaleAspect(canvas.width, canvas.height, image.width, image.height);
+
+        // actually draw the image on canvas
+        var offsetX = (canvas.width - scaled.width) / 2;
+        var offsetY = (canvas.height - scaled.height) / 2;
+        ctx.drawImage(image, offsetX, offsetY, scaled.width, scaled.height);
+
+        // dump the canvas to an URL        
+        var mimetype = "image/png";
+        var newDataUrl = canvas.toDataURL(mimetype);
+        // notify the url to the caller
+        callback && callback(newDataUrl)
+    }, this);
+
+    // Create new Image object
+    var image = new Image();
+    image.onload = onLoad;
+    image.src = srcUrl;
+}
+
+function toDataURL(renderer, mimetype) {
+    mimetype = mimetype || "image/png";
+    var dataUrl = renderer.domElement.toDataURL(mimetype);
+    return dataUrl;
+};
+
+
+function makePreviewImg() {
+    var imgData;
+    var imgContainer =  $("#imgContainer");
+    try {
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        imgData = toDataURL(renderer); //renderer.domElement.toDataURL();
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        console.log(imgData);
+    } catch (e) {
+        console.log("Browser does not support taking screenshot of 3d context");
+        return;
+        // $("#imgContainer img").attr("src", imgData);
+        // $("#imgContainer a").attr("href", imgData);
+    }
+
+
+    _aspectResize(imgData, 1000, 1000, callback);
+
+    function callback(newImgData) {
+        imgContainer.show();
+        imgContainer.children("img").attr("src", newImgData);
+        imgContainer.children("a").attr("href", newImgData);
+    }
+    //downloadURI(imgData, "helloWorld.txt");
+    // uriContent = "imgData";
+    // newWindow=window.open(uriContent, 'filename.txt');
+    //<a href="your-data-uri" download="filename.txt">
+}
+
+
     function render() {
         raycaster = projector.pickingRay(mouse2D.clone(), camera);
         oaModel.tick({raycaster: raycaster});
+        // if(doPreview){
+        //     makePreviewImg();
+        //     doPreview = false;
+        // }
         renderer.render(scene, camera);
     }
 
