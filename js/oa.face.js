@@ -28,6 +28,7 @@ OA.Face = function(userSetting) {
    var contour = [];
    var rot = [Math.PI / 2, 0, 0];
    var _setting = $.extend({}, _def, userSetting);
+   var baseContour = _setting.baseContour;
    var typeOpts = {
       "HFACE": {
          color: 0xE9DABC
@@ -331,14 +332,52 @@ OA.Face = function(userSetting) {
       return new OA.Face(_setting);
    }
 
-   this.rebuild = function(contours){
+   function updateUpper2Ds(contours) {
+      
+      //OA.Utils.modifyPathOrientation(contours, false);
+      if(!_setting.upper2Ds){
+         //do not have upper
+         return;
+      }
+      var upper2Dary = [];
+      $.each(contours, function(i, poly) {
+         var outer = poly.outer;
+         OA.Utils.modifyPathOrientation(outer, true);
+         var len = outer.length;
+         //todo: need to consider hole
+         for (var i = 0; i < len; ++i) {
+
+            if (i != len - 1) {
+               p1 = outer[i];
+               p2 = outer[i + 1];
+            } else {
+               p1 = outer[i],
+               p2 = outer[0];
+            }
+
+            if (p1.Y === p2.Y && p1.X > p2.X) {
+               upper2Dary.push([p1, p2]);
+            }
+         }
+      });
+      _setting.upper2Ds = upper2Dary;
+   }
+
+   this.rebuild = function(contours, updateUpper){
       try {
          if(!contours || contours.length === 0){
+            debugger;
             return false;
          }
+
+         if (contours && updateUpper) {
+            updateUpper2Ds(contours);
+         }
+
          if (contours) {
             _setting.contours = contours;
          }
+
          buildByCoutours(_setting.contours);
       } catch (e) {
          OA.log("rebuild contour failed " +JSON.stringify(contours), 0);

@@ -293,7 +293,7 @@ OA.Clipper = function(userSetting) {
 
     function doMergeFaces(face, faces){ 
         var unionPoly = unionList(faces);
-        face.rebuild(unionPoly);
+        face.rebuild(unionPoly, true);
         return face;
     };
 
@@ -402,7 +402,6 @@ OA.Clipper = function(userSetting) {
             }
         });
         upper_list.sort(compareUpperY);
-        
 
         //##step 3 create HFACE
         hface_list = createHFaces(upper_list, vface_list);

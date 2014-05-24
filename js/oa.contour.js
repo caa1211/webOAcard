@@ -169,9 +169,15 @@ OA.Contour = function(userSetting) {
       contour.uppers = [];
       var geometry = new THREE.Geometry();
       var len = p3DAry.length;
-      for (var i = 1; i < len; ++i) {
-         var p1 = p3DAry[i],
-             p2 = p3DAry[i - 1];
+      for (var i = 0; i < len; ++i) {
+         var p1, p2;
+         if (i != len-1) {
+            p1 = p3DAry[i];
+            p2 = p3DAry[i+1];
+         } else {
+            p1 = p3DAry[i],
+            p2 = p3DAry[0];
+         }
 
          if (!contour.checkClosed()) {
             if (p1.y === p2.y) {
@@ -284,7 +290,7 @@ OA.Contour = function(userSetting) {
          var tunedPath = ClipperLib.Clipper.CleanPolygon(path, 0.1);
          //var tunedPath = ClipperLib.JS.Clean(path, 0.1);
          //var tunedPath = ClipperLib.JS.Lighten(path,100);
-         OA.Utils.modifyPathOrientation(tunedPath, false);
+         OA.Utils.modifyPathOrientation(tunedPath, true);
          // var tunedPath2 = null;
          // try {
          //    tunedPath2 = ClipperLib.Clipper.SimplifyPolygon(tunedPath, ClipperLib.PolyFillType.pftEvenOdd);
@@ -306,7 +312,7 @@ OA.Contour = function(userSetting) {
          // }
          return tunedPath;
       } else {
-         OA.Utils.modifyPathOrientation(path, false);
+         OA.Utils.modifyPathOrientation(path, true);
          return path;
       }
   
@@ -325,6 +331,7 @@ OA.Contour = function(userSetting) {
       for (i = 0; i < upper3Ds.length; i++) {
          upper2Ds.push([D3To2(upper3Ds[i][0], t), D3To2(upper3Ds[i][1], t)]);
       }
+
       //d2->d3 and d3->d2 maybe an issue here
       return upper2Ds;
    };
