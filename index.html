@@ -5,35 +5,39 @@
     <title>OA Card</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+   
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/webOAcard.css" rel="stylesheet">
     <style>
-    body {
-        font-family: Monospace;
-        background-color: #f0f0f0;
-        margin: 0px;
-        overflow: hidden;
-    }
+
 
     </style>
 </head>
 
 <body>
+ 
     <div id="container" style="z-index: 1; position: absolute; left:0px; top:0px"></div>
-    <div id="imgContainer" style="display:none;right:50px;overflow:hidden; z-index: 3; border: solid 1px red; position: absolute;  top:0px; width:200px; height:200px">
-         <a href="" download="card.png" style="font-size:10px;">download</a>
-        <img>
-      
+
+
+    <div id="imgContainer" style="">
+        <img style="">
+        <a href="" download="card.png" style="">download</a>
     </div>
 
-    <div id="c2" style="z-index: 2; overflow;hidden;
-    position: absolute; right:0px; top:0px; border: solid 1px gray; 
-    width:250px; height:250px; opacity: 0.6;"></div>
-
+<div id="previewUI" style=" ">
+    <div id="container2D" style="opacity:0.5; overflow:hidden;  width:100%;; height:100%;"></div>
+    <a href="javascript:void(0)" id="download2D" style="">
+    <i class="fa fa-arrow-circle-o-down fa-2x"></i>
+     </a>
+</div>
     
     <script src="js/three.min.js"></script>
     <script src="js/stats.min.js"></script>
     <script src="js/Detector.js"></script>
  
     <script src="js/jquery-1.9.1.js"></script>
+
+
     <script src="js/underscore-min.js"></script>
     
     <script src="js/jquery.mousewheel.min.js"></script>
@@ -54,9 +58,12 @@
     var camera, scene, renderer;
     var modelOption = {
         angle: 90,
-        cardW: 100,
+        cardW: 120,
         cardH: 100,
-        gridNum: 40
+        gridNum: 40,
+        onModelUpdated: function(){
+
+        }
     };
     OA.Utils.texture.loadAllTexture(modelOption);
 
@@ -67,7 +74,8 @@
 
     var oaModel = new OA.Model(modelOption);
     var sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
-    var viewerR = oaModel.getCardH() * 2.5;
+
+    var viewerR = maxWidth * 2.5;
     var mouse2D = new THREE.Vector3(0, 10000, 0.5);
     var orbitCtrls;
     var raycaster, projector;
@@ -86,32 +94,32 @@
 
     //==preview===
 
-    var $previewContainer = $("#c2");
-    var previewW = $previewContainer.width();
-    var previewH = $previewContainer.height();
+    var $container2D = $("#container2D");
+    var previewW = $container2D.width();
+    var previewH = $container2D.height();
+    var requestAnimationFrame2 = null;
+
     scene2 = new THREE.Scene();
     renderer2 = new THREE.WebGLRenderer({
-        antialias: true,
-        precision: "highp",
-        preserveDrawingBuffer: true,
-        alpha: false
+        antialias: true
     });
-    renderer2.setClearColor(0xffffff);
-    $previewContainer.append(renderer2.domElement);
+    renderer2.setClearColor(0xeeeeee);
+    $container2D.append(renderer2.domElement);
     cam2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-
+    //cam2 = new  THREE.OrthographicCamera( -previewH, previewW, previewH, -previewW, 1, 1000);
     cam2.position.set(0, viewerR, 0);
-
     scene2.position.x = cardW / 2;
     cam2.position.x = cardW / 2;
-
     cam2.lookAt(scene2.position);
     cam2.rotation.z = 0 * Math.PI / 180;
 
     cam2.aspect = previewW / previewH;
     cam2.updateProjectionMatrix();
     renderer2.setSize(previewW, previewH);
-
+    oaModel.onModelUpdated(function(){
+        renderPreview();
+    });
+    renderPreview();
     //==========
 
 
@@ -128,7 +136,10 @@
 
         if (Detector.webgl)
             renderer = new THREE.WebGLRenderer({
-                antialias: true
+                antialias: true//,
+                // precision: "highp",
+                // preserveDrawingBuffer: true,
+                // alpha: true
             });
         else
             renderer = new THREE.CanvasRenderer();
@@ -190,7 +201,38 @@
 
         // //window.addEventListener('DOMMouseScroll', onMousewheel, false);
          //$(window).bind("mousewheel", onMousewheel);
+
+ 
+
+        // $("#previewUI").click(function(e) {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        //     return false;
+        // });
+
+
+
+        //download 2d pattern
+        var $imgContainer = $("#imgContainer");
+        var $downloadLink = $imgContainer.children("a");
+        var $previewUI =  $("#previewUI");
+        var $download2D = $("#download2D");
+        $previewUI.hover(function(e) {
+            orbitCtrls.enabled = false;
+        }, function() {
+            orbitCtrls.enabled = true;
+        });
+
+        $download2D.click(function(e) {
+           var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function(){
+                 $downloadLink[0].click();
+
+           });
+           
+        });
+
     }
+
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -231,6 +273,46 @@
         }
 
     }
+
+
+
+    function make2DImg(w, h, rendererW, rendererH, $imgContainer, callback) {
+
+         renderer2.setSize(w, h);
+         setTimeout(function(){
+            //add timer for firefox issue: setSize and render immediately, browser will hang up 
+            renderer2.render(scene2, cam2);
+            var imgData;
+            //var imgContainer =  $("#imgContainer");
+            try {
+                // renderer.setSize(window.innerWidth, window.innerHeight);
+                imgData = toDataURL(renderer2); //renderer.domElement.toDataURL();
+                // renderer.setSize(window.innerWidth, window.innerHeight);
+                console.log(imgData);
+            } catch (e) {
+                console.log("Browser does not support taking screenshot of 3d context");
+                return;
+            }
+            //imgContainer.show();
+            $imgContainer.children("img").attr("src", imgData);
+            $imgContainer.children("a").attr("href", imgData);
+            renderer2.setSize(rendererW, rendererH);
+            setTimeout(function(){
+                renderer2.render(scene2, cam2);
+            }, 1);
+            
+            callback(imgData);
+
+        }, 1);
+        // _aspectResize(imgData, 1500, 1500, callback);
+        // function callback(newImgData) {
+        //     imgContainer.show();
+        //     imgContainer.children("img").attr("src", newImgData);
+        //     imgContainer.children("a").attr("href", newImgData);
+        // }
+    }
+
+
     function animate() {
         requestAnimationFrame(animate);
         render();
@@ -254,21 +336,25 @@
     animate();
 
 
-
-    function animate2() {
-
-        if (model2d != null) {
-            scene2.remove(model2d);
-        }
-        model2d = oaModel.get2DPattern();
-        scene2.add(model2d);
-
-        requestAnimationFrame(animate2);
-        renderer2.render(scene2, cam2);
+function renderPreview() {
+    if (model2d != null) {
+        scene2.remove(model2d);
     }
+    model2d = oaModel.build2DPattern();
+    scene2.add(model2d);
+    renderer2.render(scene2, cam2);
+}
 
-    animate2();
-    //setTimeout(animate2, 10);
+
+
+// function animate2() {
+//     renderPreview();
+//     requestAnimationFrame2 = requestAnimationFrame(animate2);
+//     renderer2.render(scene2, cam2);
+// }
+
+//  animate2();
+
 
 
 
@@ -279,72 +365,57 @@
  
 
 /*** ADDING SCREEN SHOT ABILITY ***/
-window.addEventListener("keyup", function(e){
+window.addEventListener("keyup", function(e) {
     var imgData, imgNode;
     //Listen to 'P' key
-        if (e.which == 80) {//p
-          //  doPreview = true;
-            makePreviewImg();
-        }
+    if (e.which == 80) { //p
+        //  doPreview = true;
+         make2DImg(1000, 1000, 250, 250, $("#imgContainer"));
+    }
+
+    if (e.which == 68) { //d undo
+        //  doPreview = true;
+        oaModel.undo();
+    }
+
+    if (e.which == 70) { //f redo
+        //  doPreview = true;
+        oaModel.redo();
+    }
+
+
 
     if (e.which == 82) { //r
-       //  oaModel.setCardAngle(180)
+        //  oaModel.setCardAngle(180)
         // m2 = new OA.Model(modelOption)//oaModel.clone();
         // var cfs = oaModel.getCloneClippedFaces();
         // m2.setClippedFaces(cfs);
         // m2.updateModel(cfs);
         // m2.unbindEvents();
-     
+
         // m2.setCardAngle(180)
-      if (model2d != null) {
-          scene2.remove(model2d)
+        if (model2d != null) {
+            scene2.remove(model2d)
 
-      }
-      model2d = oaModel.get2DPattern();
-      scene2.add(model2d);
+        }
+        model2d = oaModel.build2DPattern();
+        scene2.add(model2d);
 
-//oaModel.setCardAngle(90)
-  //      m2.setCardAngle(180)
-    
+        renderer2.render(scene2, cam2);
+
+        //oaModel.setCardAngle(90)
+        //      m2.setCardAngle(180)
+
     }
-   //  debugger;
-   // imgNode = document.createElement("img");
-   // imgNode.src = imgData;
-   // document.body.appendChild(imgNode);
+    //  debugger;
+    // imgNode = document.createElement("img");
+    // imgNode.src = imgData;
+    // document.body.appendChild(imgNode);
 });
 
 
 
 
-
-function makePreviewImg() {
-    var imgData;
-    var imgContainer =  $("#imgContainer");
-    try {
-        // renderer.setSize(window.innerWidth, window.innerHeight);
-        imgData = toDataURL(renderer); //renderer.domElement.toDataURL();
-        // renderer.setSize(window.innerWidth, window.innerHeight);
-        console.log(imgData);
-    } catch (e) {
-        console.log("Browser does not support taking screenshot of 3d context");
-        return;
-        // $("#imgContainer img").attr("src", imgData);
-        // $("#imgContainer a").attr("href", imgData);
-    }
-
-
-    _aspectResize(imgData, 1000, 1000, callback);
-
-    function callback(newImgData) {
-        imgContainer.show();
-        imgContainer.children("img").attr("src", newImgData);
-        imgContainer.children("a").attr("href", newImgData);
-    }
-    //downloadURI(imgData, "helloWorld.txt");
-    // uriContent = "imgData";
-    // newWindow=window.open(uriContent, 'filename.txt');
-    //<a href="your-data-uri" download="filename.txt">
-}
 
 
 

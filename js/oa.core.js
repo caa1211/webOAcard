@@ -6,16 +6,16 @@ var OA = {
    light: true, 
    pointLight: false,
    paperTexture: true,
-   clipScale: 100,
+   clipScale: 10000,
    paperTextureInfo:{
 
-     // src: "img/p2.jpg",
-     // size: 128,
-     // isFill: false
-
-     src: "img/paper0.jpg",
+     src: "img/p3.jpg",
      size: 128,
      isFill: false
+
+     // src: "img/paper0.jpg",
+     // size: 128,
+     // isFill: false
 
      // src: "img/picture1.jpg",
      // size: 500,

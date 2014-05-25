@@ -1,0 +1,82 @@
+    body {
+        font-family: Monospace;
+        background-color: #f0f0f0;
+        margin: 0px;
+        overflow: hidden;
+    }
+
+    #download2D{
+        opacity:0.0; 
+        left:0px; 
+        top:0px; 
+        color: #333333; 
+        position: absolute;
+        z-index:10;
+        width:100%;
+        height:100%;
+         -webkit-transition: all 0.2s ease-in-out;
+        -moz-transition: all 0.2s ease-in-out;
+        -o-transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;    
+    }
+
+    #download2D > i.fa{
+        font-size:80px;
+        width:100%;
+        text-align: center;
+        margin-top: 50px;
+        color: #dddddd;
+         -webkit-transition: all 0.2s ease-in-out;
+        -moz-transition: all 0.2s ease-in-out;
+        -o-transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;    
+    }
+
+    #download2D:hover{
+        opacity: 0.5;
+        background: #555555;
+        -webkit-transition: all 0.2s ease-in-out;
+        -moz-transition: all 0.2s ease-in-out;
+        -o-transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;    
+    }
+
+    #download2D:hover > i.fa{
+        margin-top: 75px;
+        -webkit-transition: all 0.1s ease-in-out;
+        -moz-transition: all 01s ease-in-out;
+        -o-transition: all 0.1s ease-in-out;
+        transition: all 0.1s ease-in-out;    
+    }
+
+    #previewUI{
+     -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+     border-radius: 4px;
+    -webkit-box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
+    -moz-box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
+    box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
+     border: solid 1px gray; 
+     width:150px; height:220px;display: block;
+     position: absolute; right:20px; top:20px; z-index:50;
+
+
+    }
+    #imgContainer{
+        display: none;
+        right:300px;
+        overflow:hidden; 
+        z-index: 3; 
+        border: solid 1px red; 
+        position: absolute;  
+        top:0px; 
+        width:200px; 
+        height:200px
+    }
+    #imgContainer > img {
+       width:100%; height:100%; display:absolute; top:0px;
+    }
+
+    #imgContainer > a {
+       z-index:30; font-size:10px;position:absolute; top:0px;
+    }

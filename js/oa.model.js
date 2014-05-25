@@ -7,7 +7,8 @@ OA.Model = function(userSetting, isPattern2D) {
     cardW: 100,
     cardH: 100,
     gridNum: 20,
-    initAngle: 90
+    initAngle: 90,
+    onModelUpdated: function(){}
   };
 
   var editPlane = null;
@@ -28,7 +29,7 @@ OA.Model = function(userSetting, isPattern2D) {
   var edges = [];
   var raycaster = null;
   var cardAngle;
-
+  var undoRedoAry = [];
   var refreshFaceGroup = new THREE.Object3D();
   var cameraCtrl = {
     noZoom: false,
@@ -157,25 +158,32 @@ OA.Model = function(userSetting, isPattern2D) {
       });
       //refreshFaceGroup.add(newFace);
       userFaces.push(newFace);
+      //clear Undo Redo
+      undoRedoAry = [];
       //newFace.rebuild(OA.Utils.getTestExPolygon());
-      var clipper = new OA.Clipper({
-        baseFaces: [baseVFace, baseHFace],
-        faces: userFaces,
-        angle: cardAngle,
-        cardW: cardW,
-        cardH: cardH
-      });
+      clipFaces(userFaces);
+    }
+  }
 
-      if (clipper.doClip(cardAngle)) {
-         clippedFaces = clipper;
+  function clipFaces(orgFaces) {
+    var clipper = new OA.Clipper({
+      baseFaces: [baseVFace, baseHFace],
+      faces: orgFaces,
+      angle: cardAngle,
+      cardW: cardW,
+      cardH: cardH
+    });
 
-        if (mode === modeType.pattern3D) {
-          //for 2D plattern display
-          cloned180ClippedFaces = model.doCloneClippedFaces(180);
-        }
+    if (clipper.doClip(cardAngle)) {
+      clippedFaces = clipper;
 
-         updateModel(clippedFaces);
+      if (mode === modeType.pattern3D) {
+        //for 2D plattern display
+        cloned180ClippedFaces = model.doCloneClippedFaces(180);
       }
+
+
+      updateModel(clippedFaces);
     }
   }
 
@@ -500,6 +508,9 @@ OA.Model = function(userSetting, isPattern2D) {
      return cloned180ClippedFaces;
   };
 
+  this.onModelUpdated = function(fn){
+      _setting.onModelUpdated = fn;
+  };
 
   this.unbindEvents = function() {
     unbindEvents();
@@ -510,14 +521,16 @@ OA.Model = function(userSetting, isPattern2D) {
 
   this.updateModel = function(fs) {
     updateModel(fs);
+
   };
 
-  this.get2DPattern = function() {
+  this.build2DPattern = function() {
     //model2D.cardAngle = 180
     var clippedFaces = model.getCloneClippedFaces();
     model2D.setClippedFaces(clippedFaces);
     model2D.updateModel(clippedFaces);
     model2D.drawFoldLines(model.foldLines);
+
     return model2D;
   }
 
@@ -539,23 +552,24 @@ OA.Model = function(userSetting, isPattern2D) {
     function drawFoldLine(ln, ftype) {
       var foldOpt = {
           color:0xffffff,
-          linewidth: 2,
+          linewidth: 3,
           dashSize: 1,
           gapSize: 0.5
       };
       if(ftype === foldType.mountain){
           foldOpt.dashSize = 1;
-          foldOpt.gapSize = 1;
-      }else{
-          foldOpt.dashSize = 2;
-          foldOpt.gapSize = 4;
+          foldOpt.gapSize = 0.5;
           //foldOpt.color = 0xff0000;
+      }else{
+          foldOpt.dashSize = 1;
+          foldOpt.gapSize = 2;
+          //foldOpt.color = 0x00ff00;
       }
 
       var p1 = ln[0],
         p2 = ln[1];
-      var d3p1 = new THREE.Vector3(p1.X, 1 , p1.Y);
-      var d3p2 = new THREE.Vector3(p2.X, 1 , p2.Y);
+      var d3p1 = new THREE.Vector3(p1.X-1, 0 , p1.Y);
+      var d3p2 = new THREE.Vector3(p2.X+1, 0 , p2.Y);
       var geometry = new THREE.Geometry();
       geometry.vertices.push(d3p1, d3p2);
       geometry.computeLineDistances();
@@ -572,9 +586,7 @@ OA.Model = function(userSetting, isPattern2D) {
       var foldLine = new THREE.Line(geometry, mat);
       foldLineGroup.add(foldLine);
     }
-
-
-  };
+  }
   
 
 
@@ -602,6 +614,7 @@ OA.Model = function(userSetting, isPattern2D) {
       var f = faces[i];
       refreshFaceGroup.add(f);
     }
+    _setting.onModelUpdated();
   }
 
   var updateCardAngle = function() {
@@ -640,6 +653,18 @@ OA.Model = function(userSetting, isPattern2D) {
     cameraCtrl = ctrl;
   };
 
+  this.undo = function() {
+    if (userFaces.length > 0) {
+      undoRedoAry.push(userFaces.pop());
+      clipFaces(userFaces);
+    }
+  };
+  this.redo = function() {
+    if (undoRedoAry.length > 0) {
+      userFaces.push(undoRedoAry.pop());
+      clipFaces(userFaces);
+    }
+  };
   this.tick = function(params) {
     raycaster = params.raycaster;
 

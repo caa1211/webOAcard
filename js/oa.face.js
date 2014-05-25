@@ -16,8 +16,8 @@ OA.Face = function(userSetting) {
       type: "HFACE", //HFACE or VFACE,
       opacity: 1,
       gridData: {},
-      borderColor: 0x333333,
-      borderWidth: 2.0,
+      borderColor: 0x555555,
+      borderWidth: 2.5,
       initAngle: 90,
       addingLine: null,
       depthTest: true,
@@ -80,6 +80,9 @@ OA.Face = function(userSetting) {
 
    var buildByCoutours = function(contours) {
       OA.Utils.cleanObject3D(face);
+      if(contours.length === 0){
+         return;
+      }
       var exPolygons = contours;
       var alen = exPolygons.length;
       var shapes = [];
@@ -174,6 +177,7 @@ OA.Face = function(userSetting) {
       if (_setting.oaMode === 1) {
          planeMat = new THREE.MeshBasicMaterial({
             color: 0xffffff,
+            side: THREE.DoubleSide,
             linewidth: 0.5
          });
       }
@@ -451,10 +455,10 @@ OA.Face = function(userSetting) {
 
    this.rebuild = function(contours, updateUpper){
       try {
-         if(!contours || contours.length === 0){
-            debugger;
-            return false;
-         }
+         // if(!contours || contours.length === 0){
+         //    debugger;
+         //    return false;
+         // }
 
          if (contours && updateUpper) {
             updateUpperLower2Ds(contours);

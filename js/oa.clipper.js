@@ -179,11 +179,10 @@ OA.Clipper = function(userSetting) {
             }
         });
 
-        if (resPolys.length === 0) {
-            OA.log("no remain hface !", 2);
-            resPolys = null;
-        }
-
+        // if (resPolys.length === 0) {
+        //     OA.log("no remain hface !", 2);
+        //     resPolys = null;
+        // }
         return resPolys;
     }
 
