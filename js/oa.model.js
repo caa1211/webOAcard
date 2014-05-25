@@ -21,7 +21,8 @@ OA.Model = function(userSetting, isPattern2D) {
     cardW: 100,
     cardH: 100,
     gridNum: 20,
-    initAngle: 90
+    initAngle: 90,
+    domContainer: document
   };
 
   var editPlane = null;
@@ -52,6 +53,7 @@ OA.Model = function(userSetting, isPattern2D) {
   refreshFaceGroup.cardAngle = null;
   var foldable = true;
   var liveContour = null;
+  var $domConainer = $(_setting.domContainer);
   var contourStateType = {
     "NO_EDITING": 0,
     "EDITING": 1,
@@ -93,18 +95,18 @@ OA.Model = function(userSetting, isPattern2D) {
 
 
   var bindEvents = function() {
-    $(window).bind("mousewheel", onMousewheel);
-    $(window).bind("mousemove", onDocumentMouseMove);
-    $(window).bind("mousedown", onMousedown);
-    $(window).bind("mouseup", onMouseup);
+    $domConainer.bind("mousewheel", onMousewheel);
+    $domConainer.bind("mousemove", onDocumentMouseMove);
+    $domConainer.bind("mousedown", onMousedown);
+    $domConainer.bind("mouseup", onMouseup);
   };
 
 
   var unbindEvents = function() {
-    $(window).unbind("mousewheel", onMousewheel);
-    $(window).unbind("mousemove", onDocumentMouseMove);
-    $(window).unbind("mousedown", onMousedown);
-    $(window).bind("mouseup", onMouseup);
+    $domConainer.unbind("mousewheel", onMousewheel);
+    $domConainer.unbind("mousemove", onDocumentMouseMove);
+    $domConainer.unbind("mousedown", onMousedown);
+    $domConainer.bind("mouseup", onMouseup);
   };
 
   function getHoverPosition(intersector) {
@@ -205,6 +207,7 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function onMousedown(event) {
+
     event.preventDefault();
     if (movePoint.inEditplane) {
       cameraCtrl.noZoom = true;
@@ -240,7 +243,7 @@ OA.Model = function(userSetting, isPattern2D) {
             event.stopImmediatePropagation();
           }
         } else if (model.contourState === contourStateType.CLOSE) {
-          $(window).bind("mousemove", onDragContour);
+          $domConainer.bind("mousemove", onDragContour);
         }
 
       }
@@ -253,7 +256,7 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function onMouseup(event) {
-    $(window).unbind("mousemove", onDragContour);
+    $domConainer.unbind("mousemove", onDragContour);
     event.preventDefault();
     cameraCtrl.noZoom = false;
     cameraCtrl.noRotate = false;
