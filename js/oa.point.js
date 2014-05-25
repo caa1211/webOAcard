@@ -23,7 +23,7 @@ OA.Point = function(userSetting) {
     var borderMaterial;
     var innerMaterial;
     var pointLight = null;
-
+    var $point = $(this);
     var init = function() {
         var movePointSetting = _setting;
         var movePointTexture = OA.Utils.texture.getTexture().movePointTexture;
@@ -90,7 +90,7 @@ OA.Point = function(userSetting) {
         position3D = hoverPos.clone();
         point.position = hoverPos.clone();
         point.position.z = point.position.z + 0.3;
-
+        $point.trigger("positionChange", position3D);
     };
 
     this.getPosition3D = function(){
@@ -108,6 +108,7 @@ OA.Point = function(userSetting) {
     this.setT = function(t){
         position3D.z = t;
         point.position.z = t + 0.3;
+        $point.trigger("positionChange", position3D);
     };
 
     this.setBorderColor = function(color){

@@ -39,21 +39,27 @@ OA.Face = function(userSetting) {
          color: 0xEADED2
       }
    };
+
+   var heightlightOpts = {
+      body: {
+         "HFACE": {
+            color: 0xFEFF91
+         },
+         "VFACE": {
+            color: 0xFFC991
+         }
+      },
+      border:{
+         color: 0x222222
+      }
+   };
    face.oaInfo = _setting;
    if(_setting.name){
       face.name = _setting.name;
    }
    var type = _setting.type;
 
-   var createLine = function(geometry) {
-      return new THREE.Line(geometry, new THREE.LineBasicMaterial({
-         linewidth: _setting.borderWidth,
-         color: _setting.borderColor
-      }));
-   };
-
-
-   var addBolderInShape = function(shape, face) {
+   var addBolderInShape = function(shape, borderGroup) {
       var borderGeo = shape.createPointsGeometry();
       var borderWidth = _setting.borderWidth;
       var borderColor = _setting.borderColor;
@@ -74,8 +80,8 @@ OA.Face = function(userSetting) {
 
       var border = new THREE.Line(borderGeo, borderMat);
       border.position.z = -0.1;
-
-      face.add(border);
+      border.name="faceBorder";
+      borderGroup.add(border);
    };
 
    var buildByCoutours = function(contours) {
@@ -87,7 +93,7 @@ OA.Face = function(userSetting) {
       var alen = exPolygons.length;
       var shapes = [];
       var outer_shape;
-
+      var borderGroup = new THREE.Object3D();
       var a, j, i, k;
 
       for (a = 0; a < alen; a++) {
@@ -126,14 +132,14 @@ OA.Face = function(userSetting) {
 
                      hole_shape = new THREE.Shape(holeP2dAry);
                      hole_shapes.push(hole_shape);
-                     addBolderInShape(hole_shape, face);
+                     addBolderInShape(hole_shape, borderGroup);
                   }
                }
                outer_shape.holes = hole_shapes;
             }
          }
          if (outer_shape) {
-            addBolderInShape(outer_shape, face);
+            addBolderInShape(outer_shape, borderGroup);
             shapes.push(outer_shape);
          }
       }
@@ -189,6 +195,10 @@ OA.Face = function(userSetting) {
       plane.name = "faceBody";
       face.add(plane);
 
+      borderGroup.name = "faceBorders";
+      face.add(borderGroup);
+
+
       if(_setting.oaMode === 0){
          //update upper and lower for finding fold line when draw preview
          updateUpperLower2Ds(_setting.contours, true);
@@ -207,7 +217,7 @@ OA.Face = function(userSetting) {
          linewidth: 4,
          color: 0x336699
       }));
-
+      addingLines.name = "addingLines";
       face.add(addingLines);
    }
 
@@ -232,6 +242,8 @@ OA.Face = function(userSetting) {
       });
       var line = new THREE.Line(geometry, material);
       line.type = THREE.LinePieces;
+
+      line.name = "faceGrid";
       face.add(line);
    }
 
@@ -471,6 +483,24 @@ OA.Face = function(userSetting) {
          buildByCoutours(_setting.contours);
       } catch (e) {
          OA.log("rebuild contour failed " +JSON.stringify(contours), 0);
+      }
+   };
+
+   this.heightlight = function(isOn){
+      var opts = heightlightOpts;
+      var borders = face.getObjectByName("faceBorders");
+      var body = face.getObjectByName("faceBody");
+
+      if (isOn) {
+         $.each(borders.children, function(i, border) {
+            border.material.color.setHex(opts.border.color);
+         });
+         body.material.color.setHex(opts.body[type].color);
+      } else {
+         $.each(borders.children, function(i, border) {
+            border.material.color.setHex(_setting.borderColor);
+         });
+         body.material.color.setHex(typeOpts[type].color);
       }
    };
 

@@ -2,6 +2,19 @@ OA.Model = function(userSetting, isPattern2D) {
 
   THREE.Object3D.call(this);
 
+  /*
+  custom events list:
+      movePoint:
+          positionChange
+
+      editPlane:
+          visibleChange
+      model:
+          faceAdded
+          facesClipped
+          contourStateChange
+  */
+
   //private
   var _def = {
     cardW: 100,
@@ -35,6 +48,7 @@ OA.Model = function(userSetting, isPattern2D) {
     noZoom: false,
     noRotate: false
   };
+  var $model = $(this);
   refreshFaceGroup.cardAngle = null;
   var foldable = true;
   var liveContour = null;
@@ -119,6 +133,7 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function enterContourEditingState() {
+
     model.contourState = contourStateType.EDITING;
     if (liveContour == null) {
       liveContour = new OA.Contour({
@@ -129,6 +144,7 @@ OA.Model = function(userSetting, isPattern2D) {
     }
     //cameraCtrl.enabled = false;
     movePoint.setColorByIndex(1);
+    $model.trigger("contourStateChange", model.contourState);
   }
 
   function enterContourNoEditingState() {
@@ -137,11 +153,13 @@ OA.Model = function(userSetting, isPattern2D) {
     liveContour = null;
     //cameraCtrl.enabled = true;
     movePoint.setColorByIndex(0);
+    $model.trigger("contourStateChange", model.contourState);
   }
 
   function enterContourCloseState() {
     model.contourState = contourStateType.CLOSE;
     movePoint.setColorByIndex(2);
+    $model.trigger("contourStateChange", model.contourState);
   }
 
 
@@ -158,10 +176,11 @@ OA.Model = function(userSetting, isPattern2D) {
       });
       //refreshFaceGroup.add(newFace);
       userFaces.push(newFace);
-      //clear Undo Redo
-      undoRedoAry = [];
+
+      $model.trigger("faceAdded", newFace);
       //newFace.rebuild(OA.Utils.getTestExPolygon());
       clipFaces(userFaces);
+    
     }
   }
 
@@ -176,14 +195,12 @@ OA.Model = function(userSetting, isPattern2D) {
 
     if (clipper.doClip(cardAngle)) {
       clippedFaces = clipper;
-
       if (mode === modeType.pattern3D) {
         //for 2D plattern display
         cloned180ClippedFaces = model.doCloneClippedFaces(180);
       }
-
-
       updateModel(clippedFaces);
+      $model.trigger("facesClipped", clippedFaces);
     }
   }
 
@@ -330,7 +347,29 @@ OA.Model = function(userSetting, isPattern2D) {
     movePoint.position.y = gridStep * 2;
     movePoint.position.z = initEditT;
     model.add(movePoint);
-    //refreshFaceGroup.add(editPlane);
+
+    //custom events binding
+    $(movePoint).bind("positionChange", function(e, pos3D) {
+        switchHighlight(true, pos3D);
+    });
+
+    $(editPlane).bind("visibleChange", function(e, isVisible){
+        if (isVisible === false) {
+            switchHighlight(false);
+        }else{
+            switchHighlight(true, movePoint.getPosition3D());
+        }
+    });
+
+    $model.bind("facesClipped", function(e, clippedFaces) {
+        switchHighlight(true, movePoint.getPosition3D());
+    });
+
+
+    $model.bind("facesAdded", function(e, newFace) {
+        undoRedoAry = [];
+    });
+
 
     var pAryV = [
       [0, 0],
@@ -381,6 +420,32 @@ OA.Model = function(userSetting, isPattern2D) {
     return model;
   };
 
+
+  function switchHighlight(isEnable, pos3D) {
+    var vt = pos3D && pos3D.z;
+    var ht = pos3D && pos3D.y;
+    // console.error("z " + t);
+    $.each(clippedFaces, function(i, f) {
+      if (isEnable) {
+        var ft = f.getT();
+        if (f.oaInfo.type === "VFACE") {
+          if (vt === ft) {
+            f.heightlight(true);
+          } else {
+            f.heightlight(false);
+          }
+        } else {
+          if (ht === ft) {
+            f.heightlight(true);
+          } else {
+            f.heightlight(false);
+          }
+        }
+      } else {
+        f.heightlight(false);
+      }
+    });
+  }
 
 
   function getFoldLine(l1, l2, type1, type2) {
@@ -601,6 +666,7 @@ OA.Model = function(userSetting, isPattern2D) {
 
   this.showEditPlane = function(showFlag) {
     OA.Utils.setObject3DVisible(editPlane, !!showFlag);
+    $(editPlane).trigger("visibleChange", showFlag);
     if (!showFlag) {
       movePoint.setVisible(false);
     } else {
@@ -676,6 +742,7 @@ OA.Model = function(userSetting, isPattern2D) {
           var hoverPos = getHoverPosition(intersector);
           if (!movePoint.isEqualPosition(hoverPos)) {
             movePoint.setPosition3D(hoverPos);
+
             movePoint.inEditplane = true;
           }
           if (liveContour != null) {
