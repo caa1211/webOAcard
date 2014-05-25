@@ -294,8 +294,10 @@
                 return;
             }
             //imgContainer.show();
+            var date = new Date();
             $imgContainer.children("img").attr("src", imgData);
-            $imgContainer.children("a").attr("href", imgData);
+            $imgContainer.children("a").attr("href", imgData)
+            .attr("download", "oaCard_"+ date +".png");
             renderer2.setSize(rendererW, rendererH);
             setTimeout(function(){
                 renderer2.render(scene2, cam2);
