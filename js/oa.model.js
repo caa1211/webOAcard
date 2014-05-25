@@ -13,6 +13,7 @@ OA.Model = function(userSetting, isPattern2D) {
           faceAdded
           facesClipped
           contourStateChange
+          updated
   */
 
   //private
@@ -20,8 +21,7 @@ OA.Model = function(userSetting, isPattern2D) {
     cardW: 100,
     cardH: 100,
     gridNum: 20,
-    initAngle: 90,
-    onModelUpdated: function(){}
+    initAngle: 90
   };
 
   var editPlane = null;
@@ -573,10 +573,6 @@ OA.Model = function(userSetting, isPattern2D) {
      return cloned180ClippedFaces;
   };
 
-  this.onModelUpdated = function(fn){
-      _setting.onModelUpdated = fn;
-  };
-
   this.unbindEvents = function() {
     unbindEvents();
   };
@@ -680,7 +676,7 @@ OA.Model = function(userSetting, isPattern2D) {
       var f = faces[i];
       refreshFaceGroup.add(f);
     }
-    _setting.onModelUpdated();
+    $model.trigger("updated");
   }
 
   var updateCardAngle = function() {

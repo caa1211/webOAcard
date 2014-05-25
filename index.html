@@ -60,10 +60,7 @@
         angle: 90,
         cardW: 120,
         cardH: 100,
-        gridNum: 40,
-        onModelUpdated: function(){
-
-        }
+        gridNum: 40
     };
     OA.Utils.texture.loadAllTexture(modelOption);
 
@@ -116,7 +113,7 @@
     cam2.aspect = previewW / previewH;
     cam2.updateProjectionMatrix();
     renderer2.setSize(previewW, previewH);
-    oaModel.onModelUpdated(function(){
+    $(oaModel).bind("facesClipped", function(){
         renderPreview();
     });
     renderPreview();
@@ -162,7 +159,7 @@
 
         container = document.getElementById('container');
         container.appendChild(renderer.domElement);
-        orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement, container);
         orbitCtrls.noPan = true;
         orbitCtrls.panLeft(-sceneOffset.x);
         orbitCtrls.panUp(sceneOffset.y);
@@ -217,11 +214,6 @@
         var $downloadLink = $imgContainer.children("a");
         var $previewUI =  $("#previewUI");
         var $download2D = $("#download2D");
-        $previewUI.hover(function(e) {
-            orbitCtrls.enabled = false;
-        }, function() {
-            orbitCtrls.enabled = true;
-        });
 
         $download2D.click(function(e) {
            var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function(){
