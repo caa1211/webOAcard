@@ -263,7 +263,11 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function onMousewheel(event, delta, deltaX, deltaY) {
-    event.preventDefault();
+
+    if (event.ctrlKey) {
+      event.preventDefault();
+    }
+
     if (editPlane.isVisible && model.contourState !== contourStateType.EDITING) {
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
@@ -292,6 +296,7 @@ OA.Model = function(userSetting, isPattern2D) {
         oaModel.setCardAngle(newAngle);
       }
     }
+   
   }
 
   this.resetCardAngle = function() {

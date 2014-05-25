@@ -82,7 +82,7 @@
         //scene.fog=new THREE.FogExp2( 0xffffff, fogNear );
         scene.fog=new THREE.Fog( 0xffffff, fogNear, fogFar );
 
-        camera.position.set(0, 0, maxWidth * 2.0);
+        camera.position.set(0, 0, oaModel.getCardH() * 2.5);
  
         if (Detector.webgl)
             renderer = new THREE.WebGLRenderer({
@@ -112,21 +112,20 @@
         orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement, container);
         orbitCtrls.noPan = true;
         //orbitCtrls.panLeft(-sceneOffset.x);
-        //orbitCtrls.panLeft(-30);
         orbitCtrls.panUp(sceneOffset.y);
         orbitCtrls.maxPolarAngle = 120*Math.PI/180;
         orbitCtrls.rotateUp(10*Math.PI/180);
         orbitCtrls.rotateLeft(-10*Math.PI/180);
         orbitCtrls.zoomSpeed = 0.1;
         orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
+        orbitCtrls.maxDistance = oaModel.getCardH() * 2.9;
         oaModel.setCameraCtrl(orbitCtrls);
         orbitCtrls.target = new THREE.Vector3(sceneOffset.x, 0, 0);
-        //orbitCtrls.rotateLeft(-10*Math.PI/180);
- 
-    var w = $container.width();
-    var h = $container.height();
 
-    camera.setViewOffset(w, h, cameraOffset, 0, w, h);
+        var w = $container.width();
+        var h = $container.height();
+
+        camera.setViewOffset(w, h, cameraOffset, 0, w, h);
 
         if (debugMode) {
             OA.Utils.debugaxis(scene, oa, 1000);
