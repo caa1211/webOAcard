@@ -19,7 +19,7 @@ OA.Point = function(userSetting) {
 
     var _setting = $.extend({}, _def, userSetting);
     var point = this;
-    var position3D = new THREE.Vector3();
+    var position3D = new THREE.Vector3( -1, -1, -1);
     var borderMaterial;
     var innerMaterial;
     var pointLight = null;

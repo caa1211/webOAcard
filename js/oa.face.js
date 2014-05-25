@@ -17,7 +17,7 @@ OA.Face = function(userSetting) {
       opacity: 1,
       gridData: {},
       borderColor: 0x555555,
-      borderWidth: 2.5,
+      borderWidth: 2.0,
       initAngle: 90,
       addingLine: null,
       depthTest: true,
@@ -46,11 +46,11 @@ OA.Face = function(userSetting) {
             color: 0xFEFF91
          },
          "VFACE": {
-            color: 0xFFC991
+            color: 0xFEFF91
          }
       },
       border:{
-         color: 0x222222
+         linewidth: 3
       }
    };
    face.oaInfo = _setting;
@@ -493,12 +493,14 @@ OA.Face = function(userSetting) {
 
       if (isOn) {
          $.each(borders.children, function(i, border) {
-            border.material.color.setHex(opts.border.color);
+            //border.material.color.setHex(opts.border.color);
+            border.material.linewidth = opts.border.linewidth;
          });
          body.material.color.setHex(opts.body[type].color);
       } else {
          $.each(borders.children, function(i, border) {
-            border.material.color.setHex(_setting.borderColor);
+            //border.material.color.setHex(_setting.borderColor);
+            border.material.linewidth = _setting.borderWidth;
          });
          body.material.color.setHex(typeOpts[type].color);
       }

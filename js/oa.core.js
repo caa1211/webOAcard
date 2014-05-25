@@ -9,13 +9,13 @@ var OA = {
    clipScale: 10000,
    paperTextureInfo:{
 
-     src: "img/p3.jpg",
-     size: 128,
-     isFill: false
-
-     // src: "img/paper0.jpg",
+     // src: "img/p3.jpg",
      // size: 128,
      // isFill: false
+
+     src: "img/paper0.jpg",
+     size: 200,
+     isFill: false
 
      // src: "img/picture1.jpg",
      // size: 500,
@@ -216,7 +216,7 @@ OA.Utils = {
         }
         paperT.wrapS = paperT.wrapT = THREE.RepeatWrapping;
         //paperT.anisotropy = 1;
-        paperT.offset.y = info.offset && info.offset.y?info.offset.y: 0;
+        paperT.offset.y = info.offset && info.offset.y?info.offset.y: 0.5;
         paperT.offset.x = info.offset && info.offset.x?info.offset.x: 0;
         paperT.flipY = false;
         var repeateSize = OA.Utils.texture.adjustTextureSize(maxW, imageSize, info.isFill); //isFull(true) or repeat
