@@ -54,8 +54,8 @@
     });
     
     $container2D.append(renderer2.domElement);
-    //cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), 1, 10000);
-    cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
+    cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), 1, 10000);
+    //cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
     
 
 
@@ -489,7 +489,7 @@ window.onload = function() {
 
 //======================================
 function resetGlobalValuable() {
-     var $container2D = $("#container2D");
+    var $container2D = $("#container2D");
     var previewW = $container2D.width();
     var previewH = $container2D.height();
 
@@ -499,6 +499,9 @@ function resetGlobalValuable() {
     gridStep = maxWidth / modelOption.gridNum;
     viewerR = maxWidth * 2.5;
     sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
+
+    //cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
+    //cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), -100, 10000);
     cam2.position.set(0, viewerR, 0);
     scene2.position.x = cardW / 2;
     cam2.position.x = cardW / 2;
