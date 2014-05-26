@@ -198,11 +198,11 @@
         mouse2D.y = -(event.clientY / $container.height()) * 2 + 1;
     }
 
-    function changeCardMode(cardMode){
-        var opt = cardModeOpts[cardMode];
+    function changeCardMode(cmode){
+        var opt = cardModeOpts[cmode];
         orbitCtrls.enabled = opt.cameraControl;
         oaModel.showEditPlane(opt.showEditPlane);
-
+        cardMode = cmode;
         if(opt.angleFixed === -1){
             oaModel.setFoldable(true);
         }else{
@@ -356,6 +356,9 @@ window.onload = function() {
         },
         editDepth: 16,
         editDepthChange: function(value){
+           if (!oaModel.isEditMode) {
+                changeCardMode(0);
+           }
            oaModel.setEditDepth(value);
         },
         isEditMode: true, 
@@ -441,7 +444,7 @@ window.onload = function() {
     var depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardHeight-1).step(gridStep).listen().name("Edit Depth")
     .onChange(oaControl.editDepthChange);
 
-    gui.add(oaControl, 'isEditMode').name("Edit Mode")
+    gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
     .onChange(oaControl.editModeChange);
 
     var f0 = gui.addFolder('Model');
@@ -478,6 +481,7 @@ window.onload = function() {
       requestAnimationFrame(update);
       oaControl.cardAngle = oaModel.getCardAngle();
       oaControl.editDepth = oaModel.getEditDepth();
+      oaControl.isEditMode = oaModel.getEditMode();
     };
 
     update();

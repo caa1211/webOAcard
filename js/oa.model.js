@@ -14,6 +14,7 @@ OA.Model = function(userSetting, isPattern2D) {
           facesClipped
           contourStateChange
           updated
+          editModeChange
   */
 
   //private
@@ -670,11 +671,16 @@ OA.Model = function(userSetting, isPattern2D) {
   this.showEditPlane = function(showFlag) {
     OA.Utils.setObject3DVisible(editPlane, !!showFlag);
     $(editPlane).trigger("visibleChange", showFlag);
+    $model.trigger("editModeChange", showFlag);
     if (!showFlag) {
       movePoint.setVisible(false);
     } else {
       movePoint.setVisible(true);
     }
+  };
+
+  this.getEditMode = function(){
+      return editPlane.isVisible;
   };
 
   function updateModel(faces) {
