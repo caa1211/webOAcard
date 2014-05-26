@@ -637,8 +637,8 @@ OA.Model = function(userSetting, isPattern2D) {
 
       var p1 = ln[0],
         p2 = ln[1];
-      var d3p1 = new THREE.Vector3(p1.X-1, 0 , p1.Y);
-      var d3p2 = new THREE.Vector3(p2.X+1, 0 , p2.Y);
+      var d3p1 = new THREE.Vector3(p1.X-1, 0.3 , p1.Y);
+      var d3p2 = new THREE.Vector3(p2.X+1, 0.3 , p2.Y);
       var geometry = new THREE.Geometry();
       geometry.vertices.push(d3p1, d3p2);
       geometry.computeLineDistances();
