@@ -628,11 +628,11 @@ OA.Model = function(userSetting, isPattern2D) {
       if(ftype === foldType.mountain){
           foldOpt.dashSize = 1;
           foldOpt.gapSize = 0.5;
-          foldOpt.color = 0xE4CACA;
+          foldOpt.color = 0xEB8887;
       }else{
           foldOpt.dashSize = 1;
           foldOpt.gapSize = 2;
-          foldOpt.color = 0xCAE4CA;
+          foldOpt.color = 0x87EB88;
       }
 
       var p1 = ln[0],

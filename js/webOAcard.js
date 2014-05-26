@@ -170,7 +170,7 @@
         var $download2D = $("#download2D");
 
         $download2D.click(function(e) {
-           var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function(){
+           var dataUrl = make2DImg(1000, 1000*previewH/previewW, previewW, previewH, $imgContainer, function(){
                  $downloadLink[0].click();
            });
         });
