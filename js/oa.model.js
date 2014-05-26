@@ -285,14 +285,13 @@ OA.Model = function(userSetting, isPattern2D) {
       var newDist = mf(editPlane.getT() + gridStep * d);
 
       moveEditPlane(newDist);
-
-      if (foldable) {
-        var d = ((deltaY < 0) ? -1 : 1);
-        //OA.log(delta, deltaX, deltaY);
-        var newAngle = cardAngle + d * 5;
-        if (newAngle >= 0 && newAngle <= 180) {
-          oaModel.setCardAngle(newAngle);
-        }
+    }
+    if (foldable) {
+      var d = ((deltaY < 0) ? -1 : 1);
+      //OA.log(delta, deltaX, deltaY);
+      var newAngle = cardAngle + d * 5;
+      if (newAngle >= 0 && newAngle <= 180) {
+        oaModel.setCardAngle(newAngle);
       }
     }
   }
