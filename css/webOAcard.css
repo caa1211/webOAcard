@@ -110,7 +110,9 @@
 }
 
 #previewUIwrapper{
-    height:100%;margin-left:4px; background:#1a1a1a;
+    height:240px;
+    margin-left:4px; 
+    background:#1a1a1a;
     border-left: 3px solid #FF8F19;
 }
 
