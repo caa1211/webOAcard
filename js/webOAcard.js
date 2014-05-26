@@ -227,7 +227,11 @@
 
     }
 
-
+    function toDataURL(renderer, mimetype) {
+        mimetype = mimetype || "image/png";
+        var dataUrl = renderer.domElement.toDataURL(mimetype);
+        return dataUrl;
+    };
 
     function make2DImg(w, h, rendererW, rendererH, $imgContainer, callback) {
 
