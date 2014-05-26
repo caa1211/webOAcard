@@ -1,6 +1,6 @@
 var OA = {
    REVISION: 'r01',
-   debugMode: true,
+   debugMode: false,
    logLevel: 2, //0: error, 1: warning, 2: info
    tunePath: true,
    light: true, 

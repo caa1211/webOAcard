@@ -262,8 +262,19 @@ OA.Model = function(userSetting, isPattern2D) {
     cameraCtrl.noRotate = false;
   }
 
-  function onMousewheel(event, delta, deltaX, deltaY) {
+  function moveEditPlane(newDist) {
+    if (newDist >= 0 && newDist < cardH) {
+      editPlane.position.z = newDist + 0.1;
+      editPlane.setT(newDist);
+      movePoint.setT(newDist);
+    }
 
+    if (model.contourState === contourStateType.CLOSE) {
+      liveContour.moveTo(null, editPlane.getT());
+    }
+  }
+
+  function onMousewheel(event, delta, deltaX, deltaY) {
     if (event.ctrlKey) {
       event.preventDefault();
     }
@@ -272,31 +283,18 @@ OA.Model = function(userSetting, isPattern2D) {
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
       var newDist = mf(editPlane.getT() + gridStep * d);
-      if (d > 0 && newDist < cardH) {
-        editPlane.position.z = newDist + 0.1;
-        editPlane.setT(newDist);
-        movePoint.setT(newDist);
-        // viewerR += gridStep;
-      } else if (d < 0 && newDist >= 0) {
-        editPlane.position.z = newDist + 0.1;
-        editPlane.setT(newDist);
-        movePoint.setT(newDist);
-      }
 
-      if (model.contourState === contourStateType.CLOSE) {
-        liveContour.moveTo(null, editPlane.getT());
+      moveEditPlane(newDist);
+
+      if (foldable) {
+        var d = ((deltaY < 0) ? -1 : 1);
+        //OA.log(delta, deltaX, deltaY);
+        var newAngle = cardAngle + d * 5;
+        if (newAngle >= 0 && newAngle <= 180) {
+          oaModel.setCardAngle(newAngle);
+        }
       }
     }
-
-    if (foldable) {
-      var d = ((deltaY < 0) ? -1 : 1);
-      //OA.log(delta, deltaX, deltaY);
-      var newAngle = cardAngle + d * 5;
-      if (newAngle >= 0 && newAngle <= 180) {
-        oaModel.setCardAngle(newAngle);
-      }
-    }
-   
   }
 
   this.resetCardAngle = function() {
@@ -358,7 +356,9 @@ OA.Model = function(userSetting, isPattern2D) {
 
     //custom events binding
     $(movePoint).bind("positionChange", function(e, pos3D) {
+      if (movePoint.isVisible) {
         switchHighlight(true, pos3D);
+      }
     });
 
     $(editPlane).bind("visibleChange", function(e, isVisible){
@@ -789,6 +789,21 @@ OA.Model = function(userSetting, isPattern2D) {
   };
 
 
+  this.getEditDepth = function(){
+    return editPlane.getT();
+  };
+
+  this.setEditDepth = function(newDist){
+     moveEditPlane(newDist);
+  };
+
+  this.clearAllFaces = function(){
+    OA.Utils.cleanObject3D(refreshFaceGroup);
+    clippedFaces = [];
+    userFaces = [];
+    undoRedoAry = [];
+    clipFaces(userFaces);
+  };
 
   //public
   this.destory = function() {

@@ -1,6 +1,5 @@
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-
     var container = document.getElementById('container');
     var $container = $(container);
     var cameraOffset = 80;
@@ -57,6 +56,9 @@
     $container2D.append(renderer2.domElement);
     //cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), 1, 10000);
     cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
+    
+
+
     cam2.position.set(0, viewerR, 0);
     scene2.position.x = cardW / 2;
     cam2.position.x = cardW / 2;
@@ -69,6 +71,8 @@
     $(oaModel).bind("facesClipped", function(){
         renderPreview();
     });
+
+
     renderPreview();
     //==========
 
@@ -298,41 +302,6 @@ function renderPreview() {
 
 
 
-//===============GUI=================
-var FizzyText = function() {
-  this.message = 'dat.gui';
-  this.speed = 0.8;
-  this.displayOutline = false;
-  this.explode = function() {  };
-  // Define render logic ...
-};
-
-window.onload = function() {
-    var text = new FizzyText();
-
-    var gui = new dat.GUI({
-        autoPlace: false
-    });
-
-    var datContainer = document.getElementById('datContainer');
-    datContainer.appendChild(gui.domElement);
-
-
-    var $previewUI = $("#previewUI")
-
-    gui.add(text, 'message');
-    gui.add(text, 'speed', -5, 5);
-    gui.add(text, 'displayOutline');
-    gui.add(text, 'explode');
-    gui.add(text, 'explode');
-    gui.add(text, 'explode');
-    gui.add(text, 'explode');
-    $(datContainer).find(".close-button").before($previewUI);
-    $previewUI.css("visibility", "visible");
-};
-
-//======================================
-
 // function animate2() {
 //     renderPreview();
 //     requestAnimationFrame2 = requestAnimationFrame(animate2);
@@ -343,6 +312,229 @@ window.onload = function() {
 
 
 
+//===============GUI=================
+ 
+
+window.onload = function() {
+
+    // var oaControl = new function(){
+
+    //     this.cardAngle = 90;
+    //     this.displayOutline = false;
+    //     //this.message = "download 2D pattern";
+    //     this.fundo = function() { 
+    //         oaModel.undo();
+    //     };
+    //     this.fredo = function() { 
+    //          oaModel.redo();
+    //     };
+
+    //     this.fclear = function(){
+
+    //     };
+
+    //     this.cundo = function(){
+
+    //     };
+
+    //     this.credo = function(){
+
+    //     };
+
+    //     this.width2D = 1000;
+    //     this.height2D = 1000;
+ //   }
+    function noIm(){
+        alert("not yet implemented!"); 
+    };
+    var oaControl = {
+        cardAngle: 90,
+        angleChange: function(value) {
+           oaModel.setCardAngle(value);
+           oaModel.showEditPlane(false);
+           oaModel.setFoldable(true);
+        },
+        editDepth: 16,
+        editDepthChange: function(value){
+           oaModel.setEditDepth(value);
+        },
+        isEditMode: true, 
+        editModeChange: function(value){
+            if(value){
+                changeCardMode(0);
+            }else{
+                changeCardMode(1);
+            }
+        },
+        faceMode: "face",
+        fundo: function(){
+            oaModel.undo();
+        },
+        fredo: function(){
+            oaModel.redo();
+        },
+        fclear: function(){ 
+            var r = confirm("clear all face?");
+            if (r == true) {
+                oaModel.clearAllFaces();
+            } else {}
+        },
+        cundo: function(){
+            noIm(); 
+        },
+        credo: function(){
+            noIm(); 
+        },
+        cclear: function(){
+            noIm(); 
+        },
+        cardWidth: modelOption.cardW,
+        cardHeight: modelOption.cardH,
+        gridNum: modelOption.gridNum,
+        newModel: function(){
+            // var modelOption = {
+            //     angle: 90,
+            //     cardW: 120,
+            //     cardH: 100,
+            //     gridNum: 40,
+            //     domContainer: container
+            // };
+            //noIm(); 
+            scene.remove(oaModel);
+            $(oaModel).unbind("facesClipped");
+            oaModel.destory();
+            modelOption.cardW = oaControl.cardWidth;
+            modelOption.cardH = oaControl.cardHeight;
+            modelOption.gridNum = oaControl.gridNum;
+            oaModel = new OA.Model(modelOption);
+            scene.add(oaModel);
+            resetGlobalValuable();
+            changeCardMode(cardMode);
+            renderPreview();
+        },
+        loadModel: function(){
+            noIm();
+        },
+        saveModel: function(){
+            noIm();
+        },
+        subdivisionV: 0,
+        subdivisionH: 0,
+        downloadMsg: "Click Preview Image"
+    };
+
+    var angleOpt;
+    var gui = new dat.GUI({
+        autoPlace: false
+    });
+
+    var datContainer = document.getElementById('datContainer');
+    datContainer.appendChild(gui.domElement);
+
+
+    var $previewUI = $("#previewUI");
+
+
+    gui.add(oaControl, "cardAngle", 0, 180).step(-5).listen().name("Card Angle")
+    .onChange(oaControl.angleChange);
+
+    var depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardHeight-1).step(gridStep).listen().name("Edit Depth")
+    .onChange(oaControl.editDepthChange);
+
+    gui.add(oaControl, 'isEditMode').name("Edit Mode")
+    .onChange(oaControl.editModeChange);
+
+    var f0 = gui.addFolder('Model');
+    f0.add(oaControl, 'cardWidth', 50, 300).step(1).name('Width');
+    f0.add(oaControl, 'cardHeight', 50, 300).step(1).name('Height');
+    f0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid');
+    f0.add(oaControl, 'newModel').name('New');
+    f0.add(oaControl, 'loadModel').name('Save');
+    f0.add(oaControl, 'saveModel').name('Load');
+    //f0.open();
+
+    var f1 = gui.addFolder('Face');
+    f1.add(oaControl, 'faceMode', [ 'Face', 'Hole', 'Pull' ] ).name("Face Mode");
+    f1.add(oaControl, 'fundo').name('Undo');
+    f1.add(oaControl, 'fredo').name('Redo');
+    f1.add(oaControl, 'fclear').name('Clear');
+    f1.open();
+
+    var f2 = gui.addFolder('Contour');
+    f2.add(oaControl, 'cundo').name('Undo');
+    f2.add(oaControl, 'credo').name('Redo');
+    f2.add(oaControl, 'cclear').name('Clear');
+    f2.add(oaControl, "subdivisionV", 0, 5).step(1).name("Subdiv V");
+    f2.add(oaControl, "subdivisionH", 0, 5).step(1).name("Subdiv H");
+    //f2.open();
+
+    var f3 = gui.addFolder('2D Pattern');
+    // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
+    // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
+    f3.add(oaControl, 'downloadMsg').name("Save");
+    f3.open();
+
+    var update = function() {
+      requestAnimationFrame(update);
+      oaControl.cardAngle = oaModel.getCardAngle();
+      oaControl.editDepth = oaModel.getEditDepth();
+    };
+
+    update();
+
+
+    $(datContainer).find(".close-button").before($("#previewUIwrapper"));
+    $previewUI.css("visibility", "visible");
+};
+
+//======================================
+function resetGlobalValuable() {
+     var $container2D = $("#container2D");
+    var previewW = $container2D.width();
+    var previewH = $container2D.height();
+
+    cardW = modelOption.cardW,
+    cardH = modelOption.cardH;
+    maxWidth = cardW > cardH ? cardW : cardH;
+    gridStep = maxWidth / modelOption.gridNum;
+    viewerR = maxWidth * 2.5;
+    sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
+    cam2.position.set(0, viewerR, 0);
+    scene2.position.x = cardW / 2;
+    cam2.position.x = cardW / 2;
+    cam2.lookAt(scene2.position);
+    cam2.rotation.z = 0 * Math.PI / 180;
+
+    // cam2.aspect = previewW / previewH;
+    // cam2.updateProjectionMatrix();
+    // renderer2.setSize(previewW, previewH);
+    $(oaModel).bind("facesClipped", function() {
+        renderPreview();
+    });
+   
+
+    var fogNear = viewerR / 18000;
+    var fogFar = viewerR * 2.2;
+    //scene.fog=new THREE.FogExp2( 0xffffff, fogNear );
+    scene.fog = new THREE.Fog(0xffffff, fogNear, fogFar);
+
+    camera.position.set(0, 0, oaModel.getCardH() * 2.5);
+
+  //  orbitCtrls.noPan = true;
+    //orbitCtrls.panLeft(-sceneOffset.x);
+    orbitCtrls.panUp(sceneOffset.y);
+    orbitCtrls.maxPolarAngle = 120 * Math.PI / 180;
+    orbitCtrls.rotateUp(10 * Math.PI / 180);
+    orbitCtrls.rotateLeft(-10 * Math.PI / 180);
+  //  orbitCtrls.zoomSpeed = 0.1;
+    orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
+    orbitCtrls.maxDistance = oaModel.getCardH() * 2.9;
+    oaModel.setCameraCtrl(orbitCtrls);
+    orbitCtrls.target = new THREE.Vector3(sceneOffset.x, 0, 0);
+    // var w = $container.width();
+    // var h = $container.height();
+    // camera.setViewOffset(w, h, cameraOffset, 0, w, h);
+}
 
 //======================================
 
