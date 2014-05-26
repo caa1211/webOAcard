@@ -14,11 +14,10 @@
         domContainer: container
     };
     OA.Utils.texture.loadAllTexture(modelOption);
-
-     var cardW = modelOption.cardW,
-         cardH = modelOption.cardH;
-     var maxWidth = cardW > cardH ? cardW : cardH;
-     var gridStep = maxWidth / modelOption.gridNum;
+    var cardW = modelOption.cardW,
+        cardH = modelOption.cardH;
+    var maxWidth = cardW > cardH ? cardW : cardH;
+    var gridStep = maxWidth / modelOption.gridNum;
 
     var oaModel = new OA.Model(modelOption);
     var sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
@@ -37,16 +36,13 @@
     //for preview
     var camera2, scene2, renderer2 , cam2, model2d;
 
+    var $container2D = $("#container2D");
+    var previewW = $container2D.width();
+    var previewH = $container2D.height();
 
     function init(oa) {
     
     //==preview===
-
-    var $container2D = $("#container2D");
-    var previewW = $container2D.width();
-    var previewH = $container2D.height();
-    var requestAnimationFrame2 = null;
-
     scene2 = new THREE.Scene();
     renderer2 = new THREE.WebGLRenderer({
         antialias: true,
@@ -176,9 +172,7 @@
         $download2D.click(function(e) {
            var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function(){
                  $downloadLink[0].click();
-
            });
-           
         });
 
     }
@@ -427,7 +421,16 @@ window.onload = function() {
         },
         subdivisionV: 0,
         subdivisionH: 0,
-        downloadMsg: "Click Preview Image"
+        downloadImg: function() {
+            //download 2d pattern
+            var $imgContainer = $("#imgContainer");
+            var $downloadLink = $imgContainer.children("a");
+            var $previewUI = $("#previewUI");
+            var $download2D = $("#download2D");
+            var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function() {
+                $downloadLink[0].click();
+            });
+        }
     };
 
     var angleOpt;
@@ -478,7 +481,7 @@ window.onload = function() {
     var f3 = gui.addFolder('2D Pattern');
     // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
     // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
-    f3.add(oaControl, 'downloadMsg').name("Save");
+    f3.add(oaControl, 'downloadImg').name("Save");
     f3.open();
 
     var update = function() {
@@ -497,9 +500,6 @@ window.onload = function() {
 
 //======================================
 function resetGlobalValuable() {
-    var $container2D = $("#container2D");
-    var previewW = $container2D.width();
-    var previewH = $container2D.height();
 
     cardW = modelOption.cardW,
     cardH = modelOption.cardH;
