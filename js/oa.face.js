@@ -40,7 +40,7 @@ OA.Face = function(userSetting) {
       }
    };
 
-   var heightlightOpts = {
+   var highlightOpts = {
       body: {
          "HFACE": {
             color: 0xFEFF91
@@ -488,8 +488,8 @@ OA.Face = function(userSetting) {
       }
    };
 
-   this.heightlight = function(isOn){
-      var opts = heightlightOpts;
+   this.highlight = function(isOn){
+      var opts = highlightOpts;
       var borders = face.getObjectByName("faceBorders");
       var body = face.getObjectByName("faceBody");
       if (borders && borders.children) {

@@ -436,19 +436,19 @@ OA.Model = function(userSetting, isPattern2D) {
         var ft = f.getT();
         if (f.oaInfo.type === "VFACE") {
           if (vt === ft) {
-            f.heightlight(true);
+            f.highlight(true);
           } else {
-            f.heightlight(false);
+            f.highlight(false);
           }
         } else {
           if (ht === ft) {
-            f.heightlight(true);
+            f.highlight(true);
           } else {
-            f.heightlight(false);
+            f.highlight(false);
           }
         }
       } else {
-        f.heightlight(false);
+        f.highlight(false);
       }
     });
   }
