@@ -347,14 +347,14 @@ window.onload = function() {
                 oaModel.clearAllFaces();
             } else {}
         },
-        cundo: function(){
-            noIm(); 
+        cPrevious: function(){
+           oaModel.prevContour();
         },
-        credo: function(){
-            noIm(); 
+        cNext: function(){
+           oaModel.nextContour();
         },
         cclear: function(){
-            noIm(); 
+            oaModel.clearContour(); 
         },
         cardWidth: modelOption.cardW,
         cardHeight: modelOption.cardH,
@@ -440,12 +440,12 @@ window.onload = function() {
     f1.open();
 
     var f2 = gui.addFolder('Contour');
-    f2.add(oaControl, 'cundo').name('Undo');
-    f2.add(oaControl, 'credo').name('Redo');
+    f2.add(oaControl, 'cPrevious').name('Previous');
+    f2.add(oaControl, 'cNext').name('Next');
     f2.add(oaControl, 'cclear').name('Clear');
     f2.add(oaControl, "subdivisionV", 0, 5).step(1).name("Subdiv V");
     f2.add(oaControl, "subdivisionH", 0, 5).step(1).name("Subdiv H");
-    //f2.open();
+    f2.open();
 
     var f3 = gui.addFolder('2D Pattern');
     // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);

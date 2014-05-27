@@ -25,7 +25,7 @@ OA.Model = function(userSetting, isPattern2D) {
     initAngle: 90,
     domContainer: document
   };
-
+  var contourRepo  = new OA.ContourRepo();
   var editPlane = null;
   var _setting = $.extend({}, _def, userSetting);
   var cardW = _setting.cardW,
@@ -160,6 +160,10 @@ OA.Model = function(userSetting, isPattern2D) {
   function enterContourNoEditingState() {
     model.contourState = contourStateType.NO_EDITING;
     model.remove(liveContour);
+
+    if (liveContour != null && liveContour.checkClosed()) {
+       contourRepo.push(liveContour.getPosition3Ds());
+    }
     liveContour = null;
     //cameraCtrl.enabled = true;
     movePoint.setColorByIndex(0);
@@ -900,6 +904,51 @@ OA.Model = function(userSetting, isPattern2D) {
         moveEditPlane(-1);
       }
     }
+  };
+
+  this.prevContour = function() {
+
+    var pos3Ds = contourRepo.getBefore();
+    if (pos3Ds) {
+      model.showEditPlane(true);
+      model.setFoldable(false);
+      model.resetCardAngle();
+      enterContourNoEditingState();
+      liveContour = new OA.Contour({
+        gridStep: gridStep,
+        t: editPlane.getT(),
+        initData: pos3Ds
+      });
+      model.add(liveContour);
+      enterContourCloseState();
+    }
+  };
+
+  this.nextContour = function() {
+    
+    var pos3Ds = contourRepo.getAfter();
+    //debugger;
+    if (pos3Ds) {
+      enterContourNoEditingState();
+      model.showEditPlane(true);
+      model.setFoldable(false);
+      model.resetCardAngle();
+      liveContour = new OA.Contour({
+        gridStep: gridStep,
+        t: editPlane.getT(),
+        initData: pos3Ds
+      });
+      model.add(liveContour);
+      enterContourCloseState();
+    }
+  };
+
+  this.clearContour = function() {
+      enterContourNoEditingState();
+      model.showEditPlane(true);
+      model.setFoldable(false);
+      model.resetCardAngle();
+      enterContourCloseState();
   };
 
   this.getFaceCreateMode = function (mode){

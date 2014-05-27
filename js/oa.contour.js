@@ -13,7 +13,8 @@ OA.Contour = function(userSetting) {
       },
       gridStep: 1,
       t: 0,
-      faceCreateMode: 0
+      faceCreateMode: 0,
+      initData:null
    };
    var contour = this;
    var isClosed = false;
@@ -26,6 +27,7 @@ OA.Contour = function(userSetting) {
    contour.uppers = [];
    var _setting = $.extend({}, _def, userSetting);
    contour.t = _setting.t;
+   var initData = _setting.initData;
    var gridStep = _setting.gridStep;
    var hoverLine = null;
    var circleGroup = null;
@@ -48,6 +50,10 @@ OA.Contour = function(userSetting) {
       startPoint = new OA.Point({
          scale: _setting.gridStep
       });
+      if (initData != null) {
+         userPosition3Ds = initData;
+         closeContour(true);
+      }
       return contour;
    };
 
@@ -165,7 +171,9 @@ OA.Contour = function(userSetting) {
       if (openLines) {
          lineGroup.remove(openLines);
       }
-
+      if(_setting.initData){
+         lineGroup.position.z = 0.3;
+      }
       if (p3DAry.length < 2) {
          return;
       }
@@ -367,22 +375,32 @@ OA.Contour = function(userSetting) {
       return ary;
    }
 
-   function drawCloseCoutour() {
+   function drawCloseCoutour(isInitInput) {
 
       point2Ds = fineTunePath(point2Ds);//also modify Orientation 
       //upper2Ds = collectUpper2Ds(point2Ds);
 
       var closePos3Ds = convertPoint2DsTo3Ds(point2Ds);
       //collect uppers?
-      updateContour(closePos3Ds, {
-         color: 0x5F8A37,
-         radius: 0.6
-      }, {
-         color: 0x376938
-      });
+      var opt = {
+         ptnStyle: {
+            color: 0x5F8A37,
+            radius: 0.6
+         },
+         lineStyle: {
+            color: 0x376938
+         }
+      };
+
+      if(_setting.initData){
+         opt.ptnStyle.color = 0xBE6100;
+         opt.lineStyle.color = 0xFA8000;
+         opt.lineStyle.linewidth =3.5;
+      }
+      updateContour(closePos3Ds, opt.ptnStyle, opt.lineStyle);
    }
 
-   function closeContour() {
+   function closeContour(isInitInput) {
       isClosed = true;
 
       if (hoverLine) {
@@ -405,7 +423,7 @@ OA.Contour = function(userSetting) {
       // ClipperLib.JS.ScaleUpPath(point2Ds, 2);
       // movePoint2Ds(point2Ds, mp.X, mp.Y);
 
-      drawCloseCoutour();
+      drawCloseCoutour(isInitInput);
    }
    //public
 
