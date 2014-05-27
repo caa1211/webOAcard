@@ -337,6 +337,9 @@ window.onload = function() {
         contourIdChange: function(){
 
         },
+        rotateX: function(){
+            oaModel.contourRotateX();
+        },
         cardWidth: modelOption.cardW,
         cardHeight: modelOption.cardH,
         gridNum: modelOption.gridNum,
@@ -364,8 +367,9 @@ window.onload = function() {
             noIm();
         },
         saveModel: function(){
-          //  noIm();
-            oaModel.getLiveContourID();
+            noIm();
+            //oaModel.getLiveContourID();
+            
         },
         downloadImg: function() {
             //download 2d pattern
@@ -434,8 +438,9 @@ window.onload = function() {
     var f2 = gui.addFolder('Contour');
     f2.add(oaControl, 'cPrevious').name('Browse Old');
     f2.add(oaControl, 'cNext').name('Browse New');
-    f2.add(oaControl, 'liveContour_id').name("Info").listen().onChange(oaControl.contourIdChange);
     f2.add(oaControl, 'cclear').name('Clear');
+    f2.add(oaControl, 'liveContour_id').name("Info").listen().onChange(oaControl.contourIdChange);
+    f2.add(oaControl, 'rotateX').name('Mirror');
     f2.add(oaControl, "subLevel", 1, 5).step(1).name("Subdivision").listen().onChange(
         oaControl.subLevelChange);
     f2.open();

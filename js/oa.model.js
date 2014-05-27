@@ -1020,7 +1020,11 @@ OA.Model = function(userSetting, isPattern2D) {
     }
   };
   
-
+  this.contourRotateX = function() {
+    if (liveContour != null && liveContour.checkClosed()) {
+      liveContour.rotateX();
+    }
+  }
 
   this.subdivision = function(level) {
     if (liveContour){

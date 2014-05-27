@@ -427,6 +427,27 @@ OA.Contour = function(userSetting) {
 
       drawCloseCoutour(isInitInput);
    }
+
+   this.rotateX = function() {
+      if (!isClosed || !point2Ds || point2Ds.length === 0) {
+         return;
+      }
+      var newP2Ary = [];
+      var mp = getMiddlePointFromPath(point2Ds);
+      var pLen = point2Ds.length;
+      for (var i = 0; i < pLen; i++) {
+         var P = {
+            X: point2Ds[i].X * -1,
+            Y: point2Ds[i].Y
+         };
+         newP2Ary.push(P);
+      }
+      newP2Ary = movePoint2Ds(newP2Ary, mp);
+      point2Ds = newP2Ary;
+      userPosition3Ds = convertPoint2DsTo3Ds(point2Ds);
+      drawCloseCoutour();
+   };
+   
    //public
    this.subdiv = function(level) {
 
