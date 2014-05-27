@@ -453,7 +453,7 @@ OA.Clipper = function(userSetting) {
         $.each(holeList, function(i, hole) {
             var t = hole.getT();
             var new_vface_list = $.grep(vface_list, function(f, i) {
-                if (f.getT() === t) {
+                if (f.getT() <= t) {
                     var subj = f.getExPolygons();
                     var clip = hole.getExPolygons();
                     var resPoly = polyBoolean(subj, clip, 2);
@@ -472,7 +472,7 @@ OA.Clipper = function(userSetting) {
         $.each(holeList, function(i, hole) {
             var t = hole.getT();
             var new_pullList = $.grep(pullList, function(f, i) {
-                if (f.getT() === t) {
+                if (f.getT() <= t) {
                     var subj = f.getExPolygons();
                     var clip = hole.getExPolygons();
                     var resPoly = polyBoolean(subj, clip, 2);
