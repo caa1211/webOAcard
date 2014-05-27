@@ -217,6 +217,7 @@ OA.Model = function(userSetting, isPattern2D) {
         if (liveContour === null) {
           enterContourEditingState();
         }
+
         if (!liveContour.checkClosed()) {
           var p = movePoint.getPosition3D();
           liveContour.addPosition3D(p);
@@ -224,19 +225,17 @@ OA.Model = function(userSetting, isPattern2D) {
             enterContourCloseState();
           }
         } else {
-          if (liveContour && liveContour.checkClosed) {
+          if (liveContour) {
             addFaceByContour(liveContour);
           }
           enterContourNoEditingState();
         }
+
       } else if (event.which === 3) {
 
         if (model.contourState === contourStateType.EDITING) {
           if (liveContour.getPointSize() > 1) {
             liveContour.undo();
-            // if(model.contourState == contourStateType.CLOSE){
-            //    enterContourEditingState();
-            // }
           } else if (liveContour.getPointSize() === 1) {
             liveContour.undo();
             enterContourNoEditingState();
@@ -620,26 +619,27 @@ OA.Model = function(userSetting, isPattern2D) {
     function drawFoldLine(ln, ftype) {
       var foldOpt = {
           color:0xffffff,
-          linewidth: 3,
+          linewidth: 1,
           dashSize: 1,
           gapSize: 0.5
       };
       if(ftype === foldType.mountain){
           foldOpt.dashSize = 1;
           foldOpt.gapSize = 0.5;
-          foldOpt.color = 0xEB8887;
+          foldOpt.color = 0xDF3B39;
       }else{
           foldOpt.dashSize = 1;
           foldOpt.gapSize = 2;
-          foldOpt.color = 0x87EB88;
+          foldOpt.color = 0x8ADF39;
       }
 
       var p1 = ln[0],
         p2 = ln[1];
-      var d3p1 = new THREE.Vector3(p1.X-1, 0.3 , p1.Y);
-      var d3p2 = new THREE.Vector3(p2.X+1, 0.3 , p2.Y);
+      var d3p1 = new THREE.Vector3(p1.X-1, 0.2 , p1.Y);
+      var d3p2 = new THREE.Vector3(p2.X+1, 0.2 , p2.Y);
       var geometry = new THREE.Geometry();
       geometry.vertices.push(d3p1, d3p2);
+
       geometry.computeLineDistances();
       var mat = new THREE.LineDashedMaterial({
         linewidth: foldOpt.linewidth,

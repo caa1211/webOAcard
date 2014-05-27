@@ -50,11 +50,9 @@
     });
     
     $container2D.append(renderer2.domElement);
-    cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), 1, 10000);
+    cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), 1, 20000);
     //cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
     
-
-
     cam2.position.set(0, viewerR, 0);
     scene2.position.x = cardW / 2;
     cam2.position.x = cardW / 2;
@@ -74,7 +72,7 @@
 
 
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(45, $container.width() / $container.height(), 0.1, 20000);
+        camera = new THREE.PerspectiveCamera(45, $container.width() / $container.height(), 0.1, 200000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
         scene.add(camera);
         var fogNear = viewerR/18000;
