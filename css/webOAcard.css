@@ -17,7 +17,7 @@ body {
 
 #modeText {
     /*text-shadow: -1px 0px 15px rgba(200, 200, 200, 1);*/
-    font-size:100px; 
+    font-size:80px; 
     left:100px; 
     position:absolute; 
     z-index:99; 

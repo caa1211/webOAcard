@@ -2,7 +2,7 @@
 
     var container = document.getElementById('container');
     var $container = $(container);
-    var cameraOffset = 80;
+    var cameraOffset = 120;
 
     var debugMode = OA.debugMode;
     var camera, scene, renderer;
@@ -26,12 +26,6 @@
     var mouse2D = new THREE.Vector3(0, 10000, 0.5);
     var orbitCtrls;
     var raycaster, projector;
-    var cardModeOpts = [
-        {name: "Edit", cameraControl: true, showEditPlane: true, angleFixed: 90},
-        {name: "Display", cameraControl: true, showEditPlane: false, angleFixed: -1}];
-        //,{name: "Print",cameraControl: false, editPlane: false, angleFixed: 180} 
- 
-    var cardMode = 0;
     var stats;
     //for preview
     var camera2, scene2, renderer2 , cam2, model2d;
@@ -113,7 +107,8 @@
         $container.bind("mousemove", onDocumentMouseMove);
         $container.bind("mousedown", onDocumentMouseDown);
 
-        changeCardMode(cardMode);
+
+        oaModel.setCardMode(0);
 
         //download 2d pattern
         var $imgContainer = $("#imgContainer");
@@ -155,26 +150,10 @@
         mouse2D.y = -(event.clientY / $container.height()) * 2 + 1;
     }
 
-    function changeCardMode(cmode){
-        var opt = cardModeOpts[cmode];
-        orbitCtrls.enabled = opt.cameraControl;
-        oaModel.showEditPlane(opt.showEditPlane);
-        cardMode = cmode;
-        if(opt.angleFixed === -1){
-            oaModel.setFoldable(true);
-        }else{
-            oaModel.setFoldable(false);
-            oaModel.resetCardAngle();
-        }
-    }
-
     function onDocumentMouseDown(event) {
         event.preventDefault();
         if (event.which == 3) {
-            if(oaModel.contourState===0){
-                cardMode = (cardMode + 1) % cardModeOpts.length;
-                changeCardMode(cardMode);
-            }
+            oaModel.switchCardMode();
         }
 
         if (event.which == 2) {
@@ -317,17 +296,15 @@ window.onload = function() {
         },
         editDepth: 16,
         editDepthChange: function(value){
-           if (!oaModel.isEditMode) {
-                changeCardMode(0);
-           }
+           oaModel.setCardMode(0);
            oaModel.setEditDepth(value);
         },
         isEditMode: true, 
         editModeChange: function(value){
             if(value){
-                changeCardMode(0);
+                oaModel.setCardMode(0);
             }else{
-                changeCardMode(1);
+                oaModel.setCardMode(1);
             }
         },
         faceMode: "faces",
@@ -376,7 +353,7 @@ window.onload = function() {
             oaModel = new OA.Model(modelOption);
             scene.add(oaModel);
             setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH);
-            changeCardMode(cardMode);
+            oaModel.setCardMode(0);
             renderPreview();
         },
         loadModel: function(){
@@ -506,7 +483,7 @@ function setGlobalValuableByCardSize(cardW, cardH) {
     orbitCtrls.panUp(sceneOffset.y);
     orbitCtrls.maxPolarAngle = 120 * Math.PI / 180;
     orbitCtrls.rotateUp(10 * Math.PI / 180);
-    orbitCtrls.rotateLeft(-10 * Math.PI / 180);
+    orbitCtrls.rotateLeft(-14 * Math.PI / 180);
 
     orbitCtrls.minDistance = cardH * 2.5;
     orbitCtrls.maxDistance = cardW * 2.9;

@@ -59,6 +59,9 @@ OA.Model = function(userSetting, isPattern2D) {
   var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
   var faceCreateMode = faceCreateModeType.faces;
 
+  var cardMode = 0;
+  var cardModeType = {"edit":0, "display":1};
+
   var contourStateType = {
     "NO_EDITING": 0,
     "EDITING": 1,
@@ -730,8 +733,27 @@ OA.Model = function(userSetting, isPattern2D) {
     }
   }
   
+  function changeCardMode(cardMode) {
+    if (cardMode === 0) {
+      //edit
+      model.showEditPlane(true);
+      oaModel.setFoldable(false);
+      oaModel.resetCardAngle();
+    } else if (cardMode === 1) {
+      //dispaly
+      model.showEditPlane(false);
+      model.setFoldable(true);
+    }
+
+  }
 
 
+  this.switchCardMode = function() {
+    if (model.contourState === contourStateType.NO_EDITING) {
+      cardMode = (cardMode + 1) % 2;
+      changeCardMode(cardMode);
+    }
+  };
 
   function getRealIntersector(intersects) {
     for (i = 0; i < intersects.length; i++) {
@@ -931,7 +953,6 @@ OA.Model = function(userSetting, isPattern2D) {
   this.nextContour = function() {
     
     var pos3Ds = contourRepo.getAfter();
-    //debugger;
     if (pos3Ds) {
       enterContourNoEditingState();
       model.showEditPlane(true);
@@ -949,16 +970,23 @@ OA.Model = function(userSetting, isPattern2D) {
 
   this.clearContour = function() {
       enterContourNoEditingState();
-      model.showEditPlane(true);
-      model.setFoldable(false);
-      model.resetCardAngle();
-      enterContourCloseState();
+      model.changeCardMode(0);
   };
 
   this.getFaceCreateMode = function (mode){
       return faceCreateMode
   };
 
+  this.setCardMode = function(mode){
+    if (model.contourState === contourStateType.NO_EDITING) {
+      cardMode = mode;
+      changeCardMode(cardMode);
+    }
+  };
+
+  this.getCardMode = function(){
+    return cardMode;
+  };
 
   //public
   this.destory = function() {
