@@ -9,13 +9,13 @@ OA.ContourRepo = function(userSetting) {
 
     this.push = function(p3ds) {
         var original = Array.prototype.push;
-        if (p3ds.id != null) {
+        if (p3ds.cid != null) {
 
             return;
         }
         original.apply(this, arguments);
         curr = repo.length - 1;
-        p3ds.id = curr;
+        p3ds.cid = curr;
 
     };
 

@@ -24,6 +24,7 @@ OA.Contour = function(userSetting) {
    var closeLine = null;
    var openLines = null;
    var pointGroup = null;
+   var beforeSubdiv_point2Ds = null;
    contour.uppers = [];
    var _setting = $.extend({}, _def, userSetting);
    contour.t = _setting.t;
@@ -35,6 +36,7 @@ OA.Contour = function(userSetting) {
    var startPoint = null;
    var modifyFloatPoint = OA.Utils.modifyFloatPoint;
    var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
+   this.subLevel = 1;
    contour.faceCreateMode = _setting.faceCreateMode;
    var init = function() {
       contour.t = _setting.t;
@@ -402,7 +404,7 @@ OA.Contour = function(userSetting) {
 
    function closeContour(isInitInput) {
       isClosed = true;
-
+      subLevel = 1;
       if (hoverLine) {
          lineGroup.remove(hoverLine);
       }
@@ -426,6 +428,59 @@ OA.Contour = function(userSetting) {
       drawCloseCoutour(isInitInput);
    }
    //public
+   this.subdiv = function(level) {
+
+      if (!isClosed || !point2Ds || point2Ds.length === 0) {
+         return;
+      }
+
+      contour.subLevel = level;
+      if (beforeSubdiv_point2Ds == null) {
+         beforeSubdiv_point2Ds = point2Ds;
+      }else{
+         point2Ds = beforeSubdiv_point2Ds;
+      }
+
+      if (level > 1) {
+         var newP2Ds = point2Ds;
+         for (i = 0; i < level; i++) {
+            newP2Ds = subdivision(newP2Ds);
+         }
+         point2Ds = newP2Ds;
+      }
+      userPosition3Ds = convertPoint2DsTo3Ds(point2Ds);
+      drawCloseCoutour();
+   };
+
+   var subdivision = function(sourceP2Ds) {
+      // point2Ds = newPoint2Ds;
+      var newP2Ary = [];
+      var pLen = sourceP2Ds.length;
+      for (var i = 0; i < pLen; i++) {
+         var p1, p2;
+         if (i === 0) {
+            p1 = sourceP2Ds[pLen - 1];
+            p2 = sourceP2Ds[0];
+         } else {
+            p1 = sourceP2Ds[i - 1];
+            p2 = sourceP2Ds[i];
+         }
+
+         var Q = {
+            X: 0.75 * p1.X + 0.25 * p2.X,
+            Y: 0.75 * p1.Y + 0.25 * p2.Y
+         };
+         var P = {
+            X: 0.25 * p1.X + 0.75 * p2.X,
+            Y: 0.25 * p1.Y + 0.75 * p2.Y
+         };
+
+         newP2Ary.push(Q);
+         newP2Ary.push(P);
+      }
+      return newP2Ary;
+
+   };
 
    this.undo = function() {
       userPosition3Ds.pop();

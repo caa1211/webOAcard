@@ -161,12 +161,11 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function enterContourNoEditingState() {
+    if (liveContour != null && liveContour.checkClosed()) {
+      contourRepo.push(liveContour.getPosition3Ds());
+    }
     model.contourState = contourStateType.NO_EDITING;
     model.remove(liveContour);
-
-    if (liveContour != null && liveContour.checkClosed()) {
-       contourRepo.push(liveContour.getPosition3Ds());
-    }
     liveContour = null;
     //cameraCtrl.enabled = true;
     movePoint.setColorByIndex(0);
@@ -177,6 +176,8 @@ OA.Model = function(userSetting, isPattern2D) {
     model.contourState = contourStateType.CLOSE;
     movePoint.setColorByIndex(2);
     $model.trigger("contourStateChange", model.contourState);
+
+
   }
 
 
@@ -900,6 +901,7 @@ OA.Model = function(userSetting, isPattern2D) {
     clippedFaces = [];
     userFaces = [];
     undoRedoAry = [];
+    contourRepo = new OA.ContourRepo();
     clipFaces(userFaces);
   };
 
@@ -947,6 +949,7 @@ OA.Model = function(userSetting, isPattern2D) {
       });
       model.add(liveContour);
       enterContourCloseState();
+      model.setCardMode(0);
     }
   };
 
@@ -965,12 +968,13 @@ OA.Model = function(userSetting, isPattern2D) {
       });
       model.add(liveContour);
       enterContourCloseState();
+      model.setCardMode(0);
     }
   };
 
   this.clearContour = function() {
       enterContourNoEditingState();
-      model.changeCardMode(0);
+      model.setCardMode(0);
   };
 
   this.getFaceCreateMode = function (mode){
@@ -991,6 +995,37 @@ OA.Model = function(userSetting, isPattern2D) {
   //public
   this.destory = function() {
     unbindEvents();
+  };
+
+
+  this.getSubLevel = function(){
+    if(liveContour!=null){
+      return liveContour.subLevel;
+    }else{
+      return 1;
+    }
+  };
+
+ this.getLiveContourID = function(){
+    var total = contourRepo.length;
+    if(liveContour!=null&&liveContour.checkClosed()){
+      var p3ds = liveContour.getPosition3Ds();
+
+      if(p3ds && p3ds.cid!=undefined){
+        return "Index:  " +p3ds.cid + " | Total:" + total;
+      }
+      return "---  | Total:" + total ;
+    }else{
+      return "---  | Total:" + total;
+    }
+  };
+  
+
+
+  this.subdivision = function(level) {
+    if (liveContour){
+      liveContour.subdiv(level);
+    }
   };
 
   this.getCardW = function() {

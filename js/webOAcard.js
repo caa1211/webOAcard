@@ -333,6 +333,10 @@ window.onload = function() {
         cclear: function(){
             oaModel.clearContour(); 
         },
+        liveContour_id: "---",
+        contourIdChange: function(){
+
+        },
         cardWidth: modelOption.cardW,
         cardHeight: modelOption.cardH,
         gridNum: modelOption.gridNum,
@@ -360,10 +364,9 @@ window.onload = function() {
             noIm();
         },
         saveModel: function(){
-            noIm();
+          //  noIm();
+            oaModel.getLiveContourID();
         },
-        subdivisionV: 0,
-        subdivisionH: 0,
         downloadImg: function() {
             //download 2d pattern
             var $imgContainer = $("#imgContainer");
@@ -373,7 +376,12 @@ window.onload = function() {
             var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function() {
                 $downloadLink[0].click();
             });
+        },
+        subLevel: oaModel.getSubLevel(),
+        subLevelChange: function(value){
+            oaModel.subdivision(value);
         }
+
     };
 
     var angleOpt;
@@ -402,8 +410,8 @@ window.onload = function() {
     f0.add(oaControl, 'cardHeight', 50, 300).step(1).name('Height');
     f0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Num');
     f0.add(oaControl, 'newModel').name('New');
-    f0.add(oaControl, 'loadModel').name(' Save');
-    f0.add(oaControl, 'saveModel').name('Load');
+    f0.add(oaControl, 'loadModel').name(' Load');
+    f0.add(oaControl, 'saveModel').name('Save');
     //f0.open();
 
     var f1 = gui.addFolder('Face');
@@ -424,11 +432,12 @@ window.onload = function() {
     f1.open();
 
     var f2 = gui.addFolder('Contour');
-    f2.add(oaControl, 'cPrevious').name('Previous');
-    f2.add(oaControl, 'cNext').name('Next');
+    f2.add(oaControl, 'cPrevious').name('Browse Old');
+    f2.add(oaControl, 'cNext').name('Browse New');
+    f2.add(oaControl, 'liveContour_id').name("Info").listen().onChange(oaControl.contourIdChange);
     f2.add(oaControl, 'cclear').name('Clear');
-    f2.add(oaControl, "subdivisionV", 0, 5).step(1).name("Subdiv V");
-    f2.add(oaControl, "subdivisionH", 0, 5).step(1).name("Subdiv H");
+    f2.add(oaControl, "subLevel", 1, 5).step(1).name("Subdivision").listen().onChange(
+        oaControl.subLevelChange);
     f2.open();
 
     var f3 = gui.addFolder('2D Pattern');
@@ -442,6 +451,8 @@ window.onload = function() {
       oaControl.cardAngle = oaModel.getCardAngle();
       oaControl.editDepth = oaModel.getEditDepth();
       oaControl.isEditMode = oaModel.getEditMode();
+      oaControl.subLevel = oaModel.getSubLevel();
+      oaControl.liveContour_id = oaModel.getLiveContourID();
     };
 
     update();
@@ -494,9 +505,8 @@ function setGlobalValuableByCardSize(cardW, cardH) {
 //======================================
 
 
-
  
-
+var slevel=0;
 /*** ADDING SCREEN SHOT ABILITY ***/
 window.addEventListener("keyup", function(e) {
     var imgData, imgNode;
@@ -514,6 +524,22 @@ window.addEventListener("keyup", function(e) {
     if (e.which == 70) { //f redo
         //  doPreview = true;
         oaModel.redo();
+    }
+
+    
+   if (e.which == 69) { //e redo
+      slevel++;
+        oaModel.subdivision(slevel);
+      
+    }
+
+
+   if (e.which == 71) { //g 
+        if (slevel > 0) {
+             slevel--;
+            oaModel.subdivision(slevel);
+           
+        }
     }
 
 
