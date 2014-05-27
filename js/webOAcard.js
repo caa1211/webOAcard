@@ -331,8 +331,8 @@ window.onload = function() {
             }
         },
         faceMode: "faces",
-        faceModeChange: function(value, a, b ) {
-            oaModel.setFaceCreateMode(value)
+        faceModeChange: function(value) {
+            oaModel.setFaceCreateMode(value);
             $modeText.html(value);
         },
         fundo: function(){
@@ -431,9 +431,16 @@ window.onload = function() {
 
     var f1 = gui.addFolder('Face');
     f1.add(oaControl, 'faceMode', { 'Faces': "faces", 'Hole': "hole", 'Pull':"pull" } ).name("Face Mode")
-    .onChange(oaControl.faceModeChange);
+    .listen().onChange(oaControl.faceModeChange);
 
     $modeText.html(oaControl.faceMode);
+    $modeText.click(function(){
+        var index = (oaModel.getFaceCreateMode()+1)%3;
+        var modeTye = ["faces", "hole", "pull"];
+        $modeText.html(modeTye[index]);
+        oaControl.faceMode = modeTye[index];
+        oaModel.setFaceCreateMode(modeTye[index]);
+    });
     f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left fa-1x"></i> Undo');
     f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right fa-1x"></i> Redo');
     f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o  fa-1x"></i> Clear');

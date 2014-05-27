@@ -22,7 +22,8 @@ body {
     position:absolute; 
     z-index:99; 
     top:0px;
-    color: #cccccc
+    color: #cccccc;
+    cursor: default;
 }
 .dg.ac {
     z-index: 100;

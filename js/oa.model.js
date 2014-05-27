@@ -906,6 +906,10 @@ OA.Model = function(userSetting, isPattern2D) {
     }
   };
 
+  this.getFaceCreateMode = function(){
+    return faceCreateMode;
+  };
+
   this.prevContour = function() {
 
     var pos3Ds = contourRepo.getBefore();
