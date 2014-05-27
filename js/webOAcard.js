@@ -2,7 +2,7 @@
 
     var container = document.getElementById('container');
     var $container = $(container);
-    var cameraOffset = 120;
+    var cameraOffset = 110;
 
     var debugMode = OA.debugMode;
     var camera, scene, renderer;
