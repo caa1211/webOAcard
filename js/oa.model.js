@@ -38,6 +38,7 @@ OA.Model = function(userSetting, isPattern2D) {
   var movePoint;
   var model = this;
   var userFaces = [];
+  var holeList = [];
   var clippedFaces = [];
   var cloned180ClippedFaces = [];
   var baseVFace, baseHFace;
@@ -64,6 +65,7 @@ OA.Model = function(userSetting, isPattern2D) {
     "mountain": 1
   };
   var createFace = OA.Utils.createFace;
+
   this.contourState = contourStateType.NO_EDITING;
 
   this.foldLines = {
@@ -107,6 +109,7 @@ OA.Model = function(userSetting, isPattern2D) {
     $domConainer.unbind("mousemove", onDocumentMouseMove);
     $domConainer.unbind("mousedown", onMousedown);
     $domConainer.bind("mouseup", onMouseup);
+    $model.unbind();
   };
 
   function getHoverPosition(intersector) {
@@ -202,7 +205,8 @@ OA.Model = function(userSetting, isPattern2D) {
         cloned180ClippedFaces = model.doCloneClippedFaces(180);
       }
       updateModel(clippedFaces);
-      $model.trigger("facesClipped", clippedFaces);
+
+      $model.trigger("facesClipped", {faces: clippedFaces});
     }
   }
 
@@ -804,6 +808,7 @@ OA.Model = function(userSetting, isPattern2D) {
     clippedFaces = [];
     userFaces = [];
     undoRedoAry = [];
+    holeList = [];
     clipFaces(userFaces);
   };
 

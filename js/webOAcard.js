@@ -41,50 +41,30 @@
     var previewH = $container2D.height();
 
     function init(oa) {
-    
-    //==preview===
-    scene2 = new THREE.Scene();
-    renderer2 = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true
-    });
-    
-    $container2D.append(renderer2.domElement);
-    cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), 1, 20000);
-    //cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
-    
-    cam2.position.set(0, viewerR, 0);
-    scene2.position.x = cardW / 2;
-    cam2.position.x = cardW / 2;
-    cam2.lookAt(scene2.position);
-    cam2.rotation.z = 0 * Math.PI / 180;
 
-    cam2.aspect = previewW / previewH;
-    cam2.updateProjectionMatrix();
-    renderer2.setSize(previewW, previewH);
-    $(oaModel).bind("facesClipped", function(){
-        renderPreview();
-    });
+        //==preview===
+        scene2 = new THREE.Scene();
+        renderer2 = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true
+        });
 
+        $container2D.append(renderer2.domElement);
+        cam2 = new THREE.PerspectiveCamera(45, $container2D.width() / $container2D.height(), 1, 20000);
+        //cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
 
-    renderPreview();
-    //==========
-
+        cam2.aspect = previewW / previewH;
+        cam2.updateProjectionMatrix();
+        renderer2.setSize(previewW, previewH);
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, $container.width() / $container.height(), 0.1, 200000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
         scene.add(camera);
-        var fogNear = viewerR/18000;
-        var fogFar = viewerR*2.2;
-        //scene.fog=new THREE.FogExp2( 0xffffff, fogNear );
-        scene.fog=new THREE.Fog( 0xffffff, fogNear, fogFar );
 
-        camera.position.set(0, 0, oaModel.getCardH() * 2.5);
- 
         if (Detector.webgl)
             renderer = new THREE.WebGLRenderer({
-                antialias: true//,
+                antialias: true //,
                 // precision: "highp",
                 // preserveDrawingBuffer: true,
                 // alpha: true
@@ -96,29 +76,20 @@
         //renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setSize($container.width(), $container.height());
 
-        if(OA.light){
-            var ambientLight = new THREE.AmbientLight(0xFFE4C4);
-            scene.add(ambientLight);
-            var spotLight = new THREE.SpotLight( 0xffffff);
-            spotLight.position.set( -viewerR*30, viewerR*25, viewerR*40);
-            //spotLight.castShadow = true;
-            scene.add( spotLight );
-        }
-
-   
         container.appendChild(renderer.domElement);
         orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement, container);
-        orbitCtrls.noPan = true;
-        //orbitCtrls.panLeft(-sceneOffset.x);
-        orbitCtrls.panUp(sceneOffset.y);
-        orbitCtrls.maxPolarAngle = 120*Math.PI/180;
-        orbitCtrls.rotateUp(10*Math.PI/180);
-        orbitCtrls.rotateLeft(-10*Math.PI/180);
-        orbitCtrls.zoomSpeed = 0.1;
-        orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
-        orbitCtrls.maxDistance = oaModel.getCardH() * 2.9;
-        oaModel.setCameraCtrl(orbitCtrls);
-        orbitCtrls.target = new THREE.Vector3(sceneOffset.x, 0, 0);
+
+        setGlobalValuableByCardSize(cardW, cardH);
+        renderPreview();
+
+        if (OA.light) {
+            var ambientLight = new THREE.AmbientLight(0xFFE4C4);
+            scene.add(ambientLight);
+            var spotLight = new THREE.SpotLight(0xffffff);
+            spotLight.position.set(-viewerR * 30, viewerR * 25, viewerR * 40);
+            //spotLight.castShadow = true;
+            scene.add(spotLight);
+        }
 
         var w = $container.width();
         var h = $container.height();
@@ -142,36 +113,29 @@
         $container.bind("mousedown", onDocumentMouseDown);
 
         changeCardMode(cardMode);
-        // document.addEventListener('mousemove', onDocumentMouseMove, false);
-        //document.addEventListener('mousedown', onDocumentMouseDown, false);
-        // document.addEventListener('keydown', onDocumentKeyDown, false);
-        // document.addEventListener('mousedown', onMouseDown, false);
-        // document.addEventListener('keyup', onDocumentKeyUp, false);
-
-        // //window.addEventListener('DOMMouseScroll', onMousewheel, false);
-         //$(window).bind("mousewheel", onMousewheel);
-
- 
-
-        // $("#previewUI").click(function(e) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //     return false;
-        // });
-
-
 
         //download 2d pattern
         var $imgContainer = $("#imgContainer");
         var $downloadLink = $imgContainer.children("a");
-        var $previewUI =  $("#previewUI");
+        var $previewUI = $("#previewUI");
         var $download2D = $("#download2D");
 
         $download2D.click(function(e) {
-           var dataUrl = make2DImg(1000, 1000*previewH/previewW, previewW, previewH, $imgContainer, function(){
-                 $downloadLink[0].click();
-           });
+            var dataUrl = make2DImg(1000, 1000 * previewH / previewW, previewW, previewH, $imgContainer, function() {
+                $downloadLink[0].click();
+            });
         });
+
+        ////for debug
+        // $(oaModel).bind("facesClipped", function(e, params) {
+        //     var faces = params.faces;
+        //     console.error("        ");
+        //     console.error("==================" + faces.length);
+        //     $.each(faces, function(i, f) {
+        //         console.error("t--" + f.getT() + " type--" + f.oaInfo.type);
+
+        //     });
+        // });
 
     }
 
@@ -400,14 +364,13 @@ window.onload = function() {
             // };
             //noIm(); 
             scene.remove(oaModel);
-            $(oaModel).unbind("facesClipped");
             oaModel.destory();
             modelOption.cardW = oaControl.cardWidth;
             modelOption.cardH = oaControl.cardHeight;
             modelOption.gridNum = oaControl.gridNum;
             oaModel = new OA.Model(modelOption);
             scene.add(oaModel);
-            resetGlobalValuable();
+            setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH);
             changeCardMode(cardMode);
             renderPreview();
         },
@@ -497,52 +460,38 @@ window.onload = function() {
 };
 
 //======================================
-function resetGlobalValuable() {
+function setGlobalValuableByCardSize(cardW, cardH) {
 
-    cardW = modelOption.cardW,
-    cardH = modelOption.cardH;
     maxWidth = cardW > cardH ? cardW : cardH;
     gridStep = maxWidth / modelOption.gridNum;
     viewerR = maxWidth * 2.5;
-    sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() / 3, 0);
-
-    //cam2 = new  THREE.OrthographicCamera( previewW / -2, previewW / 2, previewH / 2, previewH / -2, -1000, 1000);
-    //cam2 = new THREE.PerspectiveCamera(45, $container2D.width() /$container2D.height(), -100, 10000);
+    sceneOffset = new THREE.Vector3(cardW / 2, cardH / 3, 0);
     cam2.position.set(0, viewerR, 0);
     scene2.position.x = cardW / 2;
     cam2.position.x = cardW / 2;
     cam2.lookAt(scene2.position);
     cam2.rotation.z = 0 * Math.PI / 180;
 
-    // cam2.aspect = previewW / previewH;
-    // cam2.updateProjectionMatrix();
-    // renderer2.setSize(previewW, previewH);
     $(oaModel).bind("facesClipped", function() {
         renderPreview();
     });
    
-
     var fogNear = viewerR / 18000;
     var fogFar = viewerR * 2.2;
-    //scene.fog=new THREE.FogExp2( 0xffffff, fogNear );
     scene.fog = new THREE.Fog(0xffffff, fogNear, fogFar);
+    camera.position.set(0, 0, cardH * 2.5);
+    orbitCtrls.noPan = true;
+    orbitCtrls.zoomSpeed = 0.1;
 
-    camera.position.set(0, 0, oaModel.getCardH() * 2.5);
-
-  //  orbitCtrls.noPan = true;
-    //orbitCtrls.panLeft(-sceneOffset.x);
     orbitCtrls.panUp(sceneOffset.y);
     orbitCtrls.maxPolarAngle = 120 * Math.PI / 180;
     orbitCtrls.rotateUp(10 * Math.PI / 180);
     orbitCtrls.rotateLeft(-10 * Math.PI / 180);
-  //  orbitCtrls.zoomSpeed = 0.1;
-    orbitCtrls.minDistance = oaModel.getCardH() * 2.5;
-    orbitCtrls.maxDistance = oaModel.getCardH() * 2.9;
+
+    orbitCtrls.minDistance = cardH * 2.5;
+    orbitCtrls.maxDistance = cardW * 2.9;
     oaModel.setCameraCtrl(orbitCtrls);
     orbitCtrls.target = new THREE.Vector3(sceneOffset.x, 0, 0);
-    // var w = $container.width();
-    // var h = $container.height();
-    // camera.setViewOffset(w, h, cameraOffset, 0, w, h);
 }
 
 //======================================
