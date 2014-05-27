@@ -72,7 +72,8 @@ OA.Clipper = function(userSetting) {
     };
 
     function polyBoolean(subjPoly, clipPoly, clipType) {
-        if (!subjPoly || !clipPoly) {
+        if (!subjPoly || !clipPoly ||
+            (subjPoly && subjPoly.length===0) && (clipPoly && clipPoly.length===0) ) {
             return null;
         }
 
@@ -260,38 +261,32 @@ OA.Clipper = function(userSetting) {
     }
 
     function clipAbove(faceList) {
-        $.each(faceList, function(i, f) {
+       
+       var new_faceList = $.grep(faceList, function(f, i) {
             var subj = f.getExPolygons();
-
             if(!subj || (subj&& subj.length ===0)){
-                
-                //remove f from facelist
-                sub=null;
-                f.rebuild(subj);
-                return true;
+                //remove from list
+                return false;
             }
 
             for (var j = i + 1; j < faceList.length; j++) {
                 var ff = faceList[j];
                 var clip = ff.getExPolygons();
-
                 if (!clip || (clip && clip.length === 0)) {
-                    break;
+                    continue;
                 }
-
                 var resPoly = polyBoolean(subj, clip, 2);
                 if (resPoly && resPoly.length >0) {
                     subj = resPoly;
                 }else{
-                    //debugger;
-                    subj = null;
-                    //remove from faceList
-                    break;
+                    //remove from list
+                    return false;
                 }
             }
-
             f.rebuild(subj);
+            return true;
         });
+       return new_faceList;
     }
 
     function unionList(faceList) {
@@ -378,7 +373,7 @@ OA.Clipper = function(userSetting) {
         }
         //clip vfaces by min->big sequence
         if (vface_list && vface_list.length > 0) {
-            clipAbove(vface_list);
+            vface_list = clipAbove(vface_list);
         }
 
         if (hface_list && hface_list.length > 0) {
@@ -392,7 +387,7 @@ OA.Clipper = function(userSetting) {
                 f.rebuild(subj);
             });
             //clip hfaces by min->big sequence
-            clipAbove(hface_list);
+            hface_list = clipAbove(hface_list);
         }
     }
 
@@ -456,7 +451,6 @@ OA.Clipper = function(userSetting) {
             vface_list[i].setAngle(cardAngle);
             clipper.push(vface_list[i]);
         }
-
 
         for (var i = 0; i < hface_list.length; i++) {
             hface_list[i].setAngle(cardAngle);
