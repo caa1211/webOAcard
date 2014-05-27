@@ -5,6 +5,24 @@
         overflow: hidden;
     }
 
+@font-face {
+  font-family: Quicksand;
+  src: url(../fonts/quicksand/Quicksand-Light.otf);
+  font-weight:400;
+}
+/* Usage */
+body {
+  font-family: "Quicksand", Arial, Sans-serif;
+}
+
+#modeText {
+    font-size:60px; 
+    left:150px; 
+    position:absolute; 
+    z-index:99; 
+    top:20px;
+    color: #cccccc
+}
 .dg.ac {
     z-index: 100;
 }

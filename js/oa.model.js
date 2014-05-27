@@ -281,6 +281,38 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function moveEditPlane(newDist) {
+
+     //=========Move editPlane for hole editing
+    if (faceCreateMode === faceCreateModeType.hole) {
+      var minFt = 99999;
+      var maxFt = -1;
+      var faceoverlayEditPlaneT = 0;
+      var editT = editPlane.getT();
+
+      $.each(clippedFaces, function(i, f) {
+        if (f.oaInfo.type === "HFACE") {
+          return true;
+        }
+        var ft = f.getT();
+        if (ft === 0) {
+          return true;
+        }
+        if (ft > editT && ft < minFt) {
+          minFt = ft;
+        }
+        if (ft < editT && ft > maxFt) {
+          maxFt = ft;
+        }
+      });
+
+      if (newDist - editT > 0) {
+        newDist = minFt;
+      } else {
+        newDist = maxFt;
+      }
+    }
+    //========
+
     if (newDist >= 0 && newDist < cardH) {
       editPlane.position.z = newDist + 0.1;
       editPlane.setT(newDist);
@@ -312,6 +344,7 @@ OA.Model = function(userSetting, isPattern2D) {
         oaModel.setCardAngle(newAngle);
       }
     }
+
   }
 
   this.resetCardAngle = function() {
@@ -361,6 +394,8 @@ OA.Model = function(userSetting, isPattern2D) {
     });
     editPlane.position.z = initEditT;
     editPlane.setT(initEditT);
+
+    editPlane.setGridColorByIndex(0);
     model.add(editPlane);
 
     movePoint = new OA.Point({
@@ -670,8 +705,8 @@ OA.Model = function(userSetting, isPattern2D) {
 
       var p1 = ln[0],
         p2 = ln[1];
-      var d3p1 = new THREE.Vector3(p1.X-1, 0.2 , p1.Y);
-      var d3p2 = new THREE.Vector3(p2.X+1, 0.2 , p2.Y);
+      var d3p1 = new THREE.Vector3(p1.X+1, 0.2 , p1.Y);
+      var d3p2 = new THREE.Vector3(p2.X-1, 0.2 , p2.Y);
       var geometry = new THREE.Geometry();
       geometry.vertices.push(d3p1, d3p2);
 
@@ -842,11 +877,29 @@ OA.Model = function(userSetting, isPattern2D) {
     clipFaces(userFaces);
   };
 
-  this.setFaceCreateMode = function (mode){
-      faceCreateMode = parseInt(mode);
-      if(liveContour!=null){
-        liveContour.faceCreateMode = faceCreateMode;
+  this.setFaceCreateMode = function(mode) {
+
+    faceCreateMode = faceCreateModeType[mode];
+    if (liveContour != null) {
+      liveContour.faceCreateMode = faceCreateMode;
+    }
+    editPlane.setGridColorByIndex(faceCreateMode);
+
+    if (faceCreateMode === faceCreateModeType.hole) {
+      //move editPlane to hole
+      var editT = editPlane.getT();
+      var isNeedPlane = true;
+      $.each(clippedFaces, function(i, f) {
+        var ft = f.getT();
+        if (ft === editT) {
+          isNeedPlane = false;
+          return false;
+        }
+      });
+      if (isNeedPlane) {
+        moveEditPlane(-1);
       }
+    }
   };
 
   this.getFaceCreateMode = function (mode){

@@ -26,6 +26,8 @@ OA.Face = function(userSetting) {
       name: null,
       oaMode: 0 //0: pattern3D, 1: pattern2D
    };
+   var gridColor = [0x1F6CBD, 0xFF5755, 0x417D42];
+   var gridBorderColor = [0x5399E3, 0xFF5755, 0x5DA31B];
 
    var face = this;
    var isAngleFrom0 = false;
@@ -382,7 +384,12 @@ OA.Face = function(userSetting) {
       var len = pAry.length;
       var uppers = [];
       var lowers = [];
-
+      if(!pAry || pAry && pAry.length ===0){
+         return {
+            uppers: upperStore,
+            lowers: lowerStore
+            };
+      }
       if (upperStore) {
          uppers = upperStore;
       }
@@ -448,7 +455,7 @@ OA.Face = function(userSetting) {
    };
 
    function updateUpper2Ds(contours) {
-      
+      debugger;
       //OA.Utils.modifyPathOrientation(contours, false);
       if(!_setting.upper2Ds){
          //do not have upper
@@ -521,6 +528,23 @@ OA.Face = function(userSetting) {
       return faceMesh;
    };
 
+   this.setGridColorByIndex = function(index) {
+      var faceGrid = face.getObjectByName("faceGrid");
+      var borders = face.getObjectByName("faceBorders");
+      var addingLines = face.getObjectByName("addingLines");
+      var color = gridColor[index];
+      var borderColor = gridBorderColor[index];
+
+      if (color && borders && borders.children && addingLines && borderColor) {
+         faceGrid.material.color.setHex(color);
+         addingLines.material.color.setHex(borderColor);
+         $.each(borders.children, function(i, border) {
+            //border.material.color.setHex(_setting.borderColor);
+            border.material.color.setHex(borderColor);
+         });
+
+      }
+   }
    return init();
 };
 

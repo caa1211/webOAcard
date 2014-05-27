@@ -35,10 +35,11 @@
     var stats;
     //for preview
     var camera2, scene2, renderer2 , cam2, model2d;
-
+    var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
     var $container2D = $("#container2D");
     var previewW = $container2D.width();
     var previewH = $container2D.height();
+    var $modeText = $("#modeText");
 
     function init(oa) {
 
@@ -329,9 +330,10 @@ window.onload = function() {
                 changeCardMode(1);
             }
         },
-        faceMode: "face",
-        faceModeChange: function(value){
-           oaModel.setFaceCreateMode(value);
+        faceMode: "faces",
+        faceModeChange: function(value, a, b ) {
+            oaModel.setFaceCreateMode(value)
+            $modeText.html(value);
         },
         fundo: function(){
             oaModel.undo();
@@ -428,8 +430,10 @@ window.onload = function() {
     //f0.open();
 
     var f1 = gui.addFolder('Face');
-    f1.add(oaControl, 'faceMode', { 'Faces': 0, 'Hole': 1, 'Pull':2 } ).name("Face Mode")
+    f1.add(oaControl, 'faceMode', { 'Faces': "faces", 'Hole': "hole", 'Pull':"pull" } ).name("Face Mode")
     .onChange(oaControl.faceModeChange);
+
+    $modeText.html(oaControl.faceMode);
     f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left fa-1x"></i> Undo');
     f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right fa-1x"></i> Redo');
     f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o  fa-1x"></i> Clear');
@@ -479,6 +483,11 @@ function setGlobalValuableByCardSize(cardW, cardH) {
     $(oaModel).bind("facesClipped", function() {
         renderPreview();
     });
+
+    $(oaModel).bind("editModeChange", function() {
+        //renderPreview();
+    });
+
    
     var fogNear = viewerR / 18000;
     var fogFar = viewerR * 2.2;
