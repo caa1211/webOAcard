@@ -168,10 +168,11 @@ OA.Clipper = function(userSetting) {
 
     function getConnectedPoly(upper, polys) {
         var resPolys = [];
-        var upperMaxX = modifyFloatPoint(upper.points[0].X);
-        var upperMinX = modifyFloatPoint(upper.points[1].X);
+        var p1x = modifyFloatPoint(upper.points[0].X);
+        var p2x = modifyFloatPoint(upper.points[1].X);
         var upperY = modifyFloatPoint(upper.points[0].Y);
-
+        var upperMaxX = p1x>p2x? p1x:p2x;
+        var upperMinX = p1x<p2x? p1x:p2x;
         $.each(polys, function(i, poly) {
             var vaildPoly = null;
             $.each(poly && poly.outer, function(j, p2d) {
@@ -223,6 +224,11 @@ OA.Clipper = function(userSetting) {
         $.each(upper_list, function(i, upper) {
             var ut = upper.t;
 
+            // if(upper.inHole){
+            //     //no HFACE hole
+            //    return true;
+            // }
+
             ut = modifyFloatPoint(ut);
             var hFace = fakeHface(upper);
 
@@ -231,6 +237,11 @@ OA.Clipper = function(userSetting) {
                 ft = f.getT();
                 ft = modifyFloatPoint(ft);
                 if (ft >= ut) {
+                    if(upper.inHole){
+                      var fakeY = upper.points[0].Y;
+                      var fakeUpper = {points: [{X:0, Y: fakeY},{X:cardW, Y:fakeY}]  , t:upper.t};
+                      hFace = fakeHface(fakeUpper);
+                    }
                     clippedPoly = polyBoolean(
                         hFace.getExPolygons(),
                         f.getExPolygons(),
@@ -384,6 +395,20 @@ OA.Clipper = function(userSetting) {
                 } else {
                     console.error("failed !");
                 }
+
+                //garbage pieces remove 
+                // var baseConnectLine;
+                // if (f.name == "baseVFace") {
+                //     baseConnectLine = f.getUpper2Ds()[0];
+                //     subj = getConnectedPoly({
+                //         points: baseConnectLine
+                //     }, subj);
+                // } else {
+                //     baseConnectLine = f.getLower2Ds()[0];
+                //     subj = getConnectedPoly({
+                //         points: baseConnectLine
+                //     }, subj);
+                // }
                 f.rebuild(subj);
             });
         }else{
@@ -423,16 +448,13 @@ OA.Clipper = function(userSetting) {
         vface_list = allModeList[faceCreateModeType.faces];
         pullList = allModeList[faceCreateModeType.pull];
         vface_list = tryMergeFaces(vface_list);
-
         holeList = allModeList[faceCreateModeType.hole];
-
+        
         $.each(holeList, function(i, hole) {
             var t = hole.getT();
             var new_vface_list = $.grep(vface_list, function(f, i) {
-
                 if (f.getT() === t) {
                     var subj = f.getExPolygons();
-                    //  debugger;
                     var clip = hole.getExPolygons();
                     var resPoly = polyBoolean(subj, clip, 2);
                     if (resPoly && resPoly.length > 0) {
@@ -441,12 +463,29 @@ OA.Clipper = function(userSetting) {
                     } else {
                         return false;
                     }
-
                 }
                 return true;
             });
-
             vface_list = new_vface_list;
+        });
+
+        $.each(holeList, function(i, hole) {
+            var t = hole.getT();
+            var new_pullList = $.grep(pullList, function(f, i) {
+                if (f.getT() === t) {
+                    var subj = f.getExPolygons();
+                    var clip = hole.getExPolygons();
+                    var resPoly = polyBoolean(subj, clip, 2);
+                    if (resPoly && resPoly.length > 0) {
+                        f.rebuild(resPoly);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            pullList = new_pullList;
         });
 
 
@@ -457,18 +496,19 @@ OA.Clipper = function(userSetting) {
             var upper2Ds = f.getUpper2Ds();
             if (upper2Ds) {
                 $.each(upper2Ds, function(j, upper) {
+                    var inHole = upper.inHole === true ? true : false;
                     upper_list.push({
                         points: upper,
-                        t: f.getT()
+                        t: f.getT(),
+                        inHole: inHole
                     });
                 });
             }
         });
         upper_list.sort(compareUpperY);
 
-
         vface_list = tryMergeFaces($.merge(vface_list, pullList));
-        
+
         //##step 3 create HFACE
         hface_list = createHFaces(upper_list, vface_list);
         hface_list = tryMergeFaces(hface_list);

@@ -384,6 +384,7 @@ OA.Face = function(userSetting) {
       var len = pAry.length;
       var uppers = [];
       var lowers = [];
+      var inHole = false;
       if(!pAry || pAry && pAry.length ===0){
          return {
             uppers: upperStore,
@@ -402,6 +403,7 @@ OA.Face = function(userSetting) {
          OA.Utils.modifyPathOrientation(pAry, true)
       } else {
          //is hole
+         inHole = true;
          OA.Utils.modifyPathOrientation(pAry, false)
       }
       for (var i = 0; i < len; ++i) {
@@ -412,13 +414,14 @@ OA.Face = function(userSetting) {
             p1 = pAry[i],
             p2 = pAry[0];
          }
-
+         var upperOrLower = [p1, p2];
+         upperOrLower.inHole = inHole;
          if (p1.Y === p2.Y && p1.X > p2.X) {
-            uppers.push([p1, p2]);
+            uppers.push(upperOrLower);
          }
 
          if (p1.Y === p2.Y && p1.X < p2.X) {
-            lowers.push([p1, p2]);
+            lowers.push(upperOrLower);
          }
       }
       return {
@@ -523,6 +526,11 @@ OA.Face = function(userSetting) {
    this.getUpper2Ds = function(){
       return _setting.upper2Ds;
    };
+
+   this.getLower2Ds = function(){
+      return _setting.lower2Ds;
+   };
+
 
    this.getFaceMesh = function() {
       return faceMesh;
