@@ -9,6 +9,7 @@ OA.Face = function(userSetting) {
          ]
       }],
       t: 0,
+      faceCreateMode: 0,
       isBoundaryClipped: false,
       baseContour: null,
       upper2Ds: null,
@@ -25,11 +26,14 @@ OA.Face = function(userSetting) {
       name: null,
       oaMode: 0 //0: pattern3D, 1: pattern2D
    };
+
    var face = this;
    var isAngleFrom0 = false;
    var contour = [];
    var rot = [Math.PI / 2, 0, 0];
    var _setting = $.extend({}, _def, userSetting);
+   var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
+   face.faceCreateMode = _setting.faceCreateMode;
    var baseContour = _setting.baseContour;
    var typeOpts = {
       "HFACE": {
@@ -202,7 +206,7 @@ OA.Face = function(userSetting) {
 
       if(_setting.oaMode === 0){
          //update upper and lower for finding fold line when draw preview
-         updateUpperLower2Ds(_setting.contours, true);
+         face.updateUpperLower2Ds(_setting.contours, true);
       }
 
    };
@@ -416,7 +420,7 @@ OA.Face = function(userSetting) {
       };
    }
 
-   function updateUpperLower2Ds(contours, isforce) {
+   this.updateUpperLower2Ds = function(contours, isforce) {
       //OA.Utils.modifyPathOrientation(contours, false);
       if(!_setting.upper2Ds && !isforce){
          //do not have upper
@@ -441,7 +445,7 @@ OA.Face = function(userSetting) {
       }
       _setting.upper2Ds = upper2Dary;
       _setting.lower2Ds = lower2Dary;
-   }
+   };
 
    function updateUpper2Ds(contours) {
       
@@ -475,7 +479,7 @@ OA.Face = function(userSetting) {
          // }
 
          //if (contours && updateUpper) {
-            updateUpperLower2Ds(contours);
+            face.updateUpperLower2Ds(contours);
         // }
 
         // if (contours) {

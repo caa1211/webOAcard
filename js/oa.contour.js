@@ -12,7 +12,8 @@ OA.Contour = function(userSetting) {
          //color: 0xE7AB6D
       },
       gridStep: 1,
-      t: 0
+      t: 0,
+      faceCreateMode: 0
    };
    var contour = this;
    var isClosed = false;
@@ -31,7 +32,8 @@ OA.Contour = function(userSetting) {
    var baseT = null;
    var startPoint = null;
    var modifyFloatPoint = OA.Utils.modifyFloatPoint;
-
+   var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
+   contour.faceCreateMode = _setting.faceCreateMode;
    var init = function() {
       contour.t = _setting.t;
       contour.baseT = _setting.t;

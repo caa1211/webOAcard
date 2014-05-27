@@ -17,8 +17,11 @@ OA.Clipper = function(userSetting) {
     var mf = OA.Utils.mf;
     var hface_list = [];
     var upper_list = [];
+    var holeList = [];
+    var pullList = [];
     var cardW = _setting.cardW,
         cardH = _setting.cardH;
+    var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
     var clipScale = OA.clipScale;
     var createFace = OA.Utils.createFace;
     var modifyFloatPoint = OA.Utils.modifyFloatPoint;
@@ -416,37 +419,36 @@ OA.Clipper = function(userSetting) {
         clipBoundary(faces);
         //##step 1 create vface_list (sort by t big->small) 
         //vface_list = faces.slice(0); //not deep copy
-        vface_list = OA.Utils.facesClone(faces);
-       
-       
+        var allModeList = OA.Utils.facesCloneAllMode(faces, faceCreateModeType.hole);
+        vface_list = allModeList[faceCreateModeType.faces];
+        pullList = allModeList[faceCreateModeType.pull];
         vface_list = tryMergeFaces(vface_list);
 
-////hole test
-// hole_list = [{ t: 28, path: [{X: 30, Y:-20}, {X: 30, Y:20} , {X: 40, Y:20} , {X: 40, Y:-20}  ] }];
-// //merge hole?
-//         //hole handle here
-// $.each(hole_list, function(i, hole){
-//     var t = hole.t;
-//     var new_vface_list = $.grep(vface_list, function(f, i){
-       
-//         if(f.getT() === t){
-//             var subj = f.getExPolygons();
-//           //  debugger;
-//             var clip = [{"outer": hole.path,"holes": []}];
-//             var resPoly = polyBoolean(subj, clip, 2);
-//              if(resPoly && resPoly.length > 0){
-//                 f.rebuild(resPoly);
-//                 return true;
-//              }else{
-//                return false;
-//              }
+        holeList = allModeList[faceCreateModeType.hole];
 
-//         }
-//         return true;
-//     });
+        $.each(holeList, function(i, hole) {
+            var t = hole.getT();
+            var new_vface_list = $.grep(vface_list, function(f, i) {
 
-//     vface_list = new_vface_list;
-// });
+                if (f.getT() === t) {
+                    var subj = f.getExPolygons();
+                    //  debugger;
+                    var clip = hole.getExPolygons();
+                    var resPoly = polyBoolean(subj, clip, 2);
+                    if (resPoly && resPoly.length > 0) {
+                        f.rebuild(resPoly);
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                }
+                return true;
+            });
+
+            vface_list = new_vface_list;
+        });
+
 
         vface_list.sort(compareFaceT);
         //todo: find vlist by marged list
@@ -464,6 +466,9 @@ OA.Clipper = function(userSetting) {
         });
         upper_list.sort(compareUpperY);
 
+
+        vface_list = tryMergeFaces($.merge(vface_list, pullList));
+        
         //##step 3 create HFACE
         hface_list = createHFaces(upper_list, vface_list);
         hface_list = tryMergeFaces(hface_list);

@@ -100,13 +100,36 @@ OA.Utils = {
 
       //tunedPath2 = ClipperLib.Clipper.SimplifyPolygons(tunedPath, ClipperLib.PolyFillType.pftNonZero);
    },
-   facesClone: function(faces) {
+   facesClone: function(faces, faceCreateMode) {
     var newFaces = [];
+    if(faceCreateMode === undefined){
+      faceCreateMode = 0; //default is faces
+    }
     $.each(faces, function(i, f) {
-      newFaces.push(f.clone());
+      if(f.faceCreateMode===faceCreateMode){
+        newFaces.push(f.clone());
+      }
     });
     return newFaces;
    },
+    facesCloneAllMode : function(faces) {
+      var res = {
+        "0": [],
+        "1": [],
+        "2": []
+      };
+
+      $.each(faces, function(i, f) {
+        if(res[f.faceCreateMode]){
+          res[f.faceCreateMode].push(f.clone());
+        }else{
+          console.error("wrong face without create mode");
+        }
+      });
+
+      return res;
+   },
+
    D3To2: function(d3p, t){
       //return {X: d3p.x, Y: t - d3p.y};
       var mf = OA.Utils.mf;

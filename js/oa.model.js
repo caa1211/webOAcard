@@ -38,7 +38,7 @@ OA.Model = function(userSetting, isPattern2D) {
   var movePoint;
   var model = this;
   var userFaces = [];
-  var holeList = [];
+  
   var clippedFaces = [];
   var cloned180ClippedFaces = [];
   var baseVFace, baseHFace;
@@ -55,6 +55,10 @@ OA.Model = function(userSetting, isPattern2D) {
   var foldable = true;
   var liveContour = null;
   var $domConainer = $(_setting.domContainer);
+
+  var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
+  var faceCreateMode = faceCreateModeType.faces;
+
   var contourStateType = {
     "NO_EDITING": 0,
     "EDITING": 1,
@@ -143,6 +147,7 @@ OA.Model = function(userSetting, isPattern2D) {
     if (liveContour == null) {
       liveContour = new OA.Contour({
         gridStep: gridStep,
+        faceCreateMode: faceCreateMode,
         t: editPlane.getT()
       });
       model.add(liveContour);
@@ -175,13 +180,23 @@ OA.Model = function(userSetting, isPattern2D) {
     }
     var point2Ds = contour.getPoint2Ds();
     if (point2Ds.length > 2) {
-      var newFace = createFace(point2Ds, "VFACE", contour.t, {
-        baseContour: contour,
-        upper2Ds: contour.getUpper2Ds()
-      });
-      //refreshFaceGroup.add(newFace);
-      userFaces.push(newFace);
 
+      if (faceCreateMode === faceCreateModeType.faces) {
+        var newFace = createFace(point2Ds, "VFACE", contour.t, {
+          baseContour: contour,
+          upper2Ds: contour.getUpper2Ds()
+        });
+        //refreshFaceGroup.add(newFace);
+        userFaces.push(newFace);
+        $model.trigger("faceAdded", newFace);
+
+      }else{
+         var holeOrPull = createFace(point2Ds, "VFACE", contour.t, {
+          baseContour: contour,
+          faceCreateMode: faceCreateMode
+        });
+         userFaces.push(holeOrPull);
+      }
       $model.trigger("faceAdded", newFace);
       //newFace.rebuild(OA.Utils.getTestExPolygon());
       clipFaces(userFaces);
@@ -483,12 +498,26 @@ OA.Model = function(userSetting, isPattern2D) {
       return minP1 <= minP2 ? minP1 : minP2;
 
     }
+
+    function maxMinLP(ln1, ln2) {
+      var maxP1 = maxP(ln1);
+      var maxP2 = maxP(ln2);
+      return maxP1.X <= maxP2.X ? maxP1 : maxP2;
+    }
+
+    function minMaxLP(ln1, ln2) {
+      var minP1 = minP(ln1);
+      var minP2 = minP(ln2);
+      return minP1.X >= minP2.X ? minP1 : minP2;
+
+    }
+
     var p3D_L1P1 = OA.Utils.D2To3(l1.pnts[0], l1.t, type1);
     var p3D_L2P1 = OA.Utils.D2To3(l2.pnts[0], l2.t, type2);
     var foldLine = null;
     if (l1.pnts[0].Y === l2.pnts[0].Y && p3D_L1P1.y === p3D_L2P1.y) {
-      if (isIn(minP(l1.pnts), l2.pnts) || isIn(maxP(l1.pnts), l2.pnts)) {
-        foldLine = [maxLP(l1.pnts, l2.pnts), minLP(l1.pnts, l2.pnts)];
+      if (isIn(minP(l1.pnts), l2.pnts) || isIn(maxP(l1.pnts), l2.pnts) || isIn(maxP(l2.pnts), l1.pnts)) {
+        foldLine = [minMaxLP(l1.pnts, l2.pnts), maxMinLP(l1.pnts, l2.pnts)];
       }
     }
     return foldLine;
@@ -504,9 +533,11 @@ OA.Model = function(userSetting, isPattern2D) {
     var valleyLine=[];
     //collect Fold line
     $.each(clippedFaces, function(i, f) {
+      //var contours = f.getExPolygons();
+      //f.updateUpperLower2Ds(contours, true);
+      var t = f.getT();
       var uppers = f.oaInfo.upper2Ds;
       var lowers = f.oaInfo.lower2Ds;
-      var t = f.getT();
       var type = f.oaInfo.type;
 
       $.each(uppers, function(j, pnts) {
@@ -808,9 +839,20 @@ OA.Model = function(userSetting, isPattern2D) {
     clippedFaces = [];
     userFaces = [];
     undoRedoAry = [];
-    holeList = [];
     clipFaces(userFaces);
   };
+
+  this.setFaceCreateMode = function (mode){
+      faceCreateMode = parseInt(mode);
+      if(liveContour!=null){
+        liveContour.faceCreateMode = faceCreateMode;
+      }
+  };
+
+  this.getFaceCreateMode = function (mode){
+      return faceCreateMode
+  };
+
 
   //public
   this.destory = function() {

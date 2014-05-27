@@ -330,6 +330,9 @@ window.onload = function() {
             }
         },
         faceMode: "face",
+        faceModeChange: function(value){
+           oaModel.setFaceCreateMode(value);
+        },
         fundo: function(){
             oaModel.undo();
         },
@@ -425,7 +428,8 @@ window.onload = function() {
     //f0.open();
 
     var f1 = gui.addFolder('Face');
-    f1.add(oaControl, 'faceMode', [ 'Face', 'Hole', 'Pull' ] ).name("Face Mode");
+    f1.add(oaControl, 'faceMode', { 'Faces': 0, 'Hole': 1, 'Pull':2 } ).name("Face Mode")
+    .onChange(oaControl.faceModeChange);
     f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left fa-1x"></i> Undo');
     f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right fa-1x"></i> Redo');
     f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o  fa-1x"></i> Clear');
