@@ -128,7 +128,7 @@
         camera.setViewOffset(w, h, cameraOffset, 0, w, h);
 
         if (debugMode) {
-            OA.Utils.debugaxis(scene, oa, 1000);
+            //OA.Utils.debugaxis(scene, oa, 1000);
             stats = new Stats();
             stats.domElement.style.position = 'absolute';
             stats.domElement.style.top = '0px';

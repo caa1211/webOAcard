@@ -86,7 +86,8 @@ OA.Face = function(userSetting) {
 
    var buildByCoutours = function(contours) {
       OA.Utils.cleanObject3D(face);
-      if(contours.length === 0){
+      if(!contours || (contours && contours.length) === 0){
+         OA.Utils.cleanObject3D(face);
          return;
       }
       var exPolygons = contours;
@@ -295,7 +296,6 @@ OA.Face = function(userSetting) {
       if (face.angle == angle) {
          return;
       }
-
       resetAngle(face);
       if(angle ===0){
          angle =0.5
@@ -424,19 +424,21 @@ OA.Face = function(userSetting) {
       }
       var upper2Dary = [];
       var lower2Dary = [];
-      $.each(contours, function(i, poly) {
-         var outer = poly.outer;
-         var holes = poly.holes;
-         OA.Utils.modifyPathOrientation(outer, true);
-         var len = outer.length;
-         collectUpperLower(upper2Dary, lower2Dary, outer, true);
-         var hlen = holes 
-         if(holes.length>0){
-            $.each(holes, function(j, holePoly) {
-               collectUpperLower(upper2Dary, lower2Dary, holePoly, false);
-            });
-         }
-      });
+      if (contours) {
+         $.each(contours, function(i, poly) {
+            var outer = poly.outer;
+            var holes = poly.holes;
+            OA.Utils.modifyPathOrientation(outer, true);
+            var len = outer.length;
+            collectUpperLower(upper2Dary, lower2Dary, outer, true);
+            var hlen = holes
+            if (holes.length > 0) {
+               $.each(holes, function(j, holePoly) {
+                  collectUpperLower(upper2Dary, lower2Dary, holePoly, false);
+               });
+            }
+         });
+      }
       _setting.upper2Ds = upper2Dary;
       _setting.lower2Ds = lower2Dary;
    }
@@ -472,13 +474,13 @@ OA.Face = function(userSetting) {
          //    return false;
          // }
 
-         if (contours && updateUpper) {
+         //if (contours && updateUpper) {
             updateUpperLower2Ds(contours);
-         }
+        // }
 
-         if (contours) {
+        // if (contours) {
             _setting.contours = contours;
-         }
+        // }
 
          buildByCoutours(_setting.contours);
       } catch (e) {
@@ -490,19 +492,20 @@ OA.Face = function(userSetting) {
       var opts = heightlightOpts;
       var borders = face.getObjectByName("faceBorders");
       var body = face.getObjectByName("faceBody");
-
-      if (isOn) {
-         $.each(borders.children, function(i, border) {
-            //border.material.color.setHex(opts.border.color);
-            border.material.linewidth = opts.border.linewidth;
-         });
-         body.material.color.setHex(opts.body[type].color);
-      } else {
-         $.each(borders.children, function(i, border) {
-            //border.material.color.setHex(_setting.borderColor);
-            border.material.linewidth = _setting.borderWidth;
-         });
-         body.material.color.setHex(typeOpts[type].color);
+      if (borders && borders.children) {
+         if (isOn) {
+            $.each(borders.children, function(i, border) {
+               //border.material.color.setHex(opts.border.color);
+               border.material.linewidth = opts.border.linewidth;
+            });
+            body.material.color.setHex(opts.body[type].color);
+         } else {
+            $.each(borders.children, function(i, border) {
+               //border.material.color.setHex(_setting.borderColor);
+               border.material.linewidth = _setting.borderWidth;
+            });
+            body.material.color.setHex(typeOpts[type].color);
+         }
       }
    };
 

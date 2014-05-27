@@ -75,6 +75,7 @@ OA.Clipper = function(userSetting) {
         if (!subjPoly || !clipPoly) {
             return null;
         }
+
         var success = null;
         try {
 
@@ -109,7 +110,7 @@ OA.Clipper = function(userSetting) {
             OA.Utils.scaleDownExPolygon(expolygons, clipScale);
             return expolygons;
         } else {
-      
+      debugger;
             console.error("polygon boolean failed !");
             return null;
         }
@@ -261,14 +262,34 @@ OA.Clipper = function(userSetting) {
     function clipAbove(faceList) {
         $.each(faceList, function(i, f) {
             var subj = f.getExPolygons();
+
+            if(!subj || (subj&& subj.length ===0)){
+                
+                //remove f from facelist
+                sub=null;
+                f.rebuild(subj);
+                return true;
+            }
+
             for (var j = i + 1; j < faceList.length; j++) {
                 var ff = faceList[j];
                 var clip = ff.getExPolygons();
+
+                if (!clip || (clip && clip.length === 0)) {
+                    break;
+                }
+
                 var resPoly = polyBoolean(subj, clip, 2);
-                if (resPoly) {
+                if (resPoly && resPoly.length >0) {
                     subj = resPoly;
+                }else{
+                    //debugger;
+                    subj = null;
+                    //remove from faceList
+                    break;
                 }
             }
+
             f.rebuild(subj);
         });
     }
@@ -352,6 +373,8 @@ OA.Clipper = function(userSetting) {
                 }
                 f.rebuild(subj);
             });
+        }else{
+
         }
         //clip vfaces by min->big sequence
         if (vface_list && vface_list.length > 0) {

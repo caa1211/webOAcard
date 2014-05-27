@@ -51,7 +51,6 @@ OA.Model = function(userSetting, isPattern2D) {
     noRotate: false
   };
   var $model = $(this);
-  refreshFaceGroup.cardAngle = null;
   var foldable = true;
   var liveContour = null;
   var $domConainer = $(_setting.domContainer);
@@ -684,6 +683,7 @@ OA.Model = function(userSetting, isPattern2D) {
   };
 
   function updateModel(faces) {
+    //will get clipped face
     OA.Utils.cleanObject3D(refreshFaceGroup);
     for (var i = 0; i < faces.length; i++) {
       var f = faces[i];
@@ -694,16 +694,13 @@ OA.Model = function(userSetting, isPattern2D) {
 
   var updateCardAngle = function() {
     var faces = clippedFaces;
-    if (refreshFaceGroup.cardAngle !== cardAngle) {
       //model.remove(refreshFaceGroup)
       //refreshFaceGroup = new THREE.Object3D();
       //OA.Utils.cleanObject3D(refreshFaceGroup);
-      refreshFaceGroup.cardAngle = cardAngle;
       for (var i = 0; i < faces.length; i++) {
         var f = faces[i];
         f.setAngle(cardAngle);
       }
-    }
   };
 
   this.setCardAngle = function(degree) {
