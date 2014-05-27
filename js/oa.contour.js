@@ -260,8 +260,8 @@ OA.Contour = function(userSetting) {
       var mf = modifyFloatPoint;
       if (newPos != undefined) {
          var middlePoint = getMiddlePointFromPath(ary);
-         // middlePoint.X = Math.floor((middlePoint.X / gridStep)) * gridStep;
-         // middlePoint.Y = Math.floor((middlePoint.Y / gridStep)) * gridStep;
+         middlePoint.X = Math.floor((middlePoint.X / gridStep)) * gridStep;
+         middlePoint.Y = Math.floor((middlePoint.Y / gridStep)) * gridStep;
          for (var i = 0; i < ary.length; i++) {
             var p = ary[i];
             p.X = mf(p.X - middlePoint.X + newPos.X);
@@ -453,12 +453,12 @@ OA.Contour = function(userSetting) {
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
       hoverLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
-         linewidth: _setting.line.lineWidth,
+         linewidth: 2,
          color: _setting.line.color,
          opacity: _setting.line.opacity,
          transparent: true,
-         dashSize: 1,
-         gapSize: 0.5,
+         dashSize: 4,
+         gapSize: 1,
          transparent: true,
          depthTest: false,
          depthWrite: false

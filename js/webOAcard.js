@@ -10,7 +10,7 @@
         angle: 90,
         cardW: 120,
         cardH: 100,
-        gridNum: 40,
+        gridNum: 30,
         domContainer: container
     };
     OA.Utils.texture.loadAllTexture(modelOption);
@@ -373,7 +373,7 @@ window.onload = function() {
             oaModel.redo();
         },
         fclear: function(){ 
-            var r = confirm("clear all face?");
+            var r = confirm("clear all faces?");
             if (r == true) {
                 oaModel.clearAllFaces();
             } else {}
@@ -455,17 +455,17 @@ window.onload = function() {
     var f0 = gui.addFolder('Model');
     f0.add(oaControl, 'cardWidth', 50, 300).step(1).name('Width');
     f0.add(oaControl, 'cardHeight', 50, 300).step(1).name('Height');
-    f0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid');
+    f0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Num');
     f0.add(oaControl, 'newModel').name('New');
-    f0.add(oaControl, 'loadModel').name('Save');
+    f0.add(oaControl, 'loadModel').name(' Save');
     f0.add(oaControl, 'saveModel').name('Load');
     //f0.open();
 
     var f1 = gui.addFolder('Face');
     f1.add(oaControl, 'faceMode', [ 'Face', 'Hole', 'Pull' ] ).name("Face Mode");
-    f1.add(oaControl, 'fundo').name('Undo');
-    f1.add(oaControl, 'fredo').name('Redo');
-    f1.add(oaControl, 'fclear').name('Clear');
+    f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left fa-1x"></i> Undo');
+    f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right fa-1x"></i> Redo');
+    f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o  fa-1x"></i> Clear');
     f1.open();
 
     var f2 = gui.addFolder('Contour');

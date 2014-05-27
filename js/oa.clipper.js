@@ -111,7 +111,7 @@ OA.Clipper = function(userSetting) {
             OA.Utils.scaleDownExPolygon(expolygons, clipScale);
             return expolygons;
         } else {
-      debugger;
+            debugger;
             console.error("polygon boolean failed !");
             return null;
         }
@@ -202,6 +202,21 @@ OA.Clipper = function(userSetting) {
         var res_list = [];
         var ut, p2ds, hFace, ft, smallFakeHface;
         var resPoly, cntPoly, clippedPoly;
+
+        // var up = {
+        //     points: [{
+        //         X: 30,
+        //         Y: 10
+        //     }, {
+        //         X: 50,
+        //         Y: 10
+        //     }],
+        //     t: 30
+        // }
+        // var hf = fakeHface(up, 20);
+        // res_list.push(hf);
+
+
         $.each(upper_list, function(i, upper) {
             var ut = upper.t;
 
