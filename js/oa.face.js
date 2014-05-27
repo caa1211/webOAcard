@@ -385,6 +385,7 @@ OA.Face = function(userSetting) {
       var uppers = [];
       var lowers = [];
       var inHole = false;
+      var inOuter = false;
       if(!pAry || pAry && pAry.length ===0){
          return {
             uppers: upperStore,
@@ -400,6 +401,7 @@ OA.Face = function(userSetting) {
       }
 
       if (isOuter) {
+         inOuter = true;
          OA.Utils.modifyPathOrientation(pAry, true)
       } else {
          //is hole
@@ -416,6 +418,7 @@ OA.Face = function(userSetting) {
          }
          var upperOrLower = [p1, p2];
          upperOrLower.inHole = inHole;
+         upperOrLower.inOuter = inOuter;
          if (p1.Y === p2.Y && p1.X > p2.X) {
             uppers.push(upperOrLower);
          }

@@ -16,11 +16,12 @@ body {
 }
 
 #modeText {
-    font-size:60px; 
-    left:150px; 
+    /*text-shadow: -1px 0px 15px rgba(200, 200, 200, 1);*/
+    font-size:100px; 
+    left:100px; 
     position:absolute; 
     z-index:99; 
-    top:20px;
+    top:0px;
     color: #cccccc
 }
 .dg.ac {

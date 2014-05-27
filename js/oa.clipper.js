@@ -449,7 +449,7 @@ OA.Clipper = function(userSetting) {
         pullList = allModeList[faceCreateModeType.pull];
         vface_list = tryMergeFaces(vface_list);
         holeList = allModeList[faceCreateModeType.hole];
-        
+        //vfaces list clip holes
         $.each(holeList, function(i, hole) {
             var t = hole.getT();
             var new_vface_list = $.grep(vface_list, function(f, i) {
@@ -468,7 +468,7 @@ OA.Clipper = function(userSetting) {
             });
             vface_list = new_vface_list;
         });
-
+        //pull list clip holes
         $.each(holeList, function(i, hole) {
             var t = hole.getT();
             var new_pullList = $.grep(pullList, function(f, i) {
@@ -488,10 +488,11 @@ OA.Clipper = function(userSetting) {
             pullList = new_pullList;
         });
 
-
+        //find upper
         vface_list.sort(compareFaceT);
         //todo: find vlist by marged list
         //##step 2 create upper_list (sort by 2D z)
+        //find upper from vface list
         $.each(vface_list, function(i, f) {
             var upper2Ds = f.getUpper2Ds();
             if (upper2Ds) {
@@ -505,8 +506,26 @@ OA.Clipper = function(userSetting) {
                 });
             }
         });
+        //find upper from pull (but outer upper is invaild)
+        $.each(pullList, function(i, f) {
+            var upper2Ds = f.getUpper2Ds();
+            if (upper2Ds) {
+                $.each(upper2Ds, function(j, upper) {
+                    var inHole = upper.inHole === true ? true : false;
+                    if (upper.inOuter) {
+                        return true;
+                    }
+                    upper_list.push({
+                        points: upper,
+                        t: f.getT(),
+                        inHole: inHole
+                    });
+                });
+            }
+        });
         upper_list.sort(compareUpperY);
-
+        
+        //merge vface list and pull list
         vface_list = tryMergeFaces($.merge(vface_list, pullList));
 
         //##step 3 create HFACE
