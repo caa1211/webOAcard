@@ -449,10 +449,14 @@ OA.Contour = function(userSetting) {
    };
    
    //public
-   this.subdiv = function(level) {
+   this.subdiv = function(level, xLimit) {
 
       if (!isClosed || !point2Ds || point2Ds.length === 0) {
          return;
+      }
+
+      if(xLimit === undefined){
+         xLimit = 1;
       }
 
       contour.subLevel = level;
@@ -465,7 +469,7 @@ OA.Contour = function(userSetting) {
       if (level > 1) {
          var newP2Ds = point2Ds;
          for (i = 0; i < level; i++) {
-            newP2Ds = subdivision(newP2Ds);
+            newP2Ds = subdivision(newP2Ds, xLimit);
          }
          point2Ds = newP2Ds;
       }
@@ -473,9 +477,10 @@ OA.Contour = function(userSetting) {
       drawCloseCoutour();
    };
 
-   var subdivision = function(sourceP2Ds) {
+   var subdivision = function(sourceP2Ds, xLimit) {
       // point2Ds = newPoint2Ds;
       var newP2Ary = [];
+      var t = contour.t;
       var pLen = sourceP2Ds.length;
       for (var i = 0; i < pLen; i++) {
          var p1, p2;
@@ -487,6 +492,12 @@ OA.Contour = function(userSetting) {
             p2 = sourceP2Ds[i];
          }
 
+
+         if(p1.Y　==　p2.Y　&& Math.abs(p1.X -p2.X) > xLimit){
+            newP2Ary.push(p1);
+            newP2Ary.push(p2);
+            continue;
+         }
          var Q = {
             X: 0.75 * p1.X + 0.25 * p2.X,
             Y: 0.75 * p1.Y + 0.25 * p2.Y

@@ -1026,9 +1026,9 @@ OA.Model = function(userSetting, isPattern2D) {
     }
   }
 
-  this.subdivision = function(level) {
+  this.subdivision = function(level, xLimit) {
     if (liveContour){
-      liveContour.subdiv(level);
+      liveContour.subdiv(level, xLimit);
     }
   };
 

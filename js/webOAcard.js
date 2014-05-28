@@ -382,8 +382,12 @@ window.onload = function() {
             });
         },
         subLevel: oaModel.getSubLevel(),
+        xLimit: 1, 
         subLevelChange: function(value){
-            oaModel.subdivision(value);
+            oaModel.subdivision(value, oaControl.xLimit);
+        },
+        xLimitChange:  function(value){
+            oaModel.subdivision(oaControl.subLevel, value);
         }
 
     };
@@ -419,14 +423,14 @@ window.onload = function() {
     //f0.open();
 
     var f1 = gui.addFolder('Face');
-    f1.add(oaControl, 'faceMode', { 'Faces': "faces", 'Hole': "hole", 'Pull':"pull" } ).name("Face Mode")
+    f1.add(oaControl, 'faceMode', { 'Faces': "faces", 'Hole': "hole", 'Pull':"pull" } ).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
     .listen().onChange(oaControl.faceModeChange);
 
     $modeText.html(oaControl.faceMode);
     $modeText.click(function(){
         var index = (oaModel.getFaceCreateMode()+1)%3;
         var modeTye = ["faces", "hole", "pull"];
-        $modeText.html(modeTye[index]);
+        $modeText.html(modeTye[index] );
         oaControl.faceMode = modeTye[index];
         oaModel.setFaceCreateMode(modeTye[index]);
     });
@@ -436,19 +440,23 @@ window.onload = function() {
     f1.open();
 
     var f2 = gui.addFolder('Contour');
-    f2.add(oaControl, 'cPrevious').name('Browse Old');
-    f2.add(oaControl, 'cNext').name('Browse New');
-    f2.add(oaControl, 'cclear').name('Clear');
-    f2.add(oaControl, 'liveContour_id').name("Info").listen().onChange(oaControl.contourIdChange);
-    f2.add(oaControl, 'rotateX').name('Mirror');
-    f2.add(oaControl, "subLevel", 1, 5).step(1).name("Subdivision").listen().onChange(
+    f2.add(oaControl, 'cPrevious').name('<i class="fa fa-long-arrow-left fa-1x"></i> Reuse Prev');
+    f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right fa-1x"></i> Reuse Next');
+    f2.add(oaControl, 'cclear').name('<i class="fa fa-times fa-1x"></i> Clear');
+    f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle fa-1x"></i> Info').listen().onChange(oaControl.contourIdChange);
+    f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h fa-1x"></i> Mirror');
+    f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').listen().onChange(
         oaControl.subLevelChange);
+    f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').listen().onChange(
+        oaControl.xLimitChange);
+
+
     f2.open();
 
     var f3 = gui.addFolder('2D Pattern');
     // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
     // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
-    f3.add(oaControl, 'downloadImg').name("Save");
+    f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
     f3.open();
 
     var update = function() {
