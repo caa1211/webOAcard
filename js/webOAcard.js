@@ -481,7 +481,7 @@ window.onload = function() {
         f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
             '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
 
-        f0.open();
+        //f0.open();
 
         var f1 = gui.addFolder('Face');
         f1.add(oaControl, 'faceMode', {
