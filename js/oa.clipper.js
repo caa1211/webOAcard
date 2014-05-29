@@ -220,28 +220,33 @@ OA.Clipper = function(userSetting) {
         // var hf = fakeHface(up, 20);
         // res_list.push(hf);
 
-
         $.each(upper_list, function(i, upper) {
             var ut = upper.t;
-
-            // if(upper.inHole){
-            //     //no HFACE hole
-            //    return true;
-            // }
-
             ut = modifyFloatPoint(ut);
-            var hFace = fakeHface(upper);
+            var hFace;
+
+            if (upper.inHole) {
+                var fakeY = upper.points[0].Y;
+                var fakeUpper = {
+                    points: [{
+                        X: 0,
+                        Y: fakeY
+                    }, {
+                        X: cardW,
+                        Y: fakeY
+                    }],
+                    t: upper.t
+                };
+                hFace = fakeHface(fakeUpper);
+            } else {
+                hFace = fakeHface(upper);
+            }
 
             //OA.log("ut--" + ut, 2);
             $.each(vface_list, function(j, f) {
                 ft = f.getT();
                 ft = modifyFloatPoint(ft);
-                if (ft >= ut) {
-                    if(upper.inHole){
-                      var fakeY = upper.points[0].Y;
-                      var fakeUpper = {points: [{X:0, Y: fakeY},{X:cardW, Y:fakeY}]  , t:upper.t};
-                      hFace = fakeHface(fakeUpper);
-                    }
+                if (ft >= ut ) {
                     clippedPoly = polyBoolean(
                         hFace.getExPolygons(),
                         f.getExPolygons(),
@@ -253,6 +258,7 @@ OA.Clipper = function(userSetting) {
                         return true;
                     }
                 }
+         
                 if (ft < ut) {
                     //create smallFakeHface from upper to pervious vface
                     var smallFakeHface = fakeHface(upper, ut - ft);
