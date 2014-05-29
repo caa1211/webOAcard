@@ -41,7 +41,7 @@
     var $previewUI = $("#previewUI");
     var $download2D = $("#download2D");
     var $previewUIwrapper = $("#previewUIwrapper");
-
+    var $fileUpload = $("#fileUpload");
     function init(oa) {
 
         //==preview===
@@ -260,10 +260,10 @@ function renderPreview() {
 
 window.onload = function() {
 
-    function createGUI() {
-        var $savedHint;
         var depthEditCtrl;
-     
+        var $savedHint;
+        var loadedFileName = "";
+        
         function noIm() {
             alert("not yet implemented!");
         }
@@ -312,10 +312,9 @@ window.onload = function() {
                 oaModel.redo();
             },
             fclear: function() {
-                var r = confirm("clear all faces?");
-                if (r == true) {
-                    oaModel.clearAllFaces();
-                } else {}
+                if(oaControl.confirmModelChange()){
+                     oaModel.clearAllFaces();
+                }
             },
             cPrevious: function() {
                 oaModel.prevContour();
@@ -340,55 +339,92 @@ window.onload = function() {
                 if ($savedHint == undefined) {
                     return;
                 }
-                //check updated
-                var isSaved = oaModel.checkModelSaved();
-                if (isSaved) {
+                if (oaModel.checkModelSaved()) {
                     $savedHint.hide();
+                    // if (loadedFileName!=undefined) {
+                    //     $loadedFileName.html(loadedFileName);
+                    // }
+
                 } else {
                     $savedHint.show();
+                    // if (loadedFileName) {
+                    //     $loadedFileName.html("*" + loadedFileName);
+                    // }
                 }
             },
             otherUpdate: function() {
                 oaControl.checkSaved();
             },
             newModel: function() {
-                if (!oaModel.checkModelSaved()) {
-                    var r = confirm("discard all changes?");
-                    if (r == true) {
-                        newOAModel(oaControl);
-                        createGUI();
-                    } else {}
-                } else {
+                if (oaControl.confirmModelChange()) {
                     newOAModel(oaControl);
                     createGUI();
                 }
             },
-            loadModel: function() {
+            readOAFile: function(evt){
+                var f = evt.target.files[0];
+                if (f) {
+                    var r = new FileReader();
+                    r.onload = function(e) {
+                        var contents = e.target.result;
+                        try {
+                            if(oaControl.confirmModelChange()){
+                                oaControl.passFileToModel(contents);
+                                loadedFileName = f.name;
+                            }
+                        } catch (e) {
+                            alert("Failed to load file");
+                        }
+                        //alert("Got the file.n" + "name: " + f.name + "n" + "type: " + f.type + "n" + "size: " + f.size + " bytesn" + "starts with: " + contents);
+                    }
+                    r.readAsText(f);
+                } else {
+                    alert("Failed to load file");
+                }
+                $fileUpload[0].value="";
+            },
+            confirmModelChange: function(){
+                var res = false;
                 if (!oaModel.checkModelSaved()) {
                     var r = confirm("discard all changes?");
                     if (r == true) {
-                        doLoadModel();
+                        res = true;
                     } else {}
                 } else {
-                    doLoadModel();
+                    res = true;
                 }
-
-                function doLoadModel() {
-                    if (window.fileObj != undefined) {
-                        var fileObj = window.fileObj;
-                        newOAModel(fileObj.settings);
-                        oaModel.setModel(fileObj);
-                        createGUI();
-                    }
-                }
+                return res;
             },
-            guiUpdate: function() {
-                $(oaModel).unbind("facesClipped", oaControl.checkSaved)
-                .bind("facesClipped", oaControl.checkSaved);
-                oaControl.checkSaved();
+            passFileToModel: function(contents) {
+                var fileObj = jQuery.parseJSON(contents);
+                newOAModel(fileObj.settings);
+                oaModel.setModel(fileObj);
+                createGUI();
+            },
+            loadModel: function() {
+                //will trigger readOAFile handle
+                $fileUpload.click();
             },
             saveModel: function() {
-                window.fileObj = oaModel.getModel();
+                var downloadFile = function(filename, content) {
+                    var blob = new Blob([content], {type: "application/json"});
+                    var $link = $('<a></a>');
+                    $link.attr({
+                        download: filename,
+                        href: (window.URL || window.webkitURL).createObjectURL(blob)
+                    }).appendTo("body").get(0).click();
+                    $link.remove();
+                };
+
+                var name;
+                if (loadedFileName != "") {
+                    name = loadedFileName;
+                } else {
+                    var date = new Date();
+                    name = "oaCard_" + date + ".oa";
+                }
+                var fileObj = oaModel.getModel();
+                downloadFile(name, JSON.stringify(fileObj));
                 oaModel.setModelSaved();
                 oaControl.checkSaved();
             },
@@ -409,10 +445,14 @@ window.onload = function() {
             },
             xLimitChange: function(value) {
                 oaModel.subdivision(oaControl.subLevel, value);
+            },
+            onEditModeChange: function(){
+                oaControl.isEditMode = oaModel.getEditMode();
             }
 
         };
 
+    function createGUI() {
         var angleOpt;
         var gui = new dat.GUI({
             autoPlace: false
@@ -435,7 +475,7 @@ window.onload = function() {
             .onChange(oaControl.editModeChange);
 
         var f0 = gui.addFolder('Model');
-         
+
         var f0_0 = f0.addFolder('New');
         f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
         f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
@@ -444,8 +484,10 @@ window.onload = function() {
         //f0_0.open();
 
         f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
-        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save <i id="savedHint" title="need save" class="fa fa-exclamation-triangle fa-1x"></i>');
-  
+
+        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
+            '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+
         f0.open();
 
         var f1 = gui.addFolder('Face');
@@ -489,16 +531,23 @@ window.onload = function() {
         f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
         f3.open();
 
+        $fileUpload.unbind("change").bind("change", oaControl.readOAFile);
         $savedHint = $datContainer.find("#savedHint");
         $datContainer.find(".close-button").before($previewUIwrapper);
         $previewUIwrapper.css("visibility", "visible");
+       
+        $(oaModel).unbind("facesClipped", oaControl.checkSaved)
+            .bind("facesClipped", oaControl.checkSaved);
+        //oaControl.checkSaved();
 
-        oaControl.guiUpdate();
+        $(oaModel).unbind("editModeChange", oaControl.onEditModeChange)
+            .bind("editModeChange", oaControl.onEditModeChange);
+        oaControl.onEditModeChange();
+
         var update = function() {
             requestAnimationFrame(update);
             oaControl.cardAngle = oaModel.getCardAngle();
             oaControl.editDepth = oaModel.getEditDepth();
-            oaControl.isEditMode = oaModel.getEditMode();
             oaControl.subLevel = oaModel.getSubLevel();
             oaControl.liveContour_id = oaModel.getLiveContourID();
             //oaControl.otherUpdate();
@@ -526,9 +575,9 @@ function setGlobalValuableByCardSize(cardW, cardH, gridNum) {
         renderPreview();
     });
 
-    $(oaModel).bind("editModeChange", function() {
-        //renderPreview();
-    });
+    // $(oaModel).bind("editModeChange", function() {
+    //     //renderPreview();
+    // });
 
     var fogNear = viewerR / 18000;
     var fogFar = viewerR * 2.2;

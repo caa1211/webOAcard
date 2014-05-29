@@ -135,3 +135,12 @@ body {
     visibility: hidden;
 }
 
+#savedHint {
+    display: none;
+font-size:5px;
+color: #DF3B39;
+margin-left: 5px;
+top:0px;
+line-height: 10px;
+width:30px;
+}

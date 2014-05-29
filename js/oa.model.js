@@ -947,7 +947,7 @@ OA.Model = function(userSetting, isPattern2D) {
        var fdata = {
         contours: f.oaInfo.contours,
         type: f.oaInfo.type,
-        faceCreateMode: f.oaInfo.faceCreateMode,
+        mode: f.oaInfo.faceCreateMode,
         t: f.oaInfo.t
        }
        allFaces.push(fdata);
@@ -956,8 +956,13 @@ OA.Model = function(userSetting, isPattern2D) {
   };
 
   this.getModel = function() {
+
     var fileObj = {
-      settings: _setting,
+      settings: {
+        cardW: _setting.cardW,
+        cardH: _setting.cardH,
+        gridNum: _setting.gridNum
+      },
       faces: getAllFaces()
     };
     return fileObj;
@@ -971,7 +976,7 @@ OA.Model = function(userSetting, isPattern2D) {
       $.each(faces, function(i, fsetting) {
         var point2Ds = fsetting.contours[0].outer,
           type = fsetting.type,
-          faceCreateMode = fsetting.faceCreateMode,
+          faceCreateMode = fsetting.mode,
           t = fsetting.t,
           newFace = createFace(point2Ds, type, fsetting.t, {
             faceCreateMode: faceCreateMode
