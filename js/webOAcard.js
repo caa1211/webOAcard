@@ -264,6 +264,7 @@ window.onload = function() {
         var angleChangeUI;
         var subLevelUI;
         var xLimitUI;
+        var contourInfoUI;
 
         function noIm() {
             alert("not yet implemented!");
@@ -456,7 +457,8 @@ window.onload = function() {
                     subLevelUI.updateDisplay();
                     xLimitUI.updateDisplay();
                 }
-
+                oaControl.liveContour_id = oaModel.getLiveContourID();
+                contourInfoUI.updateDisplay();
             },
             onEditModeChange: function(){
                 oaControl.isEditMode = oaModel.getEditMode();
@@ -529,11 +531,11 @@ window.onload = function() {
         f2.add(oaControl, 'cPrevious').name('<i class="fa fa-long-arrow-left"></i> Reuse Prev');
         f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right"></i> Reuse Next');
         f2.add(oaControl, 'cclear').name('<i class="fa fa-times "></i> Clear Contour');
-        f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info').listen().onChange(oaControl.contourIdChange);
+        contourInfoUI = f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info');
         f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h"></i> Mirror');
-        subLevelUI = f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').listen().onChange(
+        subLevelUI = f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').onChange(
             oaControl.subLevelChange);
-        xLimitUI = f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').listen().onChange(
+        xLimitUI = f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').onChange(
             oaControl.xLimitChange);
 
         f2.open();
@@ -568,6 +570,7 @@ window.onload = function() {
         $(oaModel).unbind("contourStateChange", oaControl.onContourStateChange)
             .bind("contourStateChange", oaControl.onContourStateChange);
         oaControl.onContourStateChange();
+
 
     }
     createGUI();
