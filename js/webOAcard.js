@@ -341,15 +341,8 @@ window.onload = function() {
                 }
                 if (oaModel.checkModelSaved()) {
                     $savedHint.hide();
-                    // if (loadedFileName!=undefined) {
-                    //     $loadedFileName.html(loadedFileName);
-                    // }
-
                 } else {
                     $savedHint.show();
-                    // if (loadedFileName) {
-                    //     $loadedFileName.html("*" + loadedFileName);
-                    // }
                 }
             },
             otherUpdate: function() {
