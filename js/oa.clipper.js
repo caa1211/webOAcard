@@ -178,6 +178,7 @@ OA.Clipper = function(userSetting) {
             $.each(poly && poly.outer, function(j, p2d) {
                 if (p2d.Y === upperY && p2d.X <= upperMaxX && p2d.X >= upperMinX) {
                     vaildPoly = poly;
+
                 }
             });
             if (vaildPoly) {
@@ -225,6 +226,7 @@ OA.Clipper = function(userSetting) {
             ut = modifyFloatPoint(ut);
             var hFace;
 
+
             if (upper.inHole) {
                 var fakeY = upper.points[0].Y;
                 var fakeUpper = {
@@ -246,15 +248,20 @@ OA.Clipper = function(userSetting) {
             $.each(vface_list, function(j, f) {
                 ft = f.getT();
                 ft = modifyFloatPoint(ft);
-                if (ft >= ut ) {
+                if (ft >= ut) {
                     clippedPoly = polyBoolean(
                         hFace.getExPolygons(),
                         f.getExPolygons(),
                         clipType.ctDifference
                     );
-                    cntPoly = getConnectedPoly(upper, clippedPoly);
-                    if (cntPoly /*&& getPolyHeight(cntPoly) >=ut*/ ) {
-                        hFace.rebuild(cntPoly);
+                    if (ft == ut) {
+                        cntPoly = getConnectedPoly(upper, clippedPoly);
+                        if (cntPoly) {
+                            hFace.rebuild(cntPoly);
+                            return true;
+                        }
+                    } else {
+                        hFace.rebuild(clippedPoly);
                         return true;
                     }
                 }
