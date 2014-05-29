@@ -121,19 +121,15 @@ OA.Model = function(userSetting, isPattern2D) {
     $domConainer.bind("mousedown", onMousedown);
     $domConainer.bind("mouseup", onMouseup);
     $model.bind("editModeChange", function(e, flag){
-      if(!flag){
-           OA.Utils.cleanObject3D(intersectionLines);
-         }else{
-          drawIntersectionLine(editPlane.getT());
-         }
+        drawIntersectionLine(editPlane.getT());
     });
     $model.bind("faceCreateModeChange", function(e, mode) {
-      if (!editPlane.isVisible) {
-        OA.Utils.cleanObject3D(intersectionLines);
-      } else {
         drawIntersectionLine(editPlane.getT());
-      }
     });
+    $model.bind("facesClipped", function(e, mode) {
+        drawIntersectionLine(editPlane.getT());
+    });
+
   };
 
 
@@ -362,6 +358,11 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function drawIntersectionLine(newDist) {
+
+    if (!editPlane.isVisible) {
+      OA.Utils.cleanObject3D(intersectionLines);
+      return;
+    } 
     var geometry = new THREE.Geometry();
     var et = newDist;
     OA.Utils.cleanObject3D(intersectionLines);

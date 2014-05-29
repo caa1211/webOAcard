@@ -10,7 +10,7 @@ var OA = {
    paperTextureInfo:{
 
      src: "img/p3.jpg",
-     size: 150,
+     size: 130,
      isFill: false
 
      // src: "img/paper0.jpg",

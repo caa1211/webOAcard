@@ -10,40 +10,49 @@ OA.ContourRepo = function(userSetting) {
     this.push = function(p3ds) {
         var original = Array.prototype.push;
         if (p3ds.cid != null) {
-
             return;
         }
         original.apply(this, arguments);
-        curr = repo.length - 1;
+        curr = repo.length;
         p3ds.cid = curr;
-
     };
 
     this.getBefore = function() {
-
-        var res = repo[curr];
-        if (res) {
-            if (curr > 0) {
-                curr = curr - 1;
+        if (curr > 0) {
+            curr = curr -1;
+            var res = repo[curr];
+            if (res) {
+                return res;
+            } else {
+                curr = 0;
+                return null;
             }
-            return res;
-        } else {
-            curr = 0;
-            return null;
+        }else{
+            return repo[0];
         }
     };
 
     this.getAfter = function() {
-        var res = repo[curr + 1];
-        if (res) {
-            if (curr < repo.length - 2) {
-                curr = curr + 1;
+        if (curr <  repo.length-1) {
+            curr = curr +1;
+            var res = repo[curr];
+            if (res) {
+                return res;
+            } else {
+                curr = repo.length-1;
+                return null;
             }
-            return res;
-        } else {
-            curr = repo.length - 1;
-            return null;
+        }else{
+            return repo[repo.length-1];
         }
+
+        // var res = repo[curr + 1];
+        // if (res) {
+        //     return res;
+        // } else {
+        //     curr = repo.length - 1;
+        //     return null;
+        // }
     };
 
 
