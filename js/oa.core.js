@@ -224,6 +224,12 @@ OA.Utils = {
         return repeateSize;
       },
      loadAllTexture: function(modelOption){
+      if(modelOption === undefined){
+        modelOption = {
+          cardW: 100,
+          cardH: 100
+        };
+      }
       OA.Utils.texture.ready = true;
       OA.Utils.texture.data.movePointTexture = THREE.ImageUtils.loadTexture("img/cborder.png");
       OA.Utils.texture.data.movePointFillTexture = THREE.ImageUtils.loadTexture("img/cfill.png");

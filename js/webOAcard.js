@@ -13,9 +13,10 @@
         gridNum: 30,
         domContainer: container
     };
-    OA.Utils.texture.loadAllTexture(modelOption);
+    
     var cardW = modelOption.cardW,
         cardH = modelOption.cardH;
+    OA.Utils.texture.loadAllTexture({cardW:cardW, cardH: cardH});
     var maxWidth = cardW > cardH ? cardW : cardH;
     var gridStep = maxWidth / modelOption.gridNum;
 
@@ -34,6 +35,12 @@
     var previewW = $container2D.width();
     var previewH = $container2D.height();
     var $modeText = $("#modeText");
+
+    var $imgContainer = $("#imgContainer");
+    var $downloadLink = $imgContainer.children("a");
+    var $previewUI = $("#previewUI");
+    var $download2D = $("#download2D");
+    var $previewUIwrapper = $("#previewUIwrapper");
 
     function init(oa) {
 
@@ -74,7 +81,7 @@
         container.appendChild(renderer.domElement);
         orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement, container);
 
-        setGlobalValuableByCardSize(cardW, cardH);
+        setGlobalValuableByCardSize(cardW, cardH, modelOption.gridNum);
         renderPreview();
 
         if (OA.light) {
@@ -111,10 +118,6 @@
         oaModel.setCardMode(0);
 
         //download 2d pattern
-        var $imgContainer = $("#imgContainer");
-        var $downloadLink = $imgContainer.children("a");
-        var $previewUI = $("#previewUI");
-        var $download2D = $("#download2D");
 
         $download2D.click(function(e) {
             var dataUrl = make2DImg(1000, 1000 * previewH / previewW, previewW, previewH, $imgContainer, function() {
@@ -257,229 +260,260 @@ function renderPreview() {
 
 window.onload = function() {
 
-    // var oaControl = new function(){
-
-    //     this.cardAngle = 90;
-    //     this.displayOutline = false;
-    //     //this.message = "download 2D pattern";
-    //     this.fundo = function() { 
-    //         oaModel.undo();
-    //     };
-    //     this.fredo = function() { 
-    //          oaModel.redo();
-    //     };
-
-    //     this.fclear = function(){
-
-    //     };
-
-    //     this.cundo = function(){
-
-    //     };
-
-    //     this.credo = function(){
-
-    //     };
-
-    //     this.width2D = 1000;
-    //     this.height2D = 1000;
- //   }
-    function noIm(){
-        alert("not yet implemented!"); 
-    };
-    var oaControl = {
-        cardAngle: 90,
-        angleChange: function(value) {
-           oaModel.setCardAngle(value);
-           oaModel.showEditPlane(false);
-           oaModel.setFoldable(true);
-        },
-        editDepth: 16,
-        editDepthChange: function(value){
-           oaModel.setCardMode(0);
-           oaModel.setEditDepth(value);
-        },
-        isEditMode: true, 
-        editModeChange: function(value){
-            if(value){
-                oaModel.setCardMode(0);
-            }else{
-                oaModel.setCardMode(1);
-            }
-        },
-        faceMode: "faces",
-        faceModeChange: function(value) {
-            oaModel.setFaceCreateMode(value);
-            $modeText.html(value);
-        },
-        fundo: function(){
-            oaModel.undo();
-        },
-        fredo: function(){
-            oaModel.redo();
-        },
-        fclear: function(){ 
-            var r = confirm("clear all faces?");
-            if (r == true) {
-                oaModel.clearAllFaces();
-            } else {}
-        },
-        cPrevious: function(){
-           oaModel.prevContour();
-        },
-        cNext: function(){
-           oaModel.nextContour();
-        },
-        cclear: function(){
-            oaModel.clearContour(); 
-        },
-        liveContour_id: "---",
-        contourIdChange: function(){
-
-        },
-        rotateX: function(){
-            oaModel.contourRotateX();
-        },
-        cardWidth: modelOption.cardW,
-        cardHeight: modelOption.cardH,
-        gridNum: modelOption.gridNum,
-        newModel: function(){
-            // var modelOption = {
-            //     angle: 90,
-            //     cardW: 120,
-            //     cardH: 100,
-            //     gridNum: 40,
-            //     domContainer: container
-            // };
-            //noIm(); 
-            scene.remove(oaModel);
-            oaModel.destory();
-            modelOption.cardW = oaControl.cardWidth;
-            modelOption.cardH = oaControl.cardHeight;
-            modelOption.gridNum = oaControl.gridNum;
-            oaModel = new OA.Model(modelOption);
-            scene.add(oaModel);
-            setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH);
-            oaModel.setCardMode(0);
-            renderPreview();
-        },
-        loadModel: function(){
-            noIm();
-        },
-        saveModel: function(){
-            noIm();
-            //oaModel.getLiveContourID();
-            
-        },
-        downloadImg: function() {
-            //download 2d pattern
-            var $imgContainer = $("#imgContainer");
-            var $downloadLink = $imgContainer.children("a");
-            var $previewUI = $("#previewUI");
-            var $download2D = $("#download2D");
-            var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function() {
-                $downloadLink[0].click();
-            });
-        },
-        subLevel: oaModel.getSubLevel(),
-        xLimit: 1, 
-        subLevelChange: function(value){
-            oaModel.subdivision(value, oaControl.xLimit);
-        },
-        xLimitChange:  function(value){
-            oaModel.subdivision(oaControl.subLevel, value);
+    function createGUI() {
+        var $savedHint;
+        var depthEditCtrl;
+     
+        function noIm() {
+            alert("not yet implemented!");
         }
 
-    };
+        function newOAModel(opt) {
+            scene.remove(oaModel);
+            oaModel.destory();
+            $.extend(modelOption, opt);
+            OA.Utils.texture.loadAllTexture(modelOption);
+            oaModel = new OA.Model(modelOption);
+            scene.add(oaModel);
+            setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH, modelOption.gridNum);
+            oaModel.setCardMode(0);
+            renderPreview();
+        }
 
-    var angleOpt;
-    var gui = new dat.GUI({
-        autoPlace: false
-    });
+        var oaControl = {
+            cardAngle: 90,
+            angleChange: function(value) {
+                oaModel.setCardAngle(value);
+                oaModel.showEditPlane(false);
+                oaModel.setFoldable(true);
+            },
+            editDepth: 16,
+            editDepthChange: function(value) {
+                oaModel.setCardMode(0);
+                oaModel.setEditDepth(value);
+            },
+            isEditMode: true,
+            editModeChange: function(value) {
+                if (value) {
+                    oaModel.setCardMode(0);
+                } else {
+                    oaModel.setCardMode(1);
+                }
+            },
+            faceMode: "faces",
+            faceModeChange: function(value) {
+                oaModel.setFaceCreateMode(value);
+                $modeText.html(value);
+            },
+            fundo: function() {
+                oaModel.undo();
+            },
+            fredo: function() {
+                oaModel.redo();
+            },
+            fclear: function() {
+                var r = confirm("clear all faces?");
+                if (r == true) {
+                    oaModel.clearAllFaces();
+                } else {}
+            },
+            cPrevious: function() {
+                oaModel.prevContour();
+            },
+            cNext: function() {
+                oaModel.nextContour();
+            },
+            cclear: function() {
+                oaModel.clearContour();
+            },
+            liveContour_id: "---",
+            contourIdChange: function() {
 
-    var datContainer = document.getElementById('datContainer');
-    datContainer.appendChild(gui.domElement);
+            },
+            rotateX: function() {
+                oaModel.contourRotateX();
+            },
+            cardW: modelOption.cardW,
+            cardH: modelOption.cardH,
+            gridNum: modelOption.gridNum,
+            checkSaved: function() {
+                if ($savedHint == undefined) {
+                    return;
+                }
+                //check updated
+                var isSaved = oaModel.checkModelSaved();
+                if (isSaved) {
+                    $savedHint.hide();
+                } else {
+                    $savedHint.show();
+                }
+            },
+            otherUpdate: function() {
+                oaControl.checkSaved();
+            },
+            newModel: function() {
+                if (!oaModel.checkModelSaved()) {
+                    var r = confirm("discard all changes?");
+                    if (r == true) {
+                        newOAModel(oaControl);
+                        createGUI();
+                    } else {}
+                } else {
+                    newOAModel(oaControl);
+                    createGUI();
+                }
+            },
+            loadModel: function() {
+                if (!oaModel.checkModelSaved()) {
+                    var r = confirm("discard all changes?");
+                    if (r == true) {
+                        doLoadModel();
+                    } else {}
+                } else {
+                    doLoadModel();
+                }
 
+                function doLoadModel() {
+                    if (window.fileObj != undefined) {
+                        var fileObj = window.fileObj;
+                        newOAModel(fileObj.settings);
+                        oaModel.setModel(fileObj);
+                        createGUI();
+                    }
+                }
+            },
+            guiUpdate: function() {
+                $(oaModel).unbind("facesClipped", oaControl.checkSaved)
+                .bind("facesClipped", oaControl.checkSaved);
+                oaControl.checkSaved();
+            },
+            saveModel: function() {
+                window.fileObj = oaModel.getModel();
+                oaModel.setModelSaved();
+                oaControl.checkSaved();
+            },
+            downloadImg: function() {
+                //download 2d pattern
+                var $imgContainer = $("#imgContainer");
+                var $downloadLink = $imgContainer.children("a");
+                var $previewUI = $("#previewUI");
+                var $download2D = $("#download2D");
+                var dataUrl = make2DImg(1000, 1000, previewW, previewH, $imgContainer, function() {
+                    $downloadLink[0].click();
+                });
+            },
+            subLevel: oaModel.getSubLevel(),
+            xLimit: 1,
+            subLevelChange: function(value) {
+                oaModel.subdivision(value, oaControl.xLimit);
+            },
+            xLimitChange: function(value) {
+                oaModel.subdivision(oaControl.subLevel, value);
+            }
 
-    var $previewUI = $("#previewUI");
+        };
 
+        var angleOpt;
+        var gui = new dat.GUI({
+            autoPlace: false
+        });
 
-    gui.add(oaControl, "cardAngle", 0, 180).step(-5).listen().name("Card Angle")
-    .onChange(oaControl.angleChange);
+        $datContainer = $("#datContainer");
+        $previewUIwrapper.css("visibility", "hidden");
+        $("body").append($previewUIwrapper);
 
-    var depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardHeight-1).step(gridStep).listen().name("Edit Depth")
-    .onChange(oaControl.editDepthChange);
+        $datContainer.empty();
+        $datContainer.append(gui.domElement);
 
-    gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
-    .onChange(oaControl.editModeChange);
+        gui.add(oaControl, "cardAngle", 0, 180).step(-5).listen().name("Card Angle")
+            .onChange(oaControl.angleChange);
 
-    var f0 = gui.addFolder('Model');
-    f0.add(oaControl, 'cardWidth', 50, 300).step(1).name('Width');
-    f0.add(oaControl, 'cardHeight', 50, 300).step(1).name('Height');
-    f0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Num');
-    f0.add(oaControl, 'newModel').name('New');
-    f0.add(oaControl, 'loadModel').name(' Load');
-    f0.add(oaControl, 'saveModel').name('Save');
-    //f0.open();
+        depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardH - 1).step(gridStep).listen().name("Edit Depth")
+            .onChange(oaControl.editDepthChange);
 
-    var f1 = gui.addFolder('Face');
-    f1.add(oaControl, 'faceMode', { 'Faces': "faces", 'Hole': "hole", 'Pull':"pull" } ).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
-    .listen().onChange(oaControl.faceModeChange);
+        gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
+            .onChange(oaControl.editModeChange);
 
-    $modeText.html(oaControl.faceMode);
-    $modeText.click(function(){
-        var index = (oaModel.getFaceCreateMode()+1)%3;
-        var modeTye = ["faces", "hole", "pull"];
-        $modeText.html(modeTye[index] );
-        oaControl.faceMode = modeTye[index];
-        oaModel.setFaceCreateMode(modeTye[index]);
-    });
-    f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left fa-1x"></i> Undo');
-    f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right fa-1x"></i> Redo');
-    f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o  fa-1x"></i> Clear');
-    f1.open();
+        var f0 = gui.addFolder('Model');
+         
+        var f0_0 = f0.addFolder('New');
+        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
+        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
+        f0_0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Num');
+        f0_0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> Create ');
+        //f0_0.open();
 
-    var f2 = gui.addFolder('Contour');
-    f2.add(oaControl, 'cPrevious').name('<i class="fa fa-long-arrow-left fa-1x"></i> Reuse Prev');
-    f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right fa-1x"></i> Reuse Next');
-    f2.add(oaControl, 'cclear').name('<i class="fa fa-times fa-1x"></i> Clear');
-    f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle fa-1x"></i> Info').listen().onChange(oaControl.contourIdChange);
-    f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h fa-1x"></i> Mirror');
-    f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').listen().onChange(
-        oaControl.subLevelChange);
-    f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').listen().onChange(
-        oaControl.xLimitChange);
+        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
+        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save <i id="savedHint" title="need save" class="fa fa-exclamation-triangle fa-1x"></i>');
+  
+        f0.open();
 
+        var f1 = gui.addFolder('Face');
+        f1.add(oaControl, 'faceMode', {
+            'Faces': "faces",
+            'Hole': "hole",
+            'Pull': "pull"
+        }).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
+            .listen().onChange(oaControl.faceModeChange);
 
-    f2.open();
+        $modeText.html(oaControl.faceMode);
+        $modeText.click(function(e) {
+            var index = (oaModel.getFaceCreateMode() + 1) % 3;
+            var modeTye = ["faces", "hole", "pull"];
+            $modeText.html(modeTye[index]);
+            oaControl.faceMode = modeTye[index];
+            oaModel.setFaceCreateMode(modeTye[index]);
+            e.preventDefault();
+        });
+        f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left"></i> Undo');
+        f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right "></i> Redo');
+        f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o"></i> Clear Face');
+        f1.open();
 
-    var f3 = gui.addFolder('2D Pattern');
-    // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
-    // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
-    f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
-    f3.open();
+        var f2 = gui.addFolder('Contour');
+        f2.add(oaControl, 'cPrevious').name('<i class="fa fa-long-arrow-left"></i> Reuse Prev');
+        f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right"></i> Reuse Next');
+        f2.add(oaControl, 'cclear').name('<i class="fa fa-times "></i> Clear Contour');
+        f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info').listen().onChange(oaControl.contourIdChange);
+        f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h"></i> Mirror');
+        f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').listen().onChange(
+            oaControl.subLevelChange);
+        f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').listen().onChange(
+            oaControl.xLimitChange);
 
-    var update = function() {
-      requestAnimationFrame(update);
-      oaControl.cardAngle = oaModel.getCardAngle();
-      oaControl.editDepth = oaModel.getEditDepth();
-      oaControl.isEditMode = oaModel.getEditMode();
-      oaControl.subLevel = oaModel.getSubLevel();
-      oaControl.liveContour_id = oaModel.getLiveContourID();
-    };
+        f2.open();
 
-    update();
+        var f3 = gui.addFolder('2D Pattern');
+        // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
+        // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
+        f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
+        f3.open();
 
+        $savedHint = $datContainer.find("#savedHint");
+        $datContainer.find(".close-button").before($previewUIwrapper);
+        $previewUIwrapper.css("visibility", "visible");
 
-    $(datContainer).find(".close-button").before($("#previewUIwrapper"));
-    $previewUI.css("visibility", "visible");
+        oaControl.guiUpdate();
+        var update = function() {
+            requestAnimationFrame(update);
+            oaControl.cardAngle = oaModel.getCardAngle();
+            oaControl.editDepth = oaModel.getEditDepth();
+            oaControl.isEditMode = oaModel.getEditMode();
+            oaControl.subLevel = oaModel.getSubLevel();
+            oaControl.liveContour_id = oaModel.getLiveContourID();
+            //oaControl.otherUpdate();
+        };
+
+        update();
+    }
+    createGUI();
 };
 
 //======================================
-function setGlobalValuableByCardSize(cardW, cardH) {
+function setGlobalValuableByCardSize(cardW, cardH, gridNum) {
 
     maxWidth = cardW > cardH ? cardW : cardH;
-    gridStep = maxWidth / modelOption.gridNum;
+    gridStep = maxWidth / gridNum;
     viewerR = maxWidth * 2.5;
     sceneOffset = new THREE.Vector3(cardW / 2, cardH / 3, 0);
     cam2.position.set(0, viewerR, 0);
@@ -496,11 +530,10 @@ function setGlobalValuableByCardSize(cardW, cardH) {
         //renderPreview();
     });
 
-   
     var fogNear = viewerR / 18000;
     var fogFar = viewerR * 2.2;
     scene.fog = new THREE.Fog(0xffffff, fogNear, fogFar);
-    camera.position.set(0, 0, cardH * 2.5);
+    camera.position.set(0, 0,  viewerR);
     orbitCtrls.noPan = true;
     orbitCtrls.zoomSpeed = 0.1;
 
@@ -509,10 +542,12 @@ function setGlobalValuableByCardSize(cardW, cardH) {
     orbitCtrls.rotateUp(10 * Math.PI / 180);
     orbitCtrls.rotateLeft(-14 * Math.PI / 180);
 
-    orbitCtrls.minDistance = cardH * 2.5;
-    orbitCtrls.maxDistance = cardW * 2.9;
+    orbitCtrls.minDistance =  viewerR ;
+    orbitCtrls.maxDistance =  viewerR + oaModel.getInitEditT();
+
     oaModel.setCameraCtrl(orbitCtrls);
     orbitCtrls.target = new THREE.Vector3(sceneOffset.x, 0, 0);
+
 }
 
 //======================================

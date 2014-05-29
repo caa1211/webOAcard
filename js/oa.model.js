@@ -34,11 +34,17 @@ OA.Model = function(userSetting, isPattern2D) {
   var gridStep = maxWidth / _setting.gridNum;
   var mf = OA.Utils.mf;
   var initEditT = Math.floor(_setting.gridNum / 4) * gridStep;
+  if (initEditT > cardH) {
+    initEditT = cardH - gridStep;
+    if (initEditT < 0) {
+      initEditT = 0;
+    }
+  }
   initEditT = mf(initEditT);
   var movePoint;
   var model = this;
   var userFaces = [];
-  
+  var modelSavedFace = null;
   var clippedFaces = [];
   var cloned180ClippedFaces = [];
   var baseVFace, baseHFace;
@@ -191,8 +197,8 @@ OA.Model = function(userSetting, isPattern2D) {
 
       if (faceCreateMode === faceCreateModeType.faces) {
         var newFace = createFace(point2Ds, "VFACE", contour.t, {
-          baseContour: contour,
-          upper2Ds: contour.getUpper2Ds()
+          //baseContour: contour,
+          //upper2Ds: contour.getUpper2Ds()
         });
         //refreshFaceGroup.add(newFace);
         userFaces.push(newFace);
@@ -200,7 +206,7 @@ OA.Model = function(userSetting, isPattern2D) {
 
       }else{
          var holeOrPull = createFace(point2Ds, "VFACE", contour.t, {
-          baseContour: contour,
+          //baseContour: contour,
           faceCreateMode: faceCreateMode
         });
          userFaces.push(holeOrPull);
@@ -213,6 +219,7 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function clipFaces(orgFaces) {
+    //orgFaces = $.merge($.merge([], orgFaces), loadedFaces);
     var clipper = new OA.Clipper({
       baseFaces: [baseVFace, baseHFace],
       faces: orgFaces,
@@ -934,8 +941,51 @@ OA.Model = function(userSetting, isPattern2D) {
     return faceCreateMode;
   };
 
-  this.prevContour = function() {
+  var getAllFaces = function(){
+    var allFaces = [];
+    $.each(userFaces, function(i, f){
+       var fdata = {
+        contours: f.oaInfo.contours,
+        type: f.oaInfo.type,
+        faceCreateMode: f.oaInfo.faceCreateMode,
+        t: f.oaInfo.t
+       }
+       allFaces.push(fdata);
+    });
+    return allFaces;
+  };
 
+  this.getModel = function() {
+    var fileObj = {
+      settings: _setting,
+      faces: getAllFaces()
+    };
+    return fileObj;
+  };
+
+  this.setModel = function(fileObj) {
+    if (fileObj && fileObj.faces) {
+      var faces = fileObj.faces;
+      var facesAry =  [];
+      var len = facesAry.length;
+      $.each(faces, function(i, fsetting) {
+        var point2Ds = fsetting.contours[0].outer,
+          type = fsetting.type,
+          faceCreateMode = fsetting.faceCreateMode,
+          t = fsetting.t,
+          newFace = createFace(point2Ds, type, fsetting.t, {
+            faceCreateMode: faceCreateMode
+          });
+        facesAry.push(newFace);
+      });
+
+      userFaces = facesAry;
+      model.setModelSaved();
+      clipFaces(userFaces);
+    }
+  };
+
+  this.prevContour = function() {
     var pos3Ds = contourRepo.getBefore();
     if (pos3Ds) {
       model.showEditPlane(true);
@@ -1030,6 +1080,33 @@ OA.Model = function(userSetting, isPattern2D) {
     if (liveContour){
       liveContour.subdiv(level, xLimit);
     }
+  };
+
+  this.getUserFaces = function() {
+    return userFaces;
+  };
+
+
+  this.getInitEditT  = function(){
+    return initEditT;
+  }
+
+  this.setModelSaved = function() {
+      var len = userFaces.length;
+      if(len !=0){
+        modelSavedFace = userFaces[len-1];
+      }
+  };
+
+ this.checkModelSaved = function() {
+    var res = false;
+    var fLen = userFaces.length;
+    if (fLen === 0) {
+      res = true;
+    } else if (userFaces[fLen-1] === modelSavedFace) {
+      res = true;
+    }
+    return res;
   };
 
   this.getCardW = function() {
