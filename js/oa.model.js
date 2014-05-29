@@ -17,6 +17,7 @@ OA.Model = function(userSetting, isPattern2D) {
           editModeChange
           angleChange - angle
           zchange - t
+          faceCreateModeChange - mode
   */
 
   //private
@@ -60,6 +61,8 @@ OA.Model = function(userSetting, isPattern2D) {
     noZoom: false,
     noRotate: false
   };
+
+  var intersectionLines = new THREE.Object3D();
   var $model = $(this);
   var foldable = true;
   var liveContour = null;
@@ -117,6 +120,20 @@ OA.Model = function(userSetting, isPattern2D) {
     $domConainer.bind("mousemove", onDocumentMouseMove);
     $domConainer.bind("mousedown", onMousedown);
     $domConainer.bind("mouseup", onMouseup);
+    $model.bind("editModeChange", function(e, flag){
+      if(!flag){
+           OA.Utils.cleanObject3D(intersectionLines);
+         }else{
+          drawIntersectionLine(editPlane.getT());
+         }
+    });
+    $model.bind("faceCreateModeChange", function(e, mode) {
+      if (!editPlane.isVisible) {
+        OA.Utils.cleanObject3D(intersectionLines);
+      } else {
+        drawIntersectionLine(editPlane.getT());
+      }
+    });
   };
 
 
@@ -341,8 +358,43 @@ OA.Model = function(userSetting, isPattern2D) {
     if (model.contourState === contourStateType.CLOSE) {
       liveContour.moveTo(null, editPlane.getT());
     }
+    drawIntersectionLine(newDist);
   }
 
+  function drawIntersectionLine(newDist) {
+    var geometry = new THREE.Geometry();
+    var et = newDist;
+    OA.Utils.cleanObject3D(intersectionLines);
+    var gridColor = editPlane.getObjectByName("addingLines").material.color.getHex();
+
+    $.each(clippedFaces, function(i, f) {
+      if (f.oaInfo.type === "HFACE") {
+        var exPolygons = f.getExPolygons();
+        var t = f.getT();
+        $.each(exPolygons, function(j, expolygon) {
+          var path = expolygon.outer;
+          var bounds = ClipperLib.JS.BoundsOfPath(path, 1);
+          var minZ = t + bounds.top;
+          var maxZ = t + bounds.bottom;
+          if (et >= minZ && et <= maxZ) {
+            var p1 = new THREE.Vector3(bounds.left, t, et);
+            var p2 = new THREE.Vector3(bounds.right, t, et);
+            geometry.vertices.push(p1, p2);
+          }
+        });
+      }
+    });
+    var borderMat = new THREE.LineBasicMaterial({
+      linewidth: 3,
+      color: gridColor
+    });
+
+    var line = new THREE.Line(geometry, borderMat, THREE.LinePieces);
+    line.position.y = 0.3;
+    line.position.z = 0.5;
+    intersectionLines.add(line);
+  }
+  
   function onMousewheel(event, delta, deltaX, deltaY) {
     if (event.ctrlKey) {
       event.preventDefault();
@@ -384,7 +436,6 @@ OA.Model = function(userSetting, isPattern2D) {
       // model.add(movePoint);
       return model;
     }
-
     var editBufferY = gridStep * 4;
     var pEditAry = [
       [0, editBufferY],
@@ -425,6 +476,7 @@ OA.Model = function(userSetting, isPattern2D) {
     movePoint.position.z = initEditT;
     model.add(movePoint);
 
+    model.add(intersectionLines);
     //custom events binding
     $(movePoint).bind("positionChange", function(e, pos3D) {
       if (movePoint.isVisible) {
@@ -945,6 +997,7 @@ OA.Model = function(userSetting, isPattern2D) {
         moveEditPlane(-1);
       }
     }
+    $model.trigger("faceCreateModeChange", mode);
   };
 
   this.getFaceCreateMode = function(){

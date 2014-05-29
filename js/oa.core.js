@@ -9,8 +9,8 @@ var OA = {
    clipScale: 1000,
    paperTextureInfo:{
 
-     src: "img/p2.jpg",
-     size: 128,
+     src: "img/p3.jpg",
+     size: 150,
      isFill: false
 
      // src: "img/paper0.jpg",
