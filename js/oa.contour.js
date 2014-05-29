@@ -271,21 +271,25 @@ OA.Contour = function(userSetting) {
       var mf = modifyFloatPoint;
       if (newPos != undefined) {
          var middlePoint = getMiddlePointFromPath(ary);
-         middlePoint.X = Math.floor(middlePoint.X / gridStep) *gridStep;
+         middlePoint.X = Math.floor(middlePoint.X / gridStep) * gridStep;
          middlePoint.Y = Math.floor(middlePoint.Y / gridStep) * gridStep;
-        // var middlePoint = {X: 0, Y:0};
-        // middlePoint.X = ary[0].X;
-        // middlePoint.Y = ary[0].Y;
-
+         var target = {};
+         target.X = Math.floor(newPos.X / gridStep) * gridStep;
+         target.Y = Math.floor(newPos.Y / gridStep) * gridStep;
          for (var i = 0; i < ary.length; i++) {
             var p = ary[i];
-            p.X = p.X - middlePoint.X + newPos.X;
-            p.Y = p.Y - middlePoint.Y + newPos.Y;
+            p.X = p.X - middlePoint.X + target.X;
+            p.Y = p.Y - middlePoint.Y + target.Y;
             newAry.push(p);
          }
       }
       return newAry;
    }
+
+   this.setGridStep = function(value){
+      _setting.gridStep = value;
+      gridStep = value
+   };
 
    function movePoint2DsByT(ary, t) {
       var newAry = [];

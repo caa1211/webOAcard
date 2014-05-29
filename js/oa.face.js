@@ -254,6 +254,11 @@ OA.Face = function(userSetting) {
       face.add(line);
    }
 
+   this.drawGrid = function(gridData) {
+      var grid = face.getObjectByName("faceGrid");
+      face.remove(grid);
+      createFaceGrid(face, gridData);
+   };
    //var faceMesh = new THREE.Object3D();
    //public
    var init = function() {

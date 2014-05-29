@@ -33,9 +33,10 @@ OA.Model = function(userSetting, isPattern2D) {
   var cardW = _setting.cardW,
     cardH = _setting.cardH;
   var maxWidth = cardW > cardH ? cardW : cardH;
-  var gridStep = maxWidth / _setting.gridNum;
   var mf = OA.Utils.mf;
-  var initEditT = Math.floor(_setting.gridNum / 4) * gridStep;
+  var gridStep = mf(maxWidth / _setting.gridNum);
+ 
+  var initEditT = mf(_setting.gridNum / 4) * gridStep;
   if (initEditT > cardH) {
     initEditT = cardH - gridStep;
     if (initEditT < 0) {
@@ -969,8 +970,7 @@ OA.Model = function(userSetting, isPattern2D) {
     var fileObj = {
       settings: {
         cardW: _setting.cardW,
-        cardH: _setting.cardH,
-        gridNum: _setting.gridNum
+        cardH: _setting.cardH
       },
       faces: getAllFaces()
     };
@@ -1125,6 +1125,23 @@ OA.Model = function(userSetting, isPattern2D) {
 
   this.getCardW = function() {
     return cardW;
+  };
+
+  this.setGridNum = function(num){
+      _setting.gridNum = num;
+      gridStep = mf(maxWidth / _setting.gridNum);
+      var editBufferY = gridStep * 4;
+      editPlane.drawGrid( {
+        w: cardW,
+        h: cardH,
+        s: gridStep,
+        color: 0x1F6CBD,
+        opacity: 0.3,
+        extendY: editBufferY
+      });
+      if(liveContour!=null){
+        liveContour.setGridStep(gridStep);
+      }
   };
 
   this.getCardH = function() {

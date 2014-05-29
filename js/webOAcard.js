@@ -10,7 +10,7 @@
         angle: 90,
         cardW: 120,
         cardH: 100,
-        gridNum: 30,
+        gridNum: 40,
         domContainer: container
     };
     
@@ -81,7 +81,7 @@
         container.appendChild(renderer.domElement);
         orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement, container);
 
-        setGlobalValuableByCardSize(cardW, cardH, modelOption.gridNum);
+        setGlobalValuableByCardSize(cardW, cardH);
         renderPreview();
 
         if (OA.light) {
@@ -277,7 +277,7 @@ window.onload = function() {
             OA.Utils.texture.loadAllTexture(modelOption);
             oaModel = new OA.Model(modelOption);
             scene.add(oaModel);
-            setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH, modelOption.gridNum);
+            setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH);
             oaModel.setCardMode(0);
             renderPreview();
         }
@@ -354,6 +354,10 @@ window.onload = function() {
                 } else {
                     $savedHint.show();
                 }
+            },
+            gridNumChange: function(value){
+                modelOption.gridNum = value;
+                oaModel.setGridNum(value);
             },
             otherUpdate: function() {
                 oaControl.checkSaved();
@@ -485,6 +489,9 @@ window.onload = function() {
         depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardH - 1).step(gridStep).name("Edit Depth")
             .onChange(oaControl.editDepthChange);
 
+        gui.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Number')
+        .onChange(oaControl.gridNumChange);
+
         gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
             .onChange(oaControl.editModeChange);
 
@@ -493,7 +500,6 @@ window.onload = function() {
         var f0_0 = f0.addFolder('New Model Settings');
         f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
         f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
-        f0_0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Num');
         f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
         f0.open();
 
@@ -573,10 +579,9 @@ window.onload = function() {
 };
 
 //======================================
-function setGlobalValuableByCardSize(cardW, cardH, gridNum) {
+function setGlobalValuableByCardSize(cardW, cardH) {
 
     maxWidth = cardW > cardH ? cardW : cardH;
-    gridStep = maxWidth / gridNum;
     viewerR = maxWidth * 2.5;
     sceneOffset = new THREE.Vector3(cardW / 2, cardH / 3, 0);
     cam2.position.set(0, viewerR, 0);
@@ -617,7 +622,7 @@ function setGlobalValuableByCardSize(cardW, cardH, gridNum) {
 
 
  
-var slevel=0;
+
 /*** ADDING SCREEN SHOT ABILITY ***/
 window.addEventListener("keyup", function(e) {
     var imgData, imgNode;
@@ -639,18 +644,14 @@ window.addEventListener("keyup", function(e) {
 
     
    if (e.which == 69) { //e redo
-      slevel++;
-        oaModel.subdivision(slevel);
+     
       
+      oaModel.setGridNum(100)
     }
 
 
    if (e.which == 71) { //g 
-        if (slevel > 0) {
-             slevel--;
-            oaModel.subdivision(slevel);
-           
-        }
+     
     }
 
 
