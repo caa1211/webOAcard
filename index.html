@@ -5,7 +5,14 @@
     <title>OA Card</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-   
+
+    <!-- no cache headers -->
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <!-- end no cache headers -->
+
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/webOAcard.css" rel="stylesheet">
     <style>
@@ -50,14 +57,30 @@
     <script src="js/jquery.mousewheel.min.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="js/Javascript_Clipper_6.1.3.2/clipper.js"></script>
-    <script src="js/oa.core.js"></script>
+    <!--script src="js/oa.core.js"></script>
     <script src="js/oa.model.js"></script>
     <script src="js/oa.face.js"></script>
     <script src="js/oa.contour.js"></script>
     <script src="js/oa.clipper.js"></script>
     <script src="js/oa.point.js"></script>
     <script src="js/oa.contourRepo.js"></script>
-    <script src="js/webOAcard.js"></script>
+    <script src="js/webOAcard.js"></script-->
+    <script>
+    //no-cache js
+    var scriptList = [
+        "js\/oa.core.js",
+        "js\/oa.model.js",
+        "js\/oa.face.js",
+        "js\/oa.contour.js",
+        "js\/oa.clipper.js",
+        "js\/oa.point.js",
+        "js\/oa.contourRepo.js",
+        "js\/webOAcard.js"
+    ];
+    for(var i=0; i<scriptList.length; i++){
+     document.write('<script src="'+ scriptList[i] +'"?v='+new Date().getMilliseconds()+'><\/script>');
+    }
+    </script>
 
         
     </body>
