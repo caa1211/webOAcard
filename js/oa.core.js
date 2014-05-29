@@ -6,7 +6,7 @@ var OA = {
    light: true, 
    pointLight: false,
    paperTexture: true,
-   clipScale: 10,
+   clipScale: 1000,
    paperTextureInfo:{
 
      src: "img/p2.jpg",

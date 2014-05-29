@@ -266,18 +266,21 @@ OA.Contour = function(userSetting) {
       };
    }
 
-
    function movePoint2Ds(ary, newPos) {
       var newAry = [];
       var mf = modifyFloatPoint;
       if (newPos != undefined) {
          var middlePoint = getMiddlePointFromPath(ary);
-         middlePoint.X = Math.floor((middlePoint.X / gridStep)) * gridStep;
-         middlePoint.Y = Math.floor((middlePoint.Y / gridStep)) * gridStep;
+         middlePoint.X = Math.floor(middlePoint.X / gridStep) *gridStep;
+         middlePoint.Y = Math.floor(middlePoint.Y / gridStep) * gridStep;
+        // var middlePoint = {X: 0, Y:0};
+        // middlePoint.X = ary[0].X;
+        // middlePoint.Y = ary[0].Y;
+
          for (var i = 0; i < ary.length; i++) {
             var p = ary[i];
-            p.X = mf(p.X - middlePoint.X + newPos.X);
-            p.Y = mf(p.Y - middlePoint.Y + newPos.Y);
+            p.X = p.X - middlePoint.X + newPos.X;
+            p.Y = p.Y - middlePoint.Y + newPos.Y;
             newAry.push(p);
          }
       }

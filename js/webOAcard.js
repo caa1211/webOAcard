@@ -513,7 +513,7 @@ window.onload = function() {
             .onChange(oaControl.faceModeChange);
 
         $modeText.html(oaControl.faceMode);
-        $modeText.click(function(e) {
+        $modeText.unbind("click").click(function(e) {
             var index = (oaModel.getFaceCreateMode() + 1) % 3;
             var modeTye = ["faces", "hole", "pull"];
             $modeText.html(modeTye[index]);
@@ -563,10 +563,6 @@ window.onload = function() {
         $(oaModel).unbind("zchange", oaControl.onEditDepthChange)
             .bind("zchange", oaControl.onEditDepthChange);
         oaControl.onEditDepthChange();
-        $(oaModel).unbind("zchange", oaControl.onEditDepthChange)
-            .bind("zchange", oaControl.onEditDepthChange);
-        oaControl.onEditDepthChange();
-
         $(oaModel).unbind("contourStateChange", oaControl.onContourStateChange)
             .bind("contourStateChange", oaControl.onContourStateChange);
         oaControl.onContourStateChange();
