@@ -502,7 +502,7 @@ window.onload = function() {
         });
         f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left"></i> Undo');
         f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right "></i> Redo');
-        //f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o"></i> Clear Faces');
+        f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o"></i> Clear Faces');
         f1.open();
 
         var f2 = gui.addFolder('Contour');

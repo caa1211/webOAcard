@@ -906,9 +906,12 @@ OA.Model = function(userSetting, isPattern2D) {
   this.clearAllFaces = function(){
     OA.Utils.cleanObject3D(refreshFaceGroup);
     clippedFaces = [];
-    userFaces = [];
     undoRedoAry = [];
-    contourRepo = new OA.ContourRepo();
+    // $.each(userFaces, function(i, f){
+    //   undoRedoAry.push(f);
+    // });
+    userFaces = [];
+    //contourRepo = new OA.ContourRepo();
     clipFaces(userFaces);
   };
 
