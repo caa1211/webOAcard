@@ -15,6 +15,8 @@ OA.Model = function(userSetting, isPattern2D) {
           contourStateChange
           updated
           editModeChange
+          angleChange - angle
+          zchange - t
   */
 
   //private
@@ -182,8 +184,6 @@ OA.Model = function(userSetting, isPattern2D) {
     model.contourState = contourStateType.CLOSE;
     movePoint.setColorByIndex(2);
     $model.trigger("contourStateChange", model.contourState);
-
-
   }
 
 
@@ -325,8 +325,11 @@ OA.Model = function(userSetting, isPattern2D) {
       } else {
         newDist = maxFt;
       }
+
     }
     //========
+
+    $model.trigger("zchange", newDist);
 
     if (newDist >= 0 && newDist < cardH) {
       editPlane.position.z = newDist + 0.1;
@@ -805,6 +808,7 @@ OA.Model = function(userSetting, isPattern2D) {
         var f = faces[i];
         f.setAngle(cardAngle);
       }
+      $model.trigger("angleChange", cardAngle);
   };
 
   this.setCardAngle = function(degree) {
@@ -865,15 +869,17 @@ OA.Model = function(userSetting, isPattern2D) {
                 var movePointPos = movePoint.getPosition3D();
                 var distFromFitstP;
                 var plen = pos3Ds.length;
-                var firstP = pos3Ds[0];
-                var lastP = pos3Ds[plen - 1];
-                if (plen > 2 && (firstP.y === lastP.y || firstP.x === lastP.x)) {
-                  distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
-                  if (distFromFitstP < gridStep * 2) {
-                    movePoint.setPosition3D(pos3Ds[0]);
-                    movePoint.setColorByIndex(2);
-                  }
-                }
+
+                // var firstP = pos3Ds[0];
+                // var lastP = pos3Ds[plen - 1];
+                // if (plen > 2 && (firstP.y === lastP.y || firstP.x === lastP.x)) {
+                //   distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
+                //   if (distFromFitstP < gridStep * 2) {
+                //     movePoint.setPosition3D(pos3Ds[0]);
+                //     movePoint.setColorByIndex(2);
+                //   }
+                // }
+
                 if (plen > 2 && OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos)) {
                   movePoint.setColorByIndex(2);
                 }

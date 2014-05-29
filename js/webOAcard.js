@@ -257,13 +257,14 @@ function renderPreview() {
 
 //===============GUI=================
  
-
 window.onload = function() {
-
         var depthEditCtrl;
         var $savedHint;
         var loadedFileName = "";
-        
+        var angleChangeUI;
+        var subLevelUI;
+        var xLimitUI;
+
         function noIm() {
             alert("not yet implemented!");
         }
@@ -282,15 +283,23 @@ window.onload = function() {
 
         var oaControl = {
             cardAngle: 90,
-            angleChange: function(value) {
-                oaModel.setCardAngle(value);
-                oaModel.showEditPlane(false);
-                oaModel.setFoldable(true);
+            angleChange: function(angle) {
+                    oaModel.setCardAngle(angle);
+                    oaModel.showEditPlane(false);
+                    oaModel.setFoldable(true);
+            },
+            onAngleChange: function(e, angle) {
+                  oaControl.cardAngle = oaModel.getCardAngle();
+                  angleChangeUI.updateDisplay();
             },
             editDepth: 16,
             editDepthChange: function(value) {
                 oaModel.setCardMode(0);
                 oaModel.setEditDepth(value);
+            },
+            onEditDepthChange: function(e, value) {
+                oaControl.editDepth = oaModel.getEditDepth();
+                depthEditCtrl.updateDisplay();
             },
             isEditMode: true,
             editModeChange: function(value) {
@@ -439,6 +448,16 @@ window.onload = function() {
             xLimitChange: function(value) {
                 oaModel.subdivision(oaControl.subLevel, value);
             },
+            onContourStateChange: function(i, state){
+                var contourState = oaModel.contourState;
+                if(contourState === 0){
+                    oaControl.subLevel = 1;
+                    oaControl.xLimit = 1
+                    subLevelUI.updateDisplay();
+                    xLimitUI.updateDisplay();
+                }
+
+            },
             onEditModeChange: function(){
                 oaControl.isEditMode = oaModel.getEditMode();
             }
@@ -458,10 +477,10 @@ window.onload = function() {
         $datContainer.empty();
         $datContainer.append(gui.domElement);
 
-        gui.add(oaControl, "cardAngle", 0, 180).step(-5).listen().name("Card Angle")
+        angleChangeUI = gui.add(oaControl, "cardAngle", 0, 180).step(-5).name("Card Angle")
             .onChange(oaControl.angleChange);
 
-        depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardH - 1).step(gridStep).listen().name("Edit Depth")
+        depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardH - 1).step(gridStep).name("Edit Depth")
             .onChange(oaControl.editDepthChange);
 
         gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
@@ -484,12 +503,12 @@ window.onload = function() {
         //f0.open();
 
         var f1 = gui.addFolder('Face');
-        f1.add(oaControl, 'faceMode', {
+        var faceModeUI = f1.add(oaControl, 'faceMode', {
             'Faces': "faces",
             'Hole': "hole",
             'Pull': "pull"
         }).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
-            .listen().onChange(oaControl.faceModeChange);
+            .onChange(oaControl.faceModeChange);
 
         $modeText.html(oaControl.faceMode);
         $modeText.click(function(e) {
@@ -497,6 +516,7 @@ window.onload = function() {
             var modeTye = ["faces", "hole", "pull"];
             $modeText.html(modeTye[index]);
             oaControl.faceMode = modeTye[index];
+            faceModeUI.updateDisplay();
             oaModel.setFaceCreateMode(modeTye[index]);
             e.preventDefault();
         });
@@ -511,9 +531,9 @@ window.onload = function() {
         f2.add(oaControl, 'cclear').name('<i class="fa fa-times "></i> Clear Contour');
         f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info').listen().onChange(oaControl.contourIdChange);
         f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h"></i> Mirror');
-        f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').listen().onChange(
+        subLevelUI = f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').listen().onChange(
             oaControl.subLevelChange);
-        f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').listen().onChange(
+        xLimitUI = f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').listen().onChange(
             oaControl.xLimitChange);
 
         f2.open();
@@ -531,22 +551,24 @@ window.onload = function() {
        
         $(oaModel).unbind("facesClipped", oaControl.checkSaved)
             .bind("facesClipped", oaControl.checkSaved);
-        //oaControl.checkSaved();
-
+        oaControl.checkSaved();
         $(oaModel).unbind("editModeChange", oaControl.onEditModeChange)
             .bind("editModeChange", oaControl.onEditModeChange);
         oaControl.onEditModeChange();
+        $(oaModel).unbind("angleChange", oaControl.onAngleChange)
+            .bind("angleChange", oaControl.onAngleChange);
+        oaControl.onAngleChange();    
+        $(oaModel).unbind("zchange", oaControl.onEditDepthChange)
+            .bind("zchange", oaControl.onEditDepthChange);
+        oaControl.onEditDepthChange();
+        $(oaModel).unbind("zchange", oaControl.onEditDepthChange)
+            .bind("zchange", oaControl.onEditDepthChange);
+        oaControl.onEditDepthChange();
 
-        var update = function() {
-            requestAnimationFrame(update);
-            oaControl.cardAngle = oaModel.getCardAngle();
-            oaControl.editDepth = oaModel.getEditDepth();
-            oaControl.subLevel = oaModel.getSubLevel();
-            oaControl.liveContour_id = oaModel.getLiveContourID();
-            //oaControl.otherUpdate();
-        };
+        $(oaModel).unbind("contourStateChange", oaControl.onContourStateChange)
+            .bind("contourStateChange", oaControl.onContourStateChange);
+        oaControl.onContourStateChange();
 
-        update();
     }
     createGUI();
 };
