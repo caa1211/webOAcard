@@ -469,12 +469,12 @@ window.onload = function() {
 
         var f0 = gui.addFolder('Model');
 
-        var f0_0 = f0.addFolder('New');
+        var f0_0 = f0.addFolder('New Model Settings');
         f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
         f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
         f0_0.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Num');
-        f0_0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> Create ');
-        //f0_0.open();
+        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
+        f0.open();
 
         f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
 
@@ -502,7 +502,7 @@ window.onload = function() {
         });
         f1.add(oaControl, 'fundo').name('<i class="fa fa-arrow-circle-left"></i> Undo');
         f1.add(oaControl, 'fredo').name('<i class="fa fa-arrow-circle-right "></i> Redo');
-        f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o"></i> Clear Face');
+        //f1.add(oaControl, 'fclear').name('<i class="fa fa-trash-o"></i> Clear Faces');
         f1.open();
 
         var f2 = gui.addFolder('Contour');
@@ -522,7 +522,7 @@ window.onload = function() {
         // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
         // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
         f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
-        f3.open();
+        //f3.open();
 
         $fileUpload.unbind("change").bind("change", oaControl.readOAFile);
         $savedHint = $datContainer.find("#savedHint");
