@@ -344,13 +344,13 @@ OA.Model = function(userSetting, isPattern2D) {
     }
     //========
 
-    console.error("=======");
-   $.each(clippedFaces, function(i, f) {
-        if (f.oaInfo.type === "VFACE") {
-          console.error("VT: "+ f.getT());
-        }
-      });
- console.error("=======");
+ //    console.error("=======");
+ //   $.each(clippedFaces, function(i, f) {
+ //        if (f.oaInfo.type === "VFACE") {
+ //          console.error("VT: "+ f.getT());
+ //        }
+ //      });
+ // console.error("=======");
 
     $model.trigger("zchange", newDist);
 
@@ -414,7 +414,7 @@ OA.Model = function(userSetting, isPattern2D) {
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
       var newDist = editPlane.getT() + _setting.gridZstep* d// mf(editPlane.getT() + gridStep * d);
-      console.error("ePlanelZ: " + newDist);
+      //console.error("ePlanelZ: " + newDist);
       moveEditPlane(newDist);
     }
     if (foldable) {
