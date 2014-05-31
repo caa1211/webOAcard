@@ -184,9 +184,6 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function enterContourNoEditingState() {
-    if (liveContour != null && liveContour.checkClosed()) {
-      contourRepo.push(liveContour.getPosition3Ds());
-    }
     model.contourState = contourStateType.NO_EDITING;
     model.remove(liveContour);
     liveContour = null;
@@ -196,6 +193,10 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   function enterContourCloseState() {
+    if (liveContour != null && liveContour.checkClosed()) {
+      contourRepo.push(liveContour.getPosition3Ds());
+    }
+
     model.contourState = contourStateType.CLOSE;
     movePoint.setColorByIndex(2);
     $model.trigger("contourStateChange", model.contourState);
@@ -276,6 +277,7 @@ OA.Model = function(userSetting, isPattern2D) {
         } else {
           if (liveContour) {
             addFaceByContour(liveContour);
+            contourRepo.setIndex(liveContour.getPosition3Ds());
           }
           enterContourNoEditingState();
         }

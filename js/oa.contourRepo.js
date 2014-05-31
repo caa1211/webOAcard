@@ -7,6 +7,12 @@ OA.ContourRepo = function(userSetting) {
         return repo;
     };
 
+    this.setIndex = function(p3ds){
+
+        if (p3ds.cid != null) {console.error(2)
+            curr = p3ds.cid;
+        }
+    }
     this.push = function(p3ds) {
         var original = Array.prototype.push;
         if (p3ds.cid != null) {
