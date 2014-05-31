@@ -127,6 +127,12 @@ body {
     opacity: 1;
 }
 
+#demoContainer{
+    height:auto; top:0px;position:absolute; 
+    z-index:999; 
+    right:245px;
+    opacity: 1;
+}
 #previewUIwrapper{
     height:240px;
     margin-left:4px; 

@@ -411,6 +411,12 @@ window.onload = function() {
                 oaModel.setModel(fileObj);
                 createGUI();
             },
+            passJsonToModel: function(jsonContents) {
+                var fileObj = jsonContents;
+                newOAModel(fileObj.settings);
+                oaModel.setModel(fileObj);
+                createGUI();
+            },
             loadModel: function() {
                 //will trigger readOAFile handle
                 $fileUpload.click();
@@ -579,6 +585,34 @@ window.onload = function() {
 
     }
     createGUI();
+
+
+    
+    function createDemoGUI(){
+        var demoControl = {};
+
+        var gui = new dat.GUI({
+            autoPlace: false
+        });
+
+        $demoContainer = $("#demoContainer");
+        $demoContainer.append(gui.domElement);
+        var forder = gui.addFolder('Model Examples');
+
+        $.each(demoList, function(i, d){
+            demoControl[d.name]= function(){
+                var path = d.path;
+                $.getJSON(path, function(data){
+                    oaControl.passJsonToModel(data);
+                });
+            };
+            forder.add(demoControl, d.name).name(d.name);
+        });
+        
+
+    }
+
+    createDemoGUI();
 };
 
 //======================================
