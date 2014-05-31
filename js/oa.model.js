@@ -392,7 +392,7 @@ OA.Model = function(userSetting, isPattern2D) {
 
     var line = new THREE.Line(geometry, borderMat, THREE.LinePieces);
     line.position.y = 0.3;
-    line.position.z = 0.5;
+    line.position.z = -0.5;
     intersectionLines.add(line);
   }
   
@@ -581,44 +581,14 @@ OA.Model = function(userSetting, isPattern2D) {
 
 
   function getFoldLine(l1, l2, type1, type2) {
-    function minP(pnts) {
-      return pnts[0].X < pnts[1].X ? pnts[0] : pnts[1];
-    }
-
-    function maxP(pnts) {
-      return pnts[0].X > pnts[1].X ? pnts[0] : pnts[1];
-    }
-
-    function isIn(p, ln) {
-      return minP(ln).X <= p.X && p.X <= maxP(ln).X;
-    }
-
-    function maxLP(ln1, ln2) {
-      var maxP1 = maxP(ln1);
-      var maxP2 = maxP(ln2);
-      return maxP1 >= maxP2 ? maxP1 : maxP2;
-    }
-
-    function minLP(ln1, ln2) {
-      var minP1 = minP(ln1);
-      var minP2 = minP(ln2);
-      return minP1 <= minP2 ? minP1 : minP2;
-
-    }
-
-    function maxMinLP(ln1, ln2) {
-      var maxP1 = maxP(ln1);
-      var maxP2 = maxP(ln2);
-      return maxP1.X <= maxP2.X ? maxP1 : maxP2;
-    }
-
-    function minMaxLP(ln1, ln2) {
-      var minP1 = minP(ln1);
-      var minP2 = minP(ln2);
-      return minP1.X >= minP2.X ? minP1 : minP2;
-
-    }
-
+    var m = OA.Utils.maxMinFns;
+    var minP = m.minP;
+    var maxP = m.maxP;
+    var isIn = m.isIn;
+    var maxLP = m.maxLP;
+    var minLP = m.minLP;
+    var maxMinLP = m.maxMinLP;
+    var minMaxLP = m.minMaxLP;
     var p3D_L1P1 = OA.Utils.D2To3(l1.pnts[0], l1.t, type1);
     var p3D_L2P1 = OA.Utils.D2To3(l2.pnts[0], l2.t, type2);
     var foldLine = null;

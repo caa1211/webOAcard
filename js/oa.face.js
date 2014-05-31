@@ -385,7 +385,7 @@ OA.Face = function(userSetting) {
       return new OA.Face(_setting);
    }
 
-   function collectUpperLower(upperStore, lowerStore, pAry, isOuter) {
+   function collectUpperLower(upperStore, lowerStore, pAry, isOuter, index) {
       var len = pAry.length;
       var uppers = [];
       var lowers = [];
@@ -424,6 +424,7 @@ OA.Face = function(userSetting) {
          var upperOrLower = [p1, p2];
          upperOrLower.inHole = inHole;
          upperOrLower.inOuter = inOuter;
+         upperOrLower.polyIndex = index;
          if (p1.Y === p2.Y && p1.X > p2.X) {
             uppers.push(upperOrLower);
          }
@@ -447,16 +448,19 @@ OA.Face = function(userSetting) {
       var upper2Dary = [];
       var lower2Dary = [];
       if (contours) {
+         // if(contours.length>1){
+         //    debugger;
+         // }
          $.each(contours, function(i, poly) {
             var outer = poly.outer;
             var holes = poly.holes;
             OA.Utils.modifyPathOrientation(outer, true);
             var len = outer.length;
-            collectUpperLower(upper2Dary, lower2Dary, outer, true);
+            collectUpperLower(upper2Dary, lower2Dary, outer, true, i);
             var hlen = holes
             if (holes.length > 0) {
                $.each(holes, function(j, holePoly) {
-                  collectUpperLower(upper2Dary, lower2Dary, holePoly, false);
+                  collectUpperLower(upper2Dary, lower2Dary, holePoly, false, i);
                });
             }
          });
@@ -464,30 +468,6 @@ OA.Face = function(userSetting) {
       _setting.upper2Ds = upper2Dary;
       _setting.lower2Ds = lower2Dary;
    };
-
-   function updateUpper2Ds(contours) {
-      debugger;
-      //OA.Utils.modifyPathOrientation(contours, false);
-      if(!_setting.upper2Ds){
-         //do not have upper
-         return;
-      }
-      var upper2Dary = [];
-      $.each(contours, function(i, poly) {
-         var outer = poly.outer;
-         var holes = poly.holes;
-         OA.Utils.modifyPathOrientation(outer, true);
-         var len = outer.length;
-         collectUpperLower(upper2Dary, null, outer, true);
-         var hlen = holes 
-         if(holes.length>0){
-            $.each(holes, function(j, holePoly) {
-               collectUpperLower(upper2Dary, null, holePoly, false);
-            });
-         }
-      });
-      _setting.upper2Ds = upper2Dary;
-   }
 
    this.rebuild = function(contours, updateUpper){
       try {

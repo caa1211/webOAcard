@@ -167,30 +167,45 @@ OA.Clipper = function(userSetting) {
 
 
     function getConnectedPoly(upper, polys) {
-        var resPolys = [];
-        var p1x = modifyFloatPoint(upper.points[0].X);
-        var p2x = modifyFloatPoint(upper.points[1].X);
-        var upperY = modifyFloatPoint(upper.points[0].Y);
-        var upperMaxX = p1x>p2x? p1x:p2x;
-        var upperMinX = p1x<p2x? p1x:p2x;
-        $.each(polys, function(i, poly) {
-            var vaildPoly = null;
-            $.each(poly && poly.outer, function(j, p2d) {
-                if (p2d.Y === upperY && p2d.X <= upperMaxX && p2d.X >= upperMinX) {
-                    vaildPoly = poly;
 
+        // if (upper.mergeUppers != undefined && upper.mergeUppers.length > 0) {
+        //     var mergeUppers = upper.mergeUppers;
+        //     var resPolys = [];
+        //     $.each(mergeUppers, function(i, up) {
+        //         var res = getConnectedPoly(up, polys);
+        //         if (res && res.length > 0) {
+
+        //              $.each(res, function(j, poly){
+        //                   var tChecked = $.inArray(poly, resPolys);
+        //                   if (tChecked > -1) {
+        //                     return true;
+        //                   }
+        //                   resPolys.push(poly);
+        //              });
+        //         }
+        //     });
+        //     return resPolys;
+        // } else {
+
+            var resPolys = [];
+            var p1x = modifyFloatPoint(upper[0].X);
+            var p2x = modifyFloatPoint(upper[1].X);
+            var upperY = modifyFloatPoint(upper[0].Y);
+            var upperMaxX = p1x > p2x ? p1x : p2x;
+            var upperMinX = p1x < p2x ? p1x : p2x;
+            $.each(polys, function(i, poly) {
+                var vaildPoly = null;
+                $.each(poly && poly.outer, function(j, p2d) {
+                    if (p2d.Y === upperY && p2d.X <= upperMaxX && p2d.X >= upperMinX) {
+                        vaildPoly = poly;
+                    }
+                });
+                if (vaildPoly) {
+                    resPolys.push(vaildPoly);
                 }
             });
-            if (vaildPoly) {
-                resPolys.push(vaildPoly);
-            }
-        });
-
-        // if (resPolys.length === 0) {
-        //     OA.log("no remain hface !", 2);
-        //     resPolys = null;
-        // }
-        return resPolys;
+            return resPolys;
+        //}
     }
 
     function getPolyHeight(poly) {
@@ -255,7 +270,7 @@ OA.Clipper = function(userSetting) {
                         clipType.ctDifference
                     );
                     if (ft == ut) {
-                        cntPoly = getConnectedPoly(upper, clippedPoly);
+                        cntPoly = getConnectedPoly(upper.points, clippedPoly);
                         if (cntPoly) {
                             hFace.rebuild(cntPoly);
                             return true;
@@ -286,7 +301,7 @@ OA.Clipper = function(userSetting) {
                     if (clipedHPoly) {
                         //clipedHPoly may be several pieces, 
                         //but only need connected poly for hface
-                        cntPoly = getConnectedPoly(upper, clipedHPoly);
+                        cntPoly = getConnectedPoly(upper.points, clipedHPoly);
                         if (cntPoly) {
                             hFace.rebuild(cntPoly);
                         } else {
@@ -447,6 +462,23 @@ OA.Clipper = function(userSetting) {
         }
     }
 
+    function doMergeUppers(sameYary, upper, upperY) {
+        var maxX = 0;
+        var minX = 99999;
+        var newUpper = $.extend({}, upper)
+        var m = OA.Utils.maxMinFns;
+        $.each(sameYary, function(i, u) {
+            var minP = m.minP(u);
+            minX = minP.X < minX ? minP.X : minX;
+            var maxP = m.maxP(u);
+            maxX = maxP.X > maxX ? maxP.X : maxX;
+        });
+        newUpper[0] = {X: maxX, Y: upperY},
+        newUpper[1] = {X: minX, Y: upperY};
+        newUpper.mergeUppers = sameYary;
+        return newUpper;
+    }
+
     var init = function() {
         makeModel();
         return clipper;
@@ -499,26 +531,66 @@ OA.Clipper = function(userSetting) {
                 return true;
             });
             pullList = new_pullList;
-        });
+        });    
 
         //find upper
         vface_list.sort(compareFaceT);
+        //debugger;
         //todo: find vlist by marged list
         //##step 2 create upper_list (sort by 2D z)
         //find upper from vface list
         $.each(vface_list, function(i, f) {
             var upper2Ds = f.getUpper2Ds();
             if (upper2Ds) {
+
+                //var checkedYAry = [];
+
                 $.each(upper2Ds, function(j, upper) {
                     var inHole = upper.inHole === true ? true : false;
+                    //do not need to merge inHole upper
+                    if (inHole) {
+                        upper_list.push({
+                            points: upper,
+                            t: f.getT(),
+                            inHole: inHole
+                        });
+                        return true;
+                    }
+                    // // //merge upper====
+                    // var uy = upper[0].Y;
+                    // var uPolyIndex = upper.polyIndex;
+
+                    // var yChecked = $.inArray(j, checkedYAry);
+                    // if (yChecked > -1) {
+                    //     return true;
+                    // }
+                   
+                    // var sameYuppers = $.grep(upper2Ds, function(u, k) {   
+                    //     var res = false;
+                    //     if(u[0].Y == uy && !u.inHole && u.polyIndex === uPolyIndex){
+                    //         res = true;
+                    //         checkedYAry.push(k);
+                    //     }
+                    //     return res;
+                    // });
+
+
+                    // if (sameYuppers.length > 1) {
+                    //     upper = doMergeUppers(sameYuppers, upper, uy);
+                    // }
+                    // //merge upper
+                    // //=====
                     upper_list.push({
                         points: upper,
                         t: f.getT(),
                         inHole: inHole
                     });
+
                 });
             }
         });
+
+
         //find upper from pull (but outer upper is invaild)
         $.each(pullList, function(i, f) {
             var upper2Ds = f.getUpper2Ds();

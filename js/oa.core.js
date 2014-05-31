@@ -100,6 +100,43 @@ OA.Utils = {
 
       //tunedPath2 = ClipperLib.Clipper.SimplifyPolygons(tunedPath, ClipperLib.PolyFillType.pftNonZero);
    },
+    maxMinFns: {
+      minP: function(pnts) {
+        return pnts[0].X < pnts[1].X ? pnts[0] : pnts[1];
+      },
+      maxP: function(pnts) {
+        return pnts[0].X > pnts[1].X ? pnts[0] : pnts[1];
+      },
+      isIn: function(p, ln) {
+        var m = OA.Utils.maxMinFns;
+        return m.minP(ln).X <= p.X && p.X <= m.maxP(ln).X;
+      },
+      maxLP: function(ln1, ln2) {
+        var m = OA.Utils.maxMinFns;
+        var maxP1 = m.maxP(ln1);
+        var maxP2 = m.maxP(ln2);
+        return maxP1 >= maxP2 ? maxP1 : maxP2;
+      },
+      minLP: function(ln1, ln2) {
+        var m = OA.Utils.maxMinFns;
+        var minP1 = m.minP(ln1);
+        var minP2 = m.minP(ln2);
+        return minP1 <= minP2 ? minP1 : minP2;
+
+      },
+      maxMinLP: function(ln1, ln2) {
+        var m = OA.Utils.maxMinFns;
+        var maxP1 = m.maxP(ln1);
+        var maxP2 = m.maxP(ln2);
+        return maxP1.X <= maxP2.X ? maxP1 : maxP2;
+      },
+      minMaxLP: function(ln1, ln2) {
+        var m = OA.Utils.maxMinFns;
+        var minP1 = m.minP(ln1);
+        var minP2 = m.minP(ln2);
+        return minP1.X >= minP2.X ? minP1 : minP2;
+      }
+    },
    facesClone: function(faces, faceCreateMode) {
     var newFaces = [];
     if(faceCreateMode === undefined){
