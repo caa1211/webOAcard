@@ -11,6 +11,7 @@
         cardW: 120,
         cardH: 100,
         gridNum: 40,
+        gridZstep: 5,
         domContainer: container
     };
     
@@ -293,7 +294,7 @@ window.onload = function() {
                   oaControl.cardAngle = oaModel.getCardAngle();
                   angleChangeUI.updateDisplay();
             },
-            editDepth: 16,
+            editDepth: modelOption.gridZstep,
             editDepthChange: function(value) {
                 oaModel.setCardMode(0);
                 oaModel.setEditDepth(value);
@@ -486,7 +487,7 @@ window.onload = function() {
         angleChangeUI = gui.add(oaControl, "cardAngle", 0, 180).step(-5).name("Card Angle")
             .onChange(oaControl.angleChange);
 
-        depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardH - 1).step(gridStep).name("Edit Depth")
+        depthEditCtrl = gui.add(oaControl, "editDepth", 0, oaControl.cardH - 1).step(modelOption.gridZstep).name("Edit Depth")
             .onChange(oaControl.editDepthChange);
 
         gui.add(oaControl, 'gridNum', 20, 100).step(1).name('Grid Number')
@@ -604,14 +605,14 @@ function setGlobalValuableByCardSize(cardW, cardH) {
     camera.position.set(0, 0,  viewerR);
     orbitCtrls.noPan = true;
     orbitCtrls.zoomSpeed = 0.1;
-
     orbitCtrls.panUp(sceneOffset.y);
     orbitCtrls.maxPolarAngle = 120 * Math.PI / 180;
     orbitCtrls.rotateUp(10 * Math.PI / 180);
     orbitCtrls.rotateLeft(-14 * Math.PI / 180);
 
     orbitCtrls.minDistance =  viewerR ;
-    orbitCtrls.maxDistance =  viewerR + oaModel.getInitEditT();
+
+    orbitCtrls.maxDistance =  viewerR + cardH/3; 
 
     oaModel.setCameraCtrl(orbitCtrls);
     orbitCtrls.target = new THREE.Vector3(sceneOffset.x, 0, 0);

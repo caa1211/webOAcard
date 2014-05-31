@@ -26,6 +26,7 @@ OA.Model = function(userSetting, isPattern2D) {
     cardH: 100,
     gridNum: 20,
     initAngle: 90,
+    gridZstep: 5,
     domContainer: document
   };
   var contourRepo  = new OA.ContourRepo();
@@ -37,9 +38,9 @@ OA.Model = function(userSetting, isPattern2D) {
   var mf = OA.Utils.mf;
   var gridStep = mf(maxWidth / _setting.gridNum);
  
-  var initEditT = mf(_setting.gridNum / 4) * gridStep;
+  var initEditT = _setting.gridZstep;//mf(_setting.gridNum / 4) * gridStep;
   if (initEditT > cardH) {
-    initEditT = cardH - gridStep;
+    initEditT = cardH - _setting.gridZstep;
     if (initEditT < 0) {
       initEditT = 0;
     }
@@ -343,6 +344,14 @@ OA.Model = function(userSetting, isPattern2D) {
     }
     //========
 
+    console.error("=======");
+   $.each(clippedFaces, function(i, f) {
+        if (f.oaInfo.type === "VFACE") {
+          console.error("VT: "+ f.getT());
+        }
+      });
+ console.error("=======");
+
     $model.trigger("zchange", newDist);
 
     if (newDist >= 0 && newDist < cardH) {
@@ -404,8 +413,8 @@ OA.Model = function(userSetting, isPattern2D) {
     if (editPlane.isVisible && model.contourState !== contourStateType.EDITING) {
       var d = ((deltaY < 0) ? 1 : -1);
       //OA.log(delta, deltaX, deltaY);
-      var newDist = mf(editPlane.getT() + gridStep * d);
-
+      var newDist = editPlane.getT() + _setting.gridZstep* d// mf(editPlane.getT() + gridStep * d);
+      console.error("ePlanelZ: " + newDist);
       moveEditPlane(newDist);
     }
     if (foldable) {
