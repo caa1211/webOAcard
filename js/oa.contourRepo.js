@@ -8,8 +8,7 @@ OA.ContourRepo = function(userSetting) {
     };
 
     this.setIndex = function(p3ds){
-
-        if (p3ds.cid != null) {console.error(2)
+        if (p3ds.cid != null) {
             curr = p3ds.cid;
         }
     }
