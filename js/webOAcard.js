@@ -225,7 +225,9 @@
     function render() {
         raycaster = projector.pickingRay(mouse2D.clone(), camera);
         oaModel.tick({
-            raycaster: raycaster
+            raycaster: raycaster,
+            ctrlKey: mouse2D.ctrlKey,
+            shiftKey: mouse2D.shiftKey
         });
         renderer.render(scene, camera);
     }
@@ -622,11 +624,34 @@ function setGlobalValuableByCardSize(cardW, cardH) {
 //======================================
 
 
- 
+ window.addEventListener("keydown", function(e) {
+     mouse2D.ctrlKey = e.ctrlKey;
+     mouse2D.shiftKey = e.shiftKey;
+
+     //z:90
+     //y:89
+    if (e.which == 90 && e.metaKey) {
+        oaModel.undo();
+        e.preventDefault();
+        return false;
+    }
+    if (e.which == 89 && e.metaKey) {
+        oaModel.redo();
+        e.preventDefault();
+        return false;
+    }
+
+    //e.preventDefault();
+
+ });
 
 /*** ADDING SCREEN SHOT ABILITY ***/
 window.addEventListener("keyup", function(e) {
     var imgData, imgNode;
+
+    mouse2D.ctrlKey = false;
+    mouse2D.shiftKey = false;
+
     //Listen to 'P' key
     if (e.which == 80) { //p
         //  doPreview = true;

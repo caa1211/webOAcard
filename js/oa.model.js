@@ -903,8 +903,8 @@ OA.Model = function(userSetting, isPattern2D) {
                 var distFromFitstP;
                 var plen = pos3Ds.length;
 
-                // var firstP = pos3Ds[0];
-                // var lastP = pos3Ds[plen - 1];
+                var firstP = pos3Ds[0];
+                var lastP = pos3Ds[plen - 1];
                 // if (plen > 2 && (firstP.y === lastP.y || firstP.x === lastP.x)) {
                 //   distFromFitstP = pos3Ds[0].distanceTo(movePoint.getPosition3D());
                 //   if (distFromFitstP < gridStep * 2) {
@@ -912,6 +912,21 @@ OA.Model = function(userSetting, isPattern2D) {
                 //     movePoint.setColorByIndex(2);
                 //   }
                 // }
+                if (plen > 2) {
+                  if (params.ctrlKey) {
+                    movePoint.setPosition3D(firstP);
+                    movePoint.setColorByIndex(2);
+                  }
+                }
+
+                if (params.shiftKey) {
+                  if (Math.abs(movePointPos.y - lastP.y) < 5*gridStep) {
+                    movePointPos.y = lastP.y;
+                  }else{
+                    movePointPos.x = lastP.x;
+                  }
+                  movePoint.setPosition3D(movePointPos);
+                }
 
                 if (plen > 2 && OA.Utils.checkEqualPosition(pos3Ds[0], movePointPos)) {
                   movePoint.setColorByIndex(2);
