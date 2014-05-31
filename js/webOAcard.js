@@ -518,7 +518,7 @@ window.onload = function() {
             'Pull': "pull"
         }).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
             .onChange(oaControl.faceModeChange);
-
+        oaControl.faceMode = "faces";
         $modeText.html(oaControl.faceMode);
         $modeText.unbind("click").click(function(e) {
             var index = (oaModel.getFaceCreateMode() + 1) % 3;
