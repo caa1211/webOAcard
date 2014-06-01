@@ -34313,7 +34313,7 @@ THREE.TextGeometry = function ( text, parameters ) {
 
 	parameters = parameters || {};
 
-	var textShapes = THREE.FontUtils.generateShapes( text, parameters );
+	this.textShapes = THREE.FontUtils.generateShapes( text, parameters );
 
 	// translate parameters to ExtrudeGeometry API
 
@@ -34325,7 +34325,7 @@ THREE.TextGeometry = function ( text, parameters ) {
 	if ( parameters.bevelSize === undefined ) parameters.bevelSize = 8;
 	if ( parameters.bevelEnabled === undefined ) parameters.bevelEnabled = false;
 
-	THREE.ExtrudeGeometry.call( this, textShapes, parameters );
+	THREE.ExtrudeGeometry.call( this, this.textShapes, parameters );
 
 };
 

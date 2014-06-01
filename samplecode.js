@@ -1,3 +1,40 @@
+debugger;
+$.each(shape.vertices, function(i, p){
+  if(p.z!=1){
+    return true;
+  }
+  var pp ={X: p.x, Y: p.y};
+  path.push(pp);
+
+  var p2d = new THREE.Vector2(p.x, p.y);
+  p2dPath.push(p2d);
+});
+
+//path.push({X: shape.vertices[0].x, Y: shape.vertices[0].y} )
+OA.Utils.modifyPathOrientation(path, false);
+var subj_paths = [path];
+var clip_paths = [[]];
+var scale = 1;
+ClipperLib.JS.ScaleUpPaths(subj_paths, scale);
+ ClipperLib.JS.ScaleUpPaths(clip_paths, scale);
+var cpr = new ClipperLib.Clipper();
+
+cpr.AddPaths(subj_paths, ClipperLib.PolyType.ptSubject, true);
+cpr.AddPaths(clip_paths, ClipperLib.PolyType.ptClip, true);
+var solution_polytree = new ClipperLib.PolyTree();
+cpr.Execute(1, solution_polytree, 1, 1);
+
+//solution_expolygons = new ClipperLib.ExPolygons();
+ var expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
+
+baseVFace.rebuild(expolygons);
+
+
+   
+
+
+
+
    var buildByCoutours = function(contours) {
       OA.Utils.cleanObject3D(face);
       var exPolygons = contours;
