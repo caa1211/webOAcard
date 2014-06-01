@@ -91,8 +91,8 @@ OA.Face = function(userSetting) {
    };
 
    var buildByCoutours = function(contours) {
+      OA.Utils.cleanObject3D(face);
       if(!contours || (contours && contours.length) === 0){
-         OA.Utils.cleanObject3D(face);
          return;
       }
       var exPolygons = contours;
