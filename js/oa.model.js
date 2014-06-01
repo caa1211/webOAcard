@@ -203,8 +203,19 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
 
-
+  //var jj = 0;
   function addFaceByContour(contour) {
+  //   if(jj ==0){
+  //   var polys = OA.Utils.createTextPolys();
+  //   var tFace = new OA.Face({
+  //     contours: polys,
+  //     t: 20,
+  //     type: "VFACE"
+  //   });
+  //   userFaces.push(tFace);
+  //   jj++;
+  // }
+
     if (!contour) {
       return;
     }
@@ -542,7 +553,6 @@ OA.Model = function(userSetting, isPattern2D) {
     clippedFaces.push(baseHFace);
     model.add(refreshFaceGroup);
 
-
     bindEvents();
     model.setCardAngle(cardAngle);
 
@@ -558,7 +568,6 @@ OA.Model = function(userSetting, isPattern2D) {
     //  model.add(tFace);
 
     cloned180ClippedFaces = model.doCloneClippedFaces(180);
-
 
     return model;
   };
