@@ -384,6 +384,57 @@ OA.Face = function(userSetting) {
       return new OA.Face(_setting);
    }
 
+   function collectTopUpperLower(upperStore, lowerStore, pAry, index) {
+      if(!pAry || pAry && pAry.length ===0){
+        return {
+            uppers: upperStore,
+            lowers: lowerStore
+         };
+      }
+      OA.Utils.modifyPathOrientation(pAry, true);
+
+      var topY = 9999;
+      var bottomY = 0;
+      uppers = [];
+      lowers = [];
+      var len = pAry.length;
+      for (var i = 0; i < len; ++i) {
+         if (i != len - 1) {
+            p1 = pAry[i];
+            p2 = pAry[i + 1];
+         } else {
+            p1 = pAry[i],
+            p2 = pAry[0];
+         }
+         var upperOrLower = [p1, p2];
+         upperOrLower.inHole = false;
+         upperOrLower.inOuter = true;
+         upperOrLower.polyIndex = index;
+         if (p1.Y === p2.Y && p1.X > p2.X ) {
+            uppers.push(upperOrLower);
+            if (p1.Y < topY) {
+               topY = p1.Y;
+            }
+         }
+         if (p1.Y === p2.Y && p1.X < p2.X) {
+            lowers.push(upperOrLower);
+            if (p1.Y > bottomY) {
+               bottomY = p1.Y;
+            }
+         }
+      }
+
+      uppers = $.grep(uppers, function(upper) {
+         return upper[0].Y === topY;
+      });
+
+      lowers = $.grep(lowers, function(lower) {
+         return lower[0].Y === bottomY;
+      });
+      $.merge(upperStore, uppers);
+      $.merge(lowerStore, lowers);
+   }
+
    function collectUpperLower(upperStore, lowerStore, pAry, isOuter, index) {
       var len = pAry.length;
       var uppers = [];
@@ -446,10 +497,8 @@ OA.Face = function(userSetting) {
       }
       var upper2Dary = [];
       var lower2Dary = [];
-      if (contours) {
-         // if(contours.length>1){
-         //    debugger;
-         // }
+      if (contours &&  contours.type !== "expolygons") {
+        // debugger;
          $.each(contours, function(i, poly) {
             var outer = poly.outer;
             var holes = poly.holes;
@@ -463,6 +512,12 @@ OA.Face = function(userSetting) {
                });
             }
          });
+      }else{
+         //expolygons only collectop top upper
+         $.each(contours, function(i, poly) {
+            var outer = poly.outer;
+            collectTopUpperLower(upper2Dary, lower2Dary, outer, i);
+         });
       }
       _setting.upper2Ds = upper2Dary;
       _setting.lower2Ds = lower2Dary;
@@ -470,19 +525,10 @@ OA.Face = function(userSetting) {
 
    this.rebuild = function(contours, updateUpper){
       try {
-         // if(!contours || contours.length === 0){
-         //    debugger;
-         //    return false;
-         // }
-
-         //if (contours && updateUpper) {
-            face.updateUpperLower2Ds(contours);
-        // }
-
-        // if (contours) {
-            _setting.contours = contours;
-        // }
-
+         face.updateUpperLower2Ds(contours);
+         var type = _setting.contours.type;
+         _setting.contours = contours;
+         _setting.contours.type = type;
          buildByCoutours(_setting.contours);
       } catch (e) {
          OA.log("rebuild contour failed " +JSON.stringify(contours), 0);

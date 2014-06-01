@@ -194,7 +194,11 @@ OA.Model = function(userSetting, isPattern2D) {
 
   function enterContourCloseState() {
     if (liveContour != null && liveContour.checkClosed()) {
-      contourRepo.push(liveContour.getPosition3Ds());
+      if (liveContour instanceof OA.Contour) {
+        contourRepo.push(liveContour.getPosition3Ds());
+      } else if (liveContour instanceof OA.ExContour) {
+        contourRepo.push(liveContour.getPoint2Ds());
+      }
     }
 
     model.contourState = contourStateType.CLOSE;
@@ -220,29 +224,17 @@ OA.Model = function(userSetting, isPattern2D) {
       return;
     }
     var point2Ds = contour.getPoint2Ds();
-    if (point2Ds.length > 2) {
-
-      if (faceCreateMode === faceCreateModeType.faces) {
-        var newFace = createFace(point2Ds, "VFACE", contour.t, {
-          //baseContour: contour,
-          //upper2Ds: contour.getUpper2Ds()
-        });
-        //refreshFaceGroup.add(newFace);
-        userFaces.push(newFace);
-        $model.trigger("faceAdded", newFace);
-
-      }else{
-         var holeOrPull = createFace(point2Ds, "VFACE", contour.t, {
-          //baseContour: contour,
-          faceCreateMode: faceCreateMode
-        });
-         userFaces.push(holeOrPull);
-      }
+    var newFace = createFace(point2Ds, "VFACE", contour.t, {
+      faceCreateMode: faceCreateMode
+    });
+    if (newFace) {
+      userFaces.push(newFace);
       $model.trigger("faceAdded", newFace);
-      //newFace.rebuild(OA.Utils.getTestExPolygon());
-      clipFaces(userFaces);
-    
     }
+
+    $model.trigger("faceAdded", newFace);
+    //newFace.rebuild(OA.Utils.getTestExPolygon());
+    clipFaces(userFaces);
   }
 
   function clipFaces(orgFaces) {
@@ -523,7 +515,6 @@ OA.Model = function(userSetting, isPattern2D) {
     $model.bind("facesAdded", function(e, newFace) {
         undoRedoAry = [];
     });
-
 
     var pAryV = [
       [0, 0],
@@ -1012,13 +1003,15 @@ OA.Model = function(userSetting, isPattern2D) {
 
   var getAllFaces = function(){
     var allFaces = [];
+
     $.each(userFaces, function(i, f){
        var fdata = {
         contours: f.oaInfo.contours,
+        contoursType: f.oaInfo.contours.type === undefined ? "" : f.oaInfo.contours.type,
         type: f.oaInfo.type,
         mode: f.oaInfo.faceCreateMode,
         t: f.oaInfo.t
-       }
+       };
        allFaces.push(fdata);
     });
     return allFaces;
@@ -1042,11 +1035,15 @@ OA.Model = function(userSetting, isPattern2D) {
       var facesAry =  [];
       var len = facesAry.length;
       $.each(faces, function(i, fsetting) {
-        var point2Ds = fsetting.contours[0].outer,
+        var contours = fsetting.contours,
           type = fsetting.type,
           faceCreateMode = fsetting.mode,
-          t = fsetting.t,
-          newFace = createFace(point2Ds, type, fsetting.t, {
+          t = fsetting.t;
+          contours.type = fsetting.contoursType;
+          if(contours.type !== "expolygons"){
+             contours = contours[0].outer;
+          }
+          newFace = createFace(contours, type, fsetting.t, {
             faceCreateMode: faceCreateMode
           });
         facesAry.push(newFace);
@@ -1059,16 +1056,20 @@ OA.Model = function(userSetting, isPattern2D) {
   };
 
   this.prevContour = function() {
-    var pos3Ds = contourRepo.getBefore();
-    if (pos3Ds) {
+    var ContourClass = OA.Contour;
+    var posAry = contourRepo.getBefore();
+    if (posAry) {
+      if (posAry.type === "expolygons") {
+        ContourClass = OA.ExContour;
+      }
       model.showEditPlane(true);
       model.setFoldable(false);
       model.resetCardAngle();
       enterContourNoEditingState();
-      liveContour = new OA.Contour({
+      liveContour = new ContourClass({
         gridStep: gridStep,
         t: editPlane.getT(),
-        initData: pos3Ds
+        initData: posAry
       });
       model.add(liveContour);
       enterContourCloseState();
@@ -1077,17 +1078,20 @@ OA.Model = function(userSetting, isPattern2D) {
   };
 
   this.nextContour = function() {
-    
-    var pos3Ds = contourRepo.getAfter();
-    if (pos3Ds) {
+    var ContourClass = OA.Contour;
+    var posAry = contourRepo.getAfter();
+    if (posAry) {
+      if (posAry.type === "expolygons") {
+        ContourClass = OA.ExContour;
+      }
       enterContourNoEditingState();
       model.showEditPlane(true);
       model.setFoldable(false);
       model.resetCardAngle();
-      liveContour = new OA.Contour({
+      liveContour = new ContourClass({
         gridStep: gridStep,
         t: editPlane.getT(),
-        initData: pos3Ds
+        initData: posAry
       });
       model.add(liveContour);
       enterContourCloseState();
@@ -1206,6 +1210,27 @@ OA.Model = function(userSetting, isPattern2D) {
   this.getCardH = function() {
     return cardH;
   };
+
+  this.addTextContour = function(text, size) {
+      enterContourNoEditingState();
+      model.showEditPlane(true);
+      model.setFoldable(false);
+      model.resetCardAngle();
+      var expolys = OA.Utils.createTextPolys("Yahoo", size);
+
+      liveContour = new OA.ExContour({
+        gridStep: gridStep,
+        t: editPlane.getT(),
+        initData: expolys
+      });
+      model.add(liveContour);
+      enterContourCloseState();
+      model.setCardMode(0);
+  };
+
+this.moveContourTest = function(){
+  liveContour.moveTest();
+}
 
   return init();
 };

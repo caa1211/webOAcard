@@ -10,4 +10,7 @@ var demoList = [{
 }, {
     "name": "Bath",
     "path": "demo/bath.oa"
+}, {
+    "name": "Yahoo",
+    "path": "demo/yahoo.oa"
 }];

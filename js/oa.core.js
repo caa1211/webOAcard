@@ -47,24 +47,38 @@ get_text_polys : function() {
   return text_polygon;
 },
   createFace: function (point2Ds, faceType, t, opt) {
-    var rt = 0;
-    if (t) {
-      rt = t;
-    } else  {
-      //console.error("need t to create face");
-    }
-    var _opt = {
-      t: rt,
-      contours: [{
+    var contours;
+    if (!point2Ds.type ||
+      point2Ds.type && point2Ds.type === "paths" ||
+      point2Ds.type && point2Ds.type === "") {
+      contours = [{
         "outer": point2Ds,
         "holes": [
           [ /*points*/ ]
         ]
-      }],
-      type: faceType
+      }];
+    } else if (point2Ds.type === "expolygons") {
+      contours = point2Ds;
     }
-    $.extend(_opt, opt);
-    return new OA.Face(_opt);
+
+    if (contours && contours[0] && contours[0].outer && contours[0].outer.length > 2) {
+      var rt = 0;
+      if (t) {
+        rt = t;
+      } else {
+        //console.error("need t to create face");
+      }
+      var _opt = {
+        t: rt,
+        contours: contours,
+        type: faceType
+      }
+      $.extend(_opt, opt);
+      return new OA.Face(_opt);
+
+    } else {
+      return null;
+    }
   },
   log10: function(val) {
     return Math.log(val) / Math.LN10;
@@ -85,8 +99,46 @@ get_text_polys : function() {
         return p;
      }
   },
-  createTextPolys: function() {
-    var shape = new THREE.TextGeometry("Yahoo", {
+  subdivision: function(sourceP2Ds, xLimit) {
+      // point2Ds = newPoint2Ds;
+    var newP2Ary = [];
+    var pLen = sourceP2Ds.length;
+    for (var i = 0; i < pLen; i++) {
+      var p1, p2;
+      if (i === 0) {
+        p1 = sourceP2Ds[pLen - 1];
+        p2 = sourceP2Ds[0];
+      } else {
+        p1 = sourceP2Ds[i - 1];
+        p2 = sourceP2Ds[i];
+      }
+      if (p1.Y　 == 　p2.Y　 && Math.abs(p1.X - p2.X) > xLimit) {
+        newP2Ary.push(p1);
+        newP2Ary.push(p2);
+        continue;
+      }
+      var Q = {
+        X: 0.75 * p1.X + 0.25 * p2.X,
+        Y: 0.75 * p1.Y + 0.25 * p2.Y
+      };
+      var P = {
+        X: 0.25 * p1.X + 0.75 * p2.X,
+        Y: 0.25 * p1.Y + 0.75 * p2.Y
+      };
+
+      newP2Ary.push(Q);
+      newP2Ary.push(P);
+    }
+    return newP2Ary;
+   },
+  createTextPolys: function(text, size) {
+    if(size === undefined){
+      size = 20;
+    }
+    if(text === undefined){
+      text =  "Text";
+    }
+    var shape = new THREE.TextGeometry(text, {
       font: 'helvetiker',
       weight: 'bold', //normal or bold
       style: "normal", //normal, italic
@@ -95,11 +147,11 @@ get_text_polys : function() {
       bevelThickness: 1,
       bevelSize: 1,
       curveSegments: 1,
-      size: 25,
+      size: size,
       height: 1
     });
-    var xOffset = 7;
-    var yOffset = 20;
+    var xOffset = 0;
+    var yOffset = 0;
     var path = [];
     var p2dPath = [];
 

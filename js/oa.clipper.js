@@ -25,7 +25,8 @@ OA.Clipper = function(userSetting) {
     var clipScale = OA.clipScale;
     var createFace = OA.Utils.createFace;
     var modifyFloatPoint = OA.Utils.modifyFloatPoint;
-    var totalCardArea=[{X:0,Y:-cardH},{X:cardW,Y:-cardH},{X:cardW,Y:cardH},{X:0,Y:cardH}]
+    var totalCardArea=[{X:0,Y:-cardH},{X:cardW,Y:-cardH},{X:cardW,Y:cardH},{X:0,Y:cardH}];
+    var forceClipList = [];
     //OA clip Algorithm
     //### Create hface_list ###
     //1. create vface_list (sort by t big->small) 
@@ -241,8 +242,8 @@ OA.Clipper = function(userSetting) {
             ut = modifyFloatPoint(ut);
             var hFace;
 
-
             if (upper.inHole) {
+
                 var fakeY = upper.points[0].Y;
                 var fakeUpper = {
                     points: [{
@@ -263,6 +264,8 @@ OA.Clipper = function(userSetting) {
             $.each(vface_list, function(j, f) {
                 ft = f.getT();
                 ft = modifyFloatPoint(ft);
+                var contourType = f.oaInfo.contours.type;
+
                 if (ft >= ut) {
                     clippedPoly = polyBoolean(
                         hFace.getExPolygons(),
@@ -399,6 +402,29 @@ OA.Clipper = function(userSetting) {
 
     function pushModel() {
 
+        //clip force clip list: for example: exploygon from text input
+        if (forceClipList.length > 0) {
+            var forceClipAllPoly = unionList(forceClipList);
+            $.each(vface_list, function(i, f) {
+                var subj = f.getExPolygons();
+                var clip = forceClipAllPoly;
+                var resPoly = polyBoolean(subj, clip, 2);
+                if (resPoly) {
+                    subj = resPoly;
+                }
+                f.rebuild(subj);
+            });
+            $.each(hface_list, function(i, f) {
+                var subj = f.getExPolygons();
+                var clip = forceClipAllPoly;
+                var resPoly = polyBoolean(subj, clip, 2);
+                if (resPoly) {
+                    subj = resPoly;
+                }
+                f.rebuild(subj);
+            });
+        }
+
         //create unionAllPoly by union all polygons
         var vfaceAllPoly = unionList(vface_list);
         var hfaceAllPoly = unionList(hface_list);
@@ -460,6 +486,7 @@ OA.Clipper = function(userSetting) {
             //clip hfaces by min->big sequence
             hface_list = clipAbove(hface_list);
         }
+
     }
 
     function doMergeUppers(sameYary, upper, upperY) {
@@ -494,8 +521,13 @@ OA.Clipper = function(userSetting) {
         pullList = allModeList[faceCreateModeType.pull];
         vface_list = tryMergeFaces(vface_list);
         holeList = allModeList[faceCreateModeType.hole];
+
         //vfaces list clip holes
         $.each(holeList, function(i, hole) {
+            if (hole.oaInfo.contours.type == "expolygons") {
+                forceClipList.push(hole);
+                return true;
+            }
             var t = hole.getT();
             var new_vface_list = $.grep(vface_list, function(f, i) {
                 if (f.getT() <= t) {
@@ -515,6 +547,10 @@ OA.Clipper = function(userSetting) {
         });
         //pull list clip holes
         $.each(holeList, function(i, hole) {
+            if (hole.oaInfo.contours.type == "expolygons") {
+                forceClipList.push(hole);
+                return true;
+            }
             var t = hole.getT();
             var new_pullList = $.grep(pullList, function(f, i) {
                 if (f.getT() <= t) {
@@ -548,14 +584,12 @@ OA.Clipper = function(userSetting) {
                 $.each(upper2Ds, function(j, upper) {
                     var inHole = upper.inHole === true ? true : false;
                     //do not need to merge inHole upper
-                    if (inHole) {
-                        upper_list.push({
-                            points: upper,
-                            t: f.getT(),
-                            inHole: inHole
-                        });
-                        return true;
-                    }
+                    upper_list.push({
+                        points: upper,
+                        t: f.getT(),
+                        inHole: inHole
+                    });
+
                     // // //merge upper====
                     // var uy = upper[0].Y;
                     // var uPolyIndex = upper.polyIndex;
@@ -580,11 +614,6 @@ OA.Clipper = function(userSetting) {
                     // }
                     // //merge upper
                     // //=====
-                    upper_list.push({
-                        points: upper,
-                        t: f.getT(),
-                        inHole: inHole
-                    });
 
                 });
             }

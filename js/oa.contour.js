@@ -29,6 +29,7 @@ OA.Contour = function(userSetting) {
    var _setting = $.extend({}, _def, userSetting);
    contour.t = _setting.t;
    var initData = _setting.initData;
+   var cid = initData && initData.cid;
    var gridStep = _setting.gridStep;
    var hoverLine = null;
    var circleGroup = null;
@@ -52,10 +53,19 @@ OA.Contour = function(userSetting) {
       startPoint = new OA.Point({
          scale: _setting.gridStep
       });
+      // if (initData != null) {
+      //    point2Ds = initData;
+      //    var bounds = ClipperLib.JS.BoundsOfPath(point2Ds, 1);
+      //    var h = Math.abs(bounds.bottom - bounds.top);
+      //    var w = Math.abs(bounds.left - bounds.right);
+      //    point2Ds = movePoint2Ds(point2Ds, {X:w/2, Y:contour.t - h/2}, contour.t)
+      //    close2DContour(true);
+      // }
       if (initData != null) {
          userPosition3Ds = initData;
          closeContour(true);
       }
+
       return contour;
    };
 
@@ -228,18 +238,12 @@ OA.Contour = function(userSetting) {
    };
 
    this.moveTo = function(newPos, t) {
+      var newPos2D;
       if (newPos) {
-         //new pos & t
-         var newPos2D = OA.Utils.D3To2(newPos, t);
-         var newPoint2Ds = movePoint2Ds(point2Ds, newPos2D);
-         point2Ds = newPoint2Ds;
+         newPos2D = OA.Utils.D3To2(newPos, t);
       }
-      if (t && t != contour.t) {
-         //new t
-         var newPoint2Ds = movePoint2DsByT(point2Ds, t);
-         point2Ds = newPoint2Ds;
-         contour.t = t;
-      }
+      var newPoint2Ds = movePoint2Ds(point2Ds, newPos2D, t);
+      point2Ds = newPoint2Ds;
       drawCloseCoutour();
    };
 
@@ -266,23 +270,39 @@ OA.Contour = function(userSetting) {
       };
    }
 
-   function movePoint2Ds(ary, newPos) {
+   function movePoint2Ds(ary, newPos, t) {
       var newAry = [];
       var mf = modifyFloatPoint;
+      var difft = 0;
+      if (t != undefined && t != contour.t) {
+         difft = contour.t - t;
+         contour.t = t;
+      }
+      var middlePoint = {
+         X: 0,
+         Y: 0
+      };
+      var target = {
+         X: 0,
+         Y: 0
+      };
       if (newPos != undefined) {
-         var middlePoint = getMiddlePointFromPath(ary);
+         middlePoint = getMiddlePointFromPath(ary);
          middlePoint.X = Math.floor(middlePoint.X / gridStep) * gridStep;
          middlePoint.Y = Math.floor(middlePoint.Y / gridStep) * gridStep;
-         var target = {};
+         target = {};
          target.X = Math.floor(newPos.X / gridStep) * gridStep;
-         target.Y = Math.floor(newPos.Y / gridStep) * gridStep;
-         for (var i = 0; i < ary.length; i++) {
-            var p = ary[i];
-            p.X = p.X - middlePoint.X + target.X;
-            p.Y = p.Y - middlePoint.Y + target.Y;
-            newAry.push(p);
-         }
+         target.Y = Math.floor(newPos.Y / gridStep) * gridStep - difft;
+      } else if (difft != 0) {
+         target.Y = target.Y - difft;
       }
+      for (var i = 0; i < ary.length; i++) {
+         var p = ary[i];
+         p.X = p.X - middlePoint.X + target.X;
+         p.Y = p.Y - middlePoint.Y + target.Y;
+         newAry.push(p);
+      }
+
       return newAry;
    }
 
@@ -290,21 +310,6 @@ OA.Contour = function(userSetting) {
       _setting.gridStep = value;
       gridStep = value
    };
-
-   function movePoint2DsByT(ary, t) {
-      var newAry = [];
-      var mf = modifyFloatPoint;
-      var diffT = contour.t - t;
-      if (t != undefined && t != contour.t) {
-         for (var i = 0; i < ary.length; i++) {
-            var p = ary[i];
-            p.X = mf(p.X);
-            p.Y = mf(p.Y - diffT);
-            newAry.push(p);
-         }
-      }
-      return newAry;
-   }
 
    function fineTunePath(path, scale) {
       //debugger;
@@ -341,7 +346,8 @@ OA.Contour = function(userSetting) {
    }
 
    this.getPoint2Ds = function() {
-      //point2Ds = fineTunePath(point2Ds);
+      point2Ds.type = "paths";
+      point2Ds.cid = cid;
       return point2Ds;
    };
 
@@ -407,6 +413,19 @@ OA.Contour = function(userSetting) {
          opt.lineStyle.linewidth =3.5;
       }
       updateContour(closePos3Ds, opt.ptnStyle, opt.lineStyle);
+   }
+
+   function close2DContour(isInitInput) {
+      isClosed = true;
+      subLevel = 1;
+      if (hoverLine) {
+         lineGroup.remove(hoverLine);
+      }
+      if (point2Ds.length < 2) {
+         return;
+      }
+      var t = contour.t;
+      drawCloseCoutour(isInitInput);
    }
 
    function closeContour(isInitInput) {
@@ -476,7 +495,7 @@ OA.Contour = function(userSetting) {
       if (level > 1) {
          var newP2Ds = point2Ds;
          for (i = 0; i < level; i++) {
-            newP2Ds = subdivision(newP2Ds, xLimit);
+            newP2Ds = OA.Utils.subdivision(newP2Ds, xLimit);
          }
          point2Ds = newP2Ds;
       }
@@ -484,42 +503,6 @@ OA.Contour = function(userSetting) {
       drawCloseCoutour();
    };
 
-   var subdivision = function(sourceP2Ds, xLimit) {
-      // point2Ds = newPoint2Ds;
-      var newP2Ary = [];
-      var t = contour.t;
-      var pLen = sourceP2Ds.length;
-      for (var i = 0; i < pLen; i++) {
-         var p1, p2;
-         if (i === 0) {
-            p1 = sourceP2Ds[pLen - 1];
-            p2 = sourceP2Ds[0];
-         } else {
-            p1 = sourceP2Ds[i - 1];
-            p2 = sourceP2Ds[i];
-         }
-
-
-         if(p1.Y　==　p2.Y　&& Math.abs(p1.X -p2.X) > xLimit){
-            newP2Ary.push(p1);
-            newP2Ary.push(p2);
-            continue;
-         }
-         var Q = {
-            X: 0.75 * p1.X + 0.25 * p2.X,
-            Y: 0.75 * p1.Y + 0.25 * p2.Y
-         };
-         var P = {
-            X: 0.25 * p1.X + 0.75 * p2.X,
-            Y: 0.25 * p1.Y + 0.75 * p2.Y
-         };
-
-         newP2Ary.push(Q);
-         newP2Ary.push(P);
-      }
-      return newP2Ary;
-
-   };
 
    this.undo = function() {
       userPosition3Ds.pop();

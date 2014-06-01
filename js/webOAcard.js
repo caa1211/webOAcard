@@ -433,12 +433,12 @@ window.onload = function() {
                 };
 
                 var name;
-                if (loadedFileName != "") {
-                    name = loadedFileName;
-                } else {
-                    var date = new Date();
-                    name = "oaCard_" + date + ".oa";
-                }
+                // if (loadedFileName != "") {
+                //     name = loadedFileName;
+                // } else {
+                var date = new Date();
+                name = "oaCard_" + date + ".oa";
+                //}
                 var fileObj = oaModel.getModel();
                 downloadFile(name, JSON.stringify(fileObj));
                 oaModel.setModelSaved();
@@ -699,7 +699,8 @@ window.addEventListener("keyup", function(e) {
 
     if (e.which == 70) { //f redo
         //  doPreview = true;
-        oaModel.redo();
+        //oaModel.redo();
+        oaModel.moveContourTest()
     }
 
     
@@ -711,7 +712,7 @@ window.addEventListener("keyup", function(e) {
 
 
    if (e.which == 71) { //g 
-     
+        oaModel.addTextContour("aa")
     }
 
 
