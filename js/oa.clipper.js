@@ -403,27 +403,67 @@ OA.Clipper = function(userSetting) {
     function pushModel() {
 
         //clip force clip list: for example: exploygon from text input
+        // if (forceClipList.length > 0) {
+
+        //     var forceClipAllPoly = unionList(forceClipList);
+    
+        //     $.each(vface_list, function(i, f) {
+        //         var subj = f.getExPolygons();
+        //         var clip = forceClipAllPoly;
+        //         var resPoly = polyBoolean(subj, clip, 2);
+        //         if (resPoly) {
+        //             subj = resPoly;
+        //         }
+        //         f.rebuild(subj);
+        //     });
+        //     $.each(hface_list, function(i, f) {
+        //         var subj = f.getExPolygons();
+        //         var clip = forceClipAllPoly;
+        //         var resPoly = polyBoolean(subj, clip, 2);
+        //         if (resPoly) {
+        //             subj = resPoly;
+        //         }
+        //         f.rebuild(subj);
+        //     });
+        // }
+
         if (forceClipList.length > 0) {
-            var forceClipAllPoly = unionList(forceClipList);
-            $.each(vface_list, function(i, f) {
-                var subj = f.getExPolygons();
-                var clip = forceClipAllPoly;
-                var resPoly = polyBoolean(subj, clip, 2);
-                if (resPoly) {
-                    subj = resPoly;
-                }
-                f.rebuild(subj);
-            });
-            $.each(hface_list, function(i, f) {
-                var subj = f.getExPolygons();
-                var clip = forceClipAllPoly;
-                var resPoly = polyBoolean(subj, clip, 2);
-                if (resPoly) {
-                    subj = resPoly;
-                }
-                f.rebuild(subj);
+
+            $.each(forceClipList, function(i, fc) {
+                var lower2Ds = fc.getLower2Ds();
+                var lower2DY = lower2Ds && lower2Ds[0] &&  lower2Ds[0][0] &&  lower2Ds[0][0].Y;
+               //debugger;
+                var fct = fc.getT();
+                var fctPoly = fc.getExPolygons();
+                $.each(vface_list, function(i, f) {
+                    var ft = f.getT();
+                    if(ft > fct){
+                        return true;
+                    }
+                    var subj = f.getExPolygons();
+                    var clip = fctPoly;
+                    var resPoly = polyBoolean(subj, clip, 2);
+                    if (resPoly) {
+                        subj = resPoly;
+                    }
+                    f.rebuild(subj);
+                });
+                $.each(hface_list, function(i, f) {
+                    var ft = f.getT();
+                    if (ft > fct) {
+                        return true;
+                    }
+                    var subj = f.getExPolygons();
+                    var clip = fctPoly;
+                    var resPoly = polyBoolean(subj, clip, 2);
+                    if (resPoly) {
+                        subj = resPoly;
+                    }
+                    f.rebuild(subj);
+                });
             });
         }
+
 
         //create unionAllPoly by union all polygons
         var vfaceAllPoly = unionList(vface_list);

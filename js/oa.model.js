@@ -174,7 +174,9 @@ OA.Model = function(userSetting, isPattern2D) {
       liveContour = new OA.Contour({
         gridStep: gridStep,
         faceCreateMode: faceCreateMode,
-        t: editPlane.getT()
+        t: editPlane.getT(),
+        cardH: cardH,
+        cardW: cardW
       });
       model.add(liveContour);
     }
@@ -207,19 +209,7 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
 
-  //var jj = 0;
   function addFaceByContour(contour) {
-  //   if(jj ==0){
-  //   var polys = OA.Utils.createTextPolys();
-  //   var tFace = new OA.Face({
-  //     contours: polys,
-  //     t: 20,
-  //     type: "VFACE"
-  //   });
-  //   userFaces.push(tFace);
-  //   jj++;
-  // }
-
     if (!contour) {
       return;
     }
@@ -230,11 +220,8 @@ OA.Model = function(userSetting, isPattern2D) {
     if (newFace) {
       userFaces.push(newFace);
       $model.trigger("faceAdded", newFace);
+      clipFaces(userFaces);
     }
-
-    $model.trigger("faceAdded", newFace);
-    //newFace.rebuild(OA.Utils.getTestExPolygon());
-    clipFaces(userFaces);
   }
 
   function clipFaces(orgFaces) {
@@ -1211,22 +1198,31 @@ OA.Model = function(userSetting, isPattern2D) {
     return cardH;
   };
 
-  this.addTextContour = function(text, size) {
+  this.addTextContour = function(text, size, bold, italic) {
       enterContourNoEditingState();
       model.showEditPlane(true);
       model.setFoldable(false);
       model.resetCardAngle();
-      var expolys = OA.Utils.createTextPolys("Yahoo", size);
-
+      var expolys = OA.Utils.createTextPolys(text, size, bold, italic);
       liveContour = new OA.ExContour({
         gridStep: gridStep,
         t: editPlane.getT(),
-        initData: expolys
+        initData: expolys,
+        cardH: cardH,
+        cardW: cardW
       });
       model.add(liveContour);
       enterContourCloseState();
       model.setCardMode(0);
   };
+
+
+  this.contourAlignXCenter = function() {
+      if(liveContour !=null && liveContour.checkClosed()){
+        liveContour.alignXCenter();
+      }
+  };
+
 
 this.moveContourTest = function(){
   liveContour.moveTest();

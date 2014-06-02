@@ -131,7 +131,7 @@ get_text_polys : function() {
     }
     return newP2Ary;
    },
-  createTextPolys: function(text, size) {
+  createTextPolys: function(text, size, bold, italic) {
     if(size === undefined){
       size = 20;
     }
@@ -140,8 +140,8 @@ get_text_polys : function() {
     }
     var shape = new THREE.TextGeometry(text, {
       font: 'helvetiker',
-      weight: 'bold', //normal or bold
-      style: "normal", //normal, italic
+      weight: bold ? 'bold' : "normal", //normal or bold
+      style: italic ? "italic" : "normal", //normal, italic
       bevelSegments: 1,
       bevelEnabled: false,
       bevelThickness: 1,

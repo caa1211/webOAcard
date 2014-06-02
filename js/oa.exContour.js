@@ -17,7 +17,9 @@ OA.ExContour = function(userSetting) {
          opacity: 0.8
       },
       gridStep: 1,
-      t: 0
+      t: 0,
+      cardW: 100,
+      cardH: 100
    };
    this.subLevel = 1;
    var modifyFloatPoint = OA.Utils.modifyFloatPoint;
@@ -33,7 +35,7 @@ OA.ExContour = function(userSetting) {
       var bounds = ClipperLib.JS.BoundsOfPaths(paths, 1);
       var h = Math.abs(bounds.bottom - bounds.top);
       var w = Math.abs(bounds.left - bounds.right);
-      expolys = movePoint2Ds(expolys, {X:w/2, Y:exContour.t - h/2}, exContour.t);
+      expolys = movePoint2Ds(expolys, {X:cardW/2, Y:exContour.t - h/2 +1}, exContour.t);
       draw3DExpolys();
       return exContour;
    };
@@ -120,6 +122,14 @@ OA.ExContour = function(userSetting) {
       draw3DExpolys();
    };
 
+
+   this.alignXCenter = function(){
+      var center = {X: cardW/2, Y: null};
+      var newExpolys = movePoint2Ds(expolys, center);
+      expolys = newExpolys;
+      draw3DExpolys();
+   };
+
    function movePoint2Ds(polys, newPos, t){
       var newPolys = [ /*{"outer": [],"holes": []}*/ ];
       var mf = modifyFloatPoint;
@@ -141,16 +151,16 @@ OA.ExContour = function(userSetting) {
          middlePoint.X = Math.floor(middlePoint.X / gridStep) * gridStep;
          middlePoint.Y = Math.floor(middlePoint.Y / gridStep) * gridStep;
          target = {};
-         target.X = Math.floor(newPos.X / gridStep) * gridStep;
-         target.Y = Math.floor(newPos.Y / gridStep) * gridStep - difft;
+         target.X = newPos.X === null? null: Math.floor(newPos.X / gridStep) * gridStep;
+         target.Y = newPos.Y === null? null: Math.floor(newPos.Y / gridStep) * gridStep - difft;
       } else if (difft != 0) {
          target.Y = target.Y - difft;
       }
 
       newPolys = eachPointOperation(polys, function(point){
             return {
-               X: point.X - middlePoint.X + target.X,
-               Y: point.Y - middlePoint.Y + target.Y
+               X: newPos && newPos.X===null? point.X : point.X - middlePoint.X + target.X,
+               Y: newPos && newPos.Y===null? point.Y : point.Y - middlePoint.Y + target.Y
             };
       });
 

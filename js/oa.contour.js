@@ -14,7 +14,9 @@ OA.Contour = function(userSetting) {
       gridStep: 1,
       t: 0,
       faceCreateMode: 0,
-      initData:null
+      initData:null,
+      cardW: 100,
+      cardH: 100
    };
    var contour = this;
    var isClosed = false;
@@ -237,6 +239,14 @@ OA.Contour = function(userSetting) {
       drawPoints(p3DAry, pointOpt);
    };
 
+
+   this.alignXCenter = function(){
+      var center = {X: cardW/2, Y: null};
+      var newPoint2Ds = movePoint2Ds(point2Ds, center);
+      point2Ds = newPoint2Ds;
+      drawCloseCoutour();
+   };
+
    this.moveTo = function(newPos, t) {
       var newPos2D;
       if (newPos) {
@@ -291,15 +301,15 @@ OA.Contour = function(userSetting) {
          middlePoint.X = Math.floor(middlePoint.X / gridStep) * gridStep;
          middlePoint.Y = Math.floor(middlePoint.Y / gridStep) * gridStep;
          target = {};
-         target.X = Math.floor(newPos.X / gridStep) * gridStep;
-         target.Y = Math.floor(newPos.Y / gridStep) * gridStep - difft;
+         target.X = newPos.X ===null ? null : Math.floor(newPos.X / gridStep) * gridStep;
+         target.Y = newPos.Y ===null ? null : Math.floor(newPos.Y / gridStep) * gridStep - difft;
       } else if (difft != 0) {
          target.Y = target.Y - difft;
       }
       for (var i = 0; i < ary.length; i++) {
          var p = ary[i];
-         p.X = p.X - middlePoint.X + target.X;
-         p.Y = p.Y - middlePoint.Y + target.Y;
+         p.X = newPos && newPos.X === null ? p.X : p.X - middlePoint.X + target.X;
+         p.Y = newPos && newPos.Y === null ? p.Y : p.Y - middlePoint.Y + target.Y;
          newAry.push(p);
       }
 

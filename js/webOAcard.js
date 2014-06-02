@@ -475,8 +475,26 @@ window.onload = function() {
             },
             onEditModeChange: function(){
                 oaControl.isEditMode = oaModel.getEditMode();
+            },
+            textInput: "ABC",
+            textSize: 20,
+            textBold: true,
+            textItalic: false,
+            textAdd: function(){
+                oaControl.textSize = parseInt(oaControl.textSize);
+                if(oaControl.textInput == null){
+                    return;
+                }
+                oaModel.addTextContour(
+                    oaControl.textInput, 
+                    oaControl.textSize,
+                    oaControl.textBold,
+                    oaControl.textItalic
+                    );
+            },
+            alignXCenter: function(){
+                oaModel.contourAlignXCenter();
             }
-
         };
 
     function createGUI() {
@@ -543,16 +561,24 @@ window.onload = function() {
         f1.open();
 
         var f2 = gui.addFolder('Contour');
+        var f2_1 = f2.addFolder('Text');
+        f2_1.add(oaControl, 'textInput').name('<i class="fa fa-font  "></i> Input');
+        f2_1.add(oaControl, 'textSize', 5, cardH).name('<i class="fa fa-text-height  "></i> Size');
+        f2_1.add(oaControl, 'textBold').name('<i class="fa fa-bold "></i> Bold');
+        f2_1.add(oaControl, 'textItalic').name('<i class="fa fa-italic "></i> Italic');
+        f2_1.add(oaControl, 'textAdd').name('<i class="fa fa-plus   "></i> Add');
+
+        contourInfoUI = f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info');
         f2.add(oaControl, 'cPrevious').name('<i class="fa fa-long-arrow-left"></i> Reuse Prev');
         f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right"></i> Reuse Next');
         f2.add(oaControl, 'cclear').name('<i class="fa fa-times "></i> Clear Contour');
-        contourInfoUI = f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info');
+
         f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h"></i> Mirror');
+        f2.add(oaControl, 'alignXCenter').name('<i class="fa fa-compress"></i> Align Center');
         subLevelUI = f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').onChange(
             oaControl.subLevelChange);
         xLimitUI = f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').onChange(
             oaControl.xLimitChange);
-
         f2.open();
 
         var f3 = gui.addFolder('2D Pattern');
@@ -582,12 +608,10 @@ window.onload = function() {
             .bind("contourStateChange", oaControl.onContourStateChange);
         oaControl.onContourStateChange();
 
-
     }
     createGUI();
 
 
-    
     function createDemoGUI(){
         var demoControl = {};
 
@@ -616,8 +640,9 @@ window.onload = function() {
 };
 
 //======================================
-function setGlobalValuableByCardSize(cardW, cardH) {
-
+function setGlobalValuableByCardSize(cw, ch) {
+    cardH = ch;
+    cardW = cw;
     maxWidth = cardW > cardH ? cardW : cardH;
     viewerR = maxWidth * 2.5;
     sceneOffset = new THREE.Vector3(cardW / 2, cardH / 3, 0);
@@ -679,40 +704,42 @@ function setGlobalValuableByCardSize(cardW, cardH) {
 
  });
 
-/*** ADDING SCREEN SHOT ABILITY ***/
-window.addEventListener("keyup", function(e) {
+ window.addEventListener("keyup", function(e) {
     var imgData, imgNode;
-
     mouse2D.ctrlKey = false;
     mouse2D.shiftKey = false;
+ });
+
+/*** Debug key ***/
+window.addEventListener("keyup", function(e) {
 
     //Listen to 'P' key
     if (e.which == 80) { //p
         //  doPreview = true;
-         make2DImg(1000, 1000, 250, 250, $("#imgContainer"));
+        //make2DImg(1000, 1000, 250, 250, $("#imgContainer"));
     }
 
     if (e.which == 68) { //d undo
         //  doPreview = true;
-        oaModel.undo();
+        //oaModel.undo();
     }
 
     if (e.which == 70) { //f redo
         //  doPreview = true;
         //oaModel.redo();
-        oaModel.moveContourTest()
-    }
-
-    
-   if (e.which == 69) { //e redo
-     
-      
-      oaModel.setGridNum(100)
+        // oaModel.moveContourTest()
     }
 
 
-   if (e.which == 71) { //g 
-        oaModel.addTextContour("aa")
+    if (e.which == 69) { //e redo
+
+
+        // oaModel.setGridNum(100)
+    }
+
+
+    if (e.which == 71) { //g 
+        // oaModel.addTextContour("aa")
     }
 
 
@@ -726,14 +753,18 @@ window.addEventListener("keyup", function(e) {
         // m2.unbindEvents();
 
         // m2.setCardAngle(180)
-        if (model2d != null) {
-            scene2.remove(model2d)
 
-        }
-        model2d = oaModel.build2DPattern();
-        scene2.add(model2d);
 
-        renderer2.render(scene2, cam2);
+        // if (model2d != null) {
+        //     scene2.remove(model2d)
+
+        // }
+        // model2d = oaModel.build2DPattern();
+        // scene2.add(model2d);
+
+        // renderer2.render(scene2, cam2);
+
+
 
         //oaModel.setCardAngle(90)
         //      m2.setCardAngle(180)
@@ -744,6 +775,5 @@ window.addEventListener("keyup", function(e) {
     // imgNode.src = imgData;
     // document.body.appendChild(imgNode);
 });
-
 
 
