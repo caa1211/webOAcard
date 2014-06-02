@@ -1,3 +1,17 @@
+    function getUrlVar(key) {
+        var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search);
+        return result && unescape(result[1]) || "";
+    }
+
+    // To convert it to a jQuery plug-in, you could try something like this:
+    (function($) {
+        $.getUrlVar = function(key) {
+            var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search);
+            return result && unescape(result[1]) || "";
+        };
+    })(jQuery);
+
+
     if (!Detector.webgl) Detector.addGetWebGLMessage();
 
     var container = document.getElementById('container');
@@ -43,6 +57,16 @@
     var $download2D = $("#download2D");
     var $previewUIwrapper = $("#previewUIwrapper");
     var $fileUpload = $("#fileUpload");
+    var $loadingMask = $("#loadingMask");
+    $loadingMask.show = function(){
+        this.fadeIn(300);
+    };
+    $loadingMask.hide = function(){
+        this.fadeOut(300);
+    };
+
+    $loadingMask.hide();
+
     function init(oa) {
 
         //==preview===
@@ -626,8 +650,10 @@ window.onload = function() {
         $.each(demoList, function(i, d){
             demoControl[d.name]= function(){
                 var path = d.path;
+                $loadingMask.show();
                 $.getJSON(path, function(data){
                     oaControl.passJsonToModel(data);
+                    $loadingMask.hide();
                 });
             };
             forder.add(demoControl, d.name).name(d.name);
@@ -635,8 +661,29 @@ window.onload = function() {
         
 
     }
+ 
 
     createDemoGUI();
+
+    //load demo model from url parameter
+    $.ajaxSetup({ cache: false });
+    var urlParam = getUrlVar("m").toLowerCase();
+    function loadDemoModel(name) {
+        if (name) {
+            $.each(demoList, function(i, t) {
+                if (t.name.toLowerCase() === name) {
+                    var path = t.path;
+                    $loadingMask.show();
+                    $.getJSON(path, function(data) {
+                        oaControl.passJsonToModel(data);
+                        $loadingMask.hide();
+                    });
+                }
+            });
+        }
+    }
+    loadDemoModel(urlParam);
+
 };
 
 //======================================

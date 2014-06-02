@@ -11,6 +11,9 @@ var demoList = [{
     "name": "Bath",
     "path": "demo/bath.oa"
 }, {
+    "name": "CubeWave",
+    "path": "demo/cubes2.oa"
+}, {
     "name": "Yahoo",
     "path": "demo/yahoo.oa?v2"
 }, {
