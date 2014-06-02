@@ -12,7 +12,7 @@ var demoList = [{
     "path": "demo/bath.oa"
 }, {
     "name": "Yahoo",
-    "path": "demo/yahoo.oa"
+    "path": "demo/yahoo.oa?v2"
 }, {
     "name": "Nowday",
     "path": "demo/nowday.oa"
