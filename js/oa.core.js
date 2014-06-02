@@ -140,6 +140,10 @@ get_text_polys : function() {
     }
     var shape = new THREE.TextGeometry(text, {
       font: 'helvetiker',
+      //font: 'mickey m tfb',
+      //font: "jigsaw pieces tfb",
+      //font: "cityscape?",
+      //font: "housing",
       weight: bold ? 'bold' : "normal", //normal or bold
       style: italic ? "italic" : "normal", //normal, italic
       bevelSegments: 1,
