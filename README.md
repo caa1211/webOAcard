@@ -57,6 +57,13 @@ Mouse Operations:
   - 滾輪　改變卡片角度
 
 
+- Libraries used: 
+  - Three.JS: https://github.com/mrdoob/three.js/
+  - JS Clipper: http://sourceforge.net/projects/jsclipper/
+  - jQuery: https://github.com/jquery/jquery
+  - dat-GUI: https://code.google.com/p/dat-gui/
+  - typeface.js: http://typeface.neocracy.org/fonts.html
+  - Font Awesome: https://github.com/FortAwesome/Font-Awesome
 
 - Porting from OpenGL version:
   - http://youtu.be/MlV4Qf1-l4E 
