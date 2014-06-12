@@ -10,6 +10,7 @@ Author:
   http://www.linkedin.com/profile/view?id=225229289
   
 Mouse Operations:
+
    Edit mode (init state / edit grid open)
       - left key : add points on edit grid to create a contour
       - right key : switch to Display mode
