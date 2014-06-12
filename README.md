@@ -55,3 +55,9 @@ Mouse Operations:
   - 左鍵　拖拉移動攝影機
   - 右鍵　進入編輯模式 (開啟編輯格)
   - 滾輪　改變卡片角度
+
+
+
+- Porting from OpenGL version:
+  - http://youtu.be/MlV4Qf1-l4E 
+      
