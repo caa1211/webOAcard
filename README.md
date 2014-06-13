@@ -33,7 +33,7 @@ Mouse Operations:
       - scroll : change depth of edit grid
       
 - Contour editing
-      - left key : add points or close contour (connect to the start point or click ctrl key )
+      - left key : add points or close contour (connect to the start point or press ctrl key )
       - right key : undo the last point
       
 - Contour closed (can use contour functions in GUI)
@@ -53,13 +53,13 @@ Mouse Operations:
 - 編輯模式 (初始模式/編輯格開啟)：
   - 左鍵　圈選輪廓
   - 右鍵　切換至展示模式
-　- 中鍵　移動編輯格深度
+  - 滾輪　移動編輯格深度
 
 - 輪廓編輯時：
-  - 左鍵　點選輪廓或使用輪廓 (連接起點或按ctrl鍵)
+  - 左鍵　點選輪廓或完成輪廓 (連接起點或按ctrl鍵)
   - 右鍵　輪廓回上一步
 
-- 輪廓輪完成時 (可使用GUI中contour功能)
+- 輪廓完成時 (可使用GUI中contour功能)
   - 左鍵　建立Face/Pull/Hole (由GUI選擇)
   - 右鍵　拖拉移動輪廓
   - 滾輪　移動編輯格深度
