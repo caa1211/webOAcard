@@ -48,7 +48,7 @@ body {
         font-size:80px;
         width:100%;
         text-align: center;
-        margin-top: 60px;
+        margin-top: 40px;
         color: #eeeeee;
         -webkit-transition: all 0.1s linear;
         -moz-transition: all 0.1s linear;
@@ -66,7 +66,7 @@ body {
     }
 
     #download2D:hover > i.fa{
-        margin-top: 75px;
+        margin-top: 55px;
         -webkit-transition: all 0.1s linear;
         -moz-transition: all 0.1s linear;
         -o-transition: all 0.1s linear;
@@ -82,11 +82,11 @@ body {
      box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);*/
      border: solid 1px #4a4a4a; 
      width:150px; 
-     height:220px;
+     height:185px;
      display: block;
      position: relative; 
      z-index:50;
-     top: 10px;
+     top: 5px;
      margin: 0 auto 20px auto;
     }
     #imgContainer{
@@ -134,8 +134,8 @@ body {
     opacity: 1;
 }
 #previewUIwrapper{
-    height:240px;
-    margin-left:4px; 
+    height:195px;
+/*    margin-left:4px; */
     background:#1a1a1a;
     border-left: 3px solid #FF8F19;
     visibility: hidden;
@@ -158,3 +158,36 @@ width:30px;
 #loadingMask i{
     width:100%;  text-align: center; font-size:50px; color:#c1c1c1; margin-top:35%;
 }
+
+#shareArea{
+    position:absolute;
+    z-index: 999;
+    left: 10px;
+    bottom: 10px;
+    float: left;
+    width: 150px;
+    opacity: 0.7; 
+}
+
+#googleBadge{
+    width: 100px;
+    height: auto;
+    position: relative;
+    display: block;
+    float: left; 
+}
+#googleBadge img{
+    width: 100%;
+}
+
+#shareArea .others{
+float: left; display: block; 
+width: 30px; 
+}
+
+#shareArea .others .fa{
+font-size: 28px;
+color: #000000;
+}
+
+
