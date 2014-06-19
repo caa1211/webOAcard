@@ -170,7 +170,7 @@ width:30px;
 }
 
 #googleBadge{
-    width: 100px;
+    width: 120px;
     height: auto;
     position: relative;
     display: block;
@@ -181,13 +181,87 @@ width:30px;
 }
 
 #shareArea .others{
-float: left; display: block; 
-width: 30px; 
+    float: left; display: block; 
+    width: 30px; 
 }
 
 #shareArea .others .fa{
-font-size: 28px;
-color: #000000;
+    font-size: 23px;
+    color: #000000;
 }
+
+#tipBtn {
+    cursor: pointer;
+    color: #000000;
+}
+
+#tipBtn i.fa {
+    font-size: 28px;
+}
+
+#tip {
+    padding-left: 160px;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 95px;
+    position: absolute;
+    z-index: 10;
+    background: #000000;
+    color: #ffffff;
+    opacity: 0.5;
+    font-size: 12px;
+
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;   
+}
+
+#tip.hide {
+    bottom: -100px;
+    opacity: 0;
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;   
+}
+
+#tip p{
+  font-size: 14px;
+  font-weight: bold;
+  vertical-align: middle;
+  border-bottom: outset 1px #ffffff;
+  margin-left: -5px;
+  padding-left: 10px;
+}
+
+#tip ul{
+  padding-left: 20px;
+  list-style-type: square;
+}
+
+
+#tip .modeTip{
+    display: none;
+}
+
+#tip.edit .modeTip.edit{
+    display: block;
+}
+
+
+#tip.contouring .modeTip.contouring{
+    display: block;
+}
+
+#tip.contoured .modeTip.contoured{
+    display: block;
+}
+
+#tip.display .modeTip.display{
+    display: block;
+}
+
 
 
