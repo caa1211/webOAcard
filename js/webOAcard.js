@@ -58,6 +58,8 @@
     var $previewUIwrapper = $("#previewUIwrapper");
     var $fileUpload = $("#fileUpload");
     var $loadingMask = $("#loadingMask");
+    var $tip = $("#tip");
+    var $tipBtn = $("#tipBtn");
     $loadingMask.show = function(){
         this.fadeIn(300);
     };
@@ -69,6 +71,17 @@
 
     function init(oa) {
 
+    $tipBtn.click(function() {
+        $tip.hasClass("hide") ?
+            function() {
+                $tip.removeClass("hide");
+                $tipBtn.children(".fa").addClass("fa-rotate-90");
+        }() :
+            function() {
+                $tip.addClass("hide");
+                $tipBtn.children(".fa").removeClass("fa-rotate-90");
+        }()
+    });
         //==preview===
         scene2 = new THREE.Scene();
         renderer2 = new THREE.WebGLRenderer({
@@ -603,7 +616,7 @@ window.onload = function() {
         f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right"></i> Reuse Next');
         f2.add(oaControl, 'cclear').name('<i class="fa fa-times "></i> Clear Contour');
 
-        f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h"></i> Mirror');
+        f2.add(oaControl, 'rotateX').name('<i class="fa fa-arrows-h"></i> Flip');
         f2.add(oaControl, 'alignXCenter').name('<i class="fa fa-compress"></i> Align Center');
         subLevelUI = f2.add(oaControl, "subLevel", 1, 5).step(1).name(' Subdivision').onChange(
             oaControl.subLevelChange);
@@ -704,6 +717,25 @@ function setGlobalValuableByCardSize(cw, ch) {
 
     $(oaModel).bind("facesClipped", function() {
         renderPreview();
+    });
+
+    $(oaModel).bind("editModeChange", function(e, b) {
+        if(b){//editing
+            $tip.removeClass("contouring contoured display").addClass("edit");
+        }else{//display
+            $tip.removeClass("contouring contoured edit").addClass("display");
+        }
+    });
+ 
+    $(oaModel).bind("contourStateChange", function(e, b) {
+        if(b===0){//edit
+            $tip.removeClass("contouring contoured display").addClass("edit");
+        }
+        else if(b===1){//contour editing
+            $tip.removeClass("edit contoured display").addClass("contouring");
+        }else if(b ===2){//contour closed
+            $tip.removeClass("edit contouring display").addClass("contoured");
+        }
     });
 
     // $(oaModel).bind("editModeChange", function() {

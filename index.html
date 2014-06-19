@@ -25,9 +25,49 @@
 
  
     <div id="container">
-        <div id="loadingMask"><i class="fa fa-spinner fa-spin"></i></div>
+        <div id="loadingMask"><i class="fa fa-slack fa-spin"></i></div>
     </div>
 
+
+
+<div id="tip" class="modeSel display hide">
+    <ul class="task-list">
+    <li class="modeTip edit">
+    <p>Edit mode</p>
+        <ul class="task-list">
+        <li>left key : add points on edit grid to create a contour</li>
+        <li>right key : switch to Display mode</li>
+        <li>scroll : change depth of edit grid</li>
+        </ul>
+    </li>
+     
+    <li class="modeTip contouring">
+    <p>Contour editing</p>
+        <ul class="task-list">
+        <li>left key : add points or close contour (connect to the start point or press ctrl key )</li>
+        <li>right key : undo the last point</li>
+        </ul>
+    </li>
+
+    <li class="modeTip contoured">
+    <p>Contour closed</p>
+         <ul class="task-list">
+        <li>left key : use contour to create a Face/Pull/Hole (select from GUI)</li>
+        <li>right key : drag to move the contour</li>
+        <li>scroll : change the depth of edit grid</li>
+        </ul>
+    </li>
+
+    <li class="modeTip display"> 
+    <p>Display mode</p>
+        <ul class="task-list">
+        <li>left key : move the camera</li>
+        <li>right key : switch to Edit mode</li>
+        <li>scroll : change the card angle</li>
+        </ul>
+    </li>
+    </ul>
+</div>
 
     <div id="imgContainer" style="">
         <img style="">
@@ -51,6 +91,10 @@
 
 <div id="shareArea">
   <div class="others">
+<a id="tipBtn">
+<i class="fa fa-question-circle"></i>
+</a>
+
     <a href="https://github.com/caa1211/webOAcard" target="_blank" ><i class="fa fa-github"></i></a>
     <a href="https://www.facebook.com/caa1211" target="_blank" ><i class="fa fa-facebook-square"></i></a>
   </div>
