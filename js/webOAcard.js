@@ -644,6 +644,8 @@ window.onload = function() {
             autoPlace: false
         });
 
+        gui.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New Model');
+
         $demoContainer = $("#demoContainer");
         $demoContainer.append(gui.domElement);
         var forder = gui.addFolder('Model Examples');
