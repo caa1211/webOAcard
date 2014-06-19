@@ -5,7 +5,6 @@ webOAcard
 
 Demo:
 - http://caa1211.github.io/webOAcard/
-- https://developer.mozilla.org/en-US/demos/detail/pop-up-card-builder
   
 Author:
 - caa@livemail.tw   
