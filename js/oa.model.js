@@ -736,17 +736,17 @@ OA.Model = function(userSetting, isPattern2D) {
       if(ftype === foldType.mountain){
           foldOpt.dashSize = 1;
           foldOpt.gapSize = 0.5;
-          foldOpt.color = 0xDF3B39;
+          //foldOpt.color = 0xDF3B39;
       }else{
           foldOpt.dashSize = 1;
           foldOpt.gapSize = 2;
-          foldOpt.color = 0x8ADF39;
+          //foldOpt.color = 0x8ADF39;
       }
 
       var p1 = ln[0],
         p2 = ln[1];
-      var d3p1 = new THREE.Vector3(p1.X+1, 0.2 , p1.Y);
-      var d3p2 = new THREE.Vector3(p2.X-1, 0.2 , p2.Y);
+      var d3p1 = new THREE.Vector3(p1.X+0.5, 0.2 , p1.Y);
+      var d3p2 = new THREE.Vector3(p2.X-0.5, 0.2 , p2.Y);
       var geometry = new THREE.Geometry();
       geometry.vertices.push(d3p1, d3p2);
 
@@ -872,13 +872,14 @@ OA.Model = function(userSetting, isPattern2D) {
 
     if (editPlane.isVisible === true) {
       var intersects = raycaster.intersectObjects([editPlane.getObjectByName("faceBody")]);
+
       if (intersects.length > 0) {
         intersector = getRealIntersector(intersects);
         if (intersector) {
           var hoverPos = getHoverPosition(intersector);
           if (!movePoint.isEqualPosition(hoverPos)) {
+            hoverPos.z = editPlane.getT();
             movePoint.setPosition3D(hoverPos);
-
             movePoint.inEditplane = true;
           }
           if (liveContour != null) {

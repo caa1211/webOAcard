@@ -71,6 +71,7 @@
 
     function init(oa) {
 
+    raycaster = new THREE.Raycaster();
     $tipBtn.click(function() {
         $tip.hasClass("hide") ?
             function() {
@@ -96,7 +97,6 @@
         cam2.aspect = previewW / previewH;
         cam2.updateProjectionMatrix();
         renderer2.setSize(previewW, previewH);
-
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, $container.width() / $container.height(), 0.1, 200000);
         //camera = new  THREE.OrthographicCamera( window.innerWidth / - 6, window.innerWidth / 6, window.innerHeight / 6, window.innerHeight / - 6, -1000, 1000);
@@ -123,12 +123,13 @@
         renderPreview();
 
         if (OA.light) {
-            var ambientLight = new THREE.AmbientLight(0xFFE4C4);
+            var ambientLight = new THREE.AmbientLight(0xEEEEEE);
             scene.add(ambientLight);
             var spotLight = new THREE.SpotLight(0xffffff);
-            spotLight.position.set(-viewerR * 30, viewerR * 25, viewerR * 40);
-            //spotLight.castShadow = true;
+            spotLight.position.set(-viewerR * 30, viewerR * 35, viewerR * 40);
             scene.add(spotLight);
+
+            spotLight.castShadow = true;
         }
 
         var w = $container.width();
@@ -260,7 +261,20 @@
        
     }
     function render() {
-        raycaster = projector.pickingRay(mouse2D.clone(), camera);
+        //raycaster = projector.pickingRay(mouse2D.clone(), camera);
+
+//         var coords = new THREE.Vector2();
+//         coords.x = ( mouse2D.x / renderer.domElement.width ) * 2 - 1;
+//         coords.y = - ( mouse2D.y / renderer.domElement.height ) * 2 + 1;
+//         debugger;
+// raycaster.pickingRay( coords, camera );
+
+
+
+        var vector = mouse2D.clone().unproject( camera );
+        var direction = new THREE.Vector3( 0, 0, -1 ).transformDirection( camera.matrixWorld );
+        raycaster.set( camera.position, vector.sub( camera.position ).normalize());
+
         oaModel.tick({
             raycaster: raycaster,
             ctrlKey: mouse2D.ctrlKey,
@@ -710,9 +724,9 @@ function setGlobalValuableByCardSize(cw, ch) {
     viewerR = maxWidth * 2.5;
     sceneOffset = new THREE.Vector3(cardW / 2, cardH / 3, 0);
     cam2.position.set(0, viewerR, 0);
-    scene2.position.x = cardW / 2;
+    scene2.position.x = 0;
     cam2.position.x = cardW / 2;
-    cam2.lookAt(scene2.position);
+    cam2.lookAt(new THREE.Vector3(cardW / 2, 0, 0));
     cam2.rotation.z = 0 * Math.PI / 180;
 
     $(oaModel).bind("facesClipped", function() {
