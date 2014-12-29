@@ -17,8 +17,8 @@ OA.Face = function(userSetting) {
       type: "HFACE", //HFACE or VFACE,
       opacity: 1,
       gridData: {},
-      borderColor: 0x555555,
-      borderWidth: 2.0,
+      borderColor: 0x888888,
+      borderWidth: 2.5,
       initAngle: 90,
       addingLine: null,
       depthTest: true,
@@ -171,7 +171,6 @@ OA.Face = function(userSetting) {
       });
 
       var lightMaterial = new THREE.MeshPhongMaterial({
-         map: paperTexture,
          ambient: 0x555555,
          color: typeOpts[type].color,
          side: THREE.DoubleSide,
@@ -179,11 +178,14 @@ OA.Face = function(userSetting) {
          visible: _setting.opacity === 0 ? false : true,
          side: THREE.DoubleSide,
          specular: 0x333333,
-         shininess: 40,
-         shading: THREE.SmoothShading
+         shininess: 4,
+         shading: THREE.SmoothShading,
+         // map: paperTexture,
+         bumpMap: paperTexture
       });
-
-      var planeMat = OA.light ? lightMaterial : baseMaterial;
+      lightMaterial.bumpScale = 0.3;
+  
+      var planeMat = lightMaterial;
  
 
       if (_setting.oaMode === 1) {
@@ -246,9 +248,7 @@ OA.Face = function(userSetting) {
          depthTest: _setting.depthTest,
          depthWrite: _setting.depthWrite
       });
-      var line = new THREE.Line(geometry, material);
-      line.type = THREE.LinePieces;
-
+      var line = new THREE.Line(geometry, material, THREE.LinePieces);
       line.name = "faceGrid";
       face.add(line);
    }

@@ -1,3 +1,18 @@
+
+THREE.TextGeometry = function ( text, parameters ) {
+  parameters = parameters || {};
+  this.textShapes = THREE.FontUtils.generateShapes( text, parameters );
+  parameters.amount = parameters.height !== undefined ? parameters.height : 50;
+
+  // defaults
+  if ( parameters.bevelThickness === undefined ) parameters.bevelThickness = 10;
+  if ( parameters.bevelSize === undefined ) parameters.bevelSize = 8;
+  if ( parameters.bevelEnabled === undefined ) parameters.bevelEnabled = false;
+  THREE.ExtrudeGeometry.call( this, this.textShapes, parameters );
+  this.type = 'TextGeometry';
+};
+THREE.TextGeometry.prototype = Object.create( THREE.ExtrudeGeometry.prototype );
+
 var OA = {
    REVISION: 'r01',
    debugMode: true,
@@ -8,10 +23,41 @@ var OA = {
    paperTexture: true,
    clipScale: 1000,
    paperTextureInfo:{
+     // src: "img/wood.jpg",
+     // size: 575,
+     // isFill: false
 
-     src: "img/p3.jpg",
-     size: 130,
+     // src: "img/leather01.jpg",
+     // size: 600,
+     // isFill: false
+
+     // src: "img/bumpmap3.bmp",
+     // size: 256,
+     // isFill: false
+
+     // src: "img/bump1.jpg",
+     // size: 512,
+     // isFill: false
+
+     // src: "img/bump2.jpg",
+     // size: 512,
+     // isFill: false
+
+     // src: "img/bump4.jpg",
+     // size: 400,
+     // isFill: false
+
+     // src: "img/bump5.jpg",
+     // size: 500,
+     // isFill: false
+
+     src: "img/bump6.jpg",
+     size: 300,
      isFill: false
+
+     // src: "img/p3.jpg",
+     // size: 130,
+     // isFill: false
 
      // src: "img/paper0.jpg",
      // size: 200,

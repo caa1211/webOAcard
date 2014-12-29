@@ -88,8 +88,10 @@ OA.Point = function(userSetting) {
 
     this.setPosition3D = function(hoverPos) {
         position3D = hoverPos.clone();
-        point.position = hoverPos.clone();
-        point.position.z = point.position.z + 0.3;
+        point.position.x = position3D.x;
+        point.position.y = position3D.y;
+        //point.position.z = position3D.z + 0.3;
+        //console.log(point.position.x+","+point.position.y+","+point.position.z);
         $point.trigger("positionChange", position3D);
     };
 
