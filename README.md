@@ -77,3 +77,4 @@ TODO:
   - Save model to localStorage
   - Photo upload
   - Tutorial
+  - Animation method rewrite
