@@ -71,3 +71,9 @@ Mouse Operations:
   - 右鍵　進入編輯模式 (開啟編輯格)
   - 滾輪　改變卡片角度
 
+======================================================================
+TODO:
+  - Shadow map self shadowing
+  - Save model to localStorage
+  - Photo upload
+  - Tutorial
