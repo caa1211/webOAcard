@@ -77,9 +77,9 @@ OA.Point = function(userSetting) {
         if(position3D === undefined){
             return false;
         }
-        if(position3D.x === pos.x && 
-           position3D.y === pos.y &&
-           position3D.z === pos.z){
+        if(position3D.x === pos.x &&
+            position3D.y === pos.y &&
+            position3D.z === pos.z){
             return true;
         }else{
             return false;
@@ -122,7 +122,7 @@ OA.Point = function(userSetting) {
             borderMaterial.color.setHex(colorMap[index]);
             innerMaterial.color.setHex(colorMap[index]);
             if(pointLight){
-                 pointLight.color.setHex(colorMap[index]);
+                pointLight.color.setHex(colorMap[index]);
             }
         }
     };

@@ -157,7 +157,7 @@ OA.Face = function(userSetting) {
       if (OA.paperTexture) {
          var textures = OA.Utils.texture.getTexture();
          var paperTexture = textures.paper;
-        // paperTexture.repeat.set(0.05, 0.05);
+         // paperTexture.repeat.set(0.05, 0.05);
       }
 
 
@@ -183,9 +183,9 @@ OA.Face = function(userSetting) {
          bumpMap: paperTexture
       });
       lightMaterial.bumpScale = -0.3;
-  
+
       var planeMat = lightMaterial;
- 
+
 
       if (_setting.oaMode === 1) {
          planeMat = new THREE.MeshBasicMaterial({
@@ -220,7 +220,7 @@ OA.Face = function(userSetting) {
       for(var i=0; i<lAry.length; i++ ){
          geometry.vertices.push(new THREE.Vector3(lAry[i][0], -0.1, lAry[i][1]-0.1));
       }
-     
+
       var addingLines = new THREE.Line(geometry, new THREE.LineDashedMaterial({
          linewidth: 4,
          color: 0x336699
@@ -268,7 +268,7 @@ OA.Face = function(userSetting) {
       if (_setting.gridData) {
          createFaceGrid(face, _setting.gridData);
       }
-     if (_setting.addingLine) {
+      if (_setting.addingLine) {
          createAddingLine(face);
       }
       // face.updateMatrix();
@@ -282,14 +282,14 @@ OA.Face = function(userSetting) {
    };
 
    this.setExPolygons = function(exPolygons){
-       _setting.contours = exPolygons;
+      _setting.contours = exPolygons;
    };
 
 
    this.setAngle = function(angle) {
       applyAngle(this, angle);
    };
-   
+
    this.getT = function(){
       return face.oaInfo.t;
    };
@@ -386,7 +386,7 @@ OA.Face = function(userSetting) {
 
    function collectTopUpperLower(upperStore, lowerStore, pAry, index) {
       if(!pAry || pAry && pAry.length ===0){
-        return {
+         return {
             uppers: upperStore,
             lowers: lowerStore
          };
@@ -403,7 +403,7 @@ OA.Face = function(userSetting) {
             p1 = pAry[i];
             p2 = pAry[i + 1];
          } else {
-            p1 = pAry[i],
+            p1 = pAry[i];
             p2 = pAry[0];
          }
          var upperOrLower = [p1, p2];
@@ -445,7 +445,7 @@ OA.Face = function(userSetting) {
          return {
             uppers: upperStore,
             lowers: lowerStore
-            };
+         };
       }
       if (upperStore) {
          uppers = upperStore;
@@ -468,7 +468,7 @@ OA.Face = function(userSetting) {
             p1 = pAry[i];
             p2 = pAry[i + 1];
          } else {
-            p1 = pAry[i],
+            p1 = pAry[i];
             p2 = pAry[0];
          }
          var upperOrLower = [p1, p2];
@@ -498,7 +498,7 @@ OA.Face = function(userSetting) {
       var upper2Dary = [];
       var lower2Dary = [];
       if (contours &&  contours.type !== "expolygons") {
-        // debugger;
+         // debugger;
          $.each(contours, function(i, poly) {
             var outer = poly.outer;
             var holes = poly.holes;

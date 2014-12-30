@@ -37,7 +37,7 @@ OA.Model = function(userSetting, isPattern2D) {
   var maxWidth = cardW > cardH ? cardW : cardH;
   var mf = OA.Utils.mf;
   var gridStep = mf(maxWidth / _setting.gridNum);
- 
+
   var initEditT = _setting.gridZstep;//mf(_setting.gridNum / 4) * gridStep;
   if (initEditT > cardH) {
     initEditT = cardH - _setting.gridZstep;
@@ -363,7 +363,7 @@ OA.Model = function(userSetting, isPattern2D) {
     if (!editPlane.isVisible) {
       OA.Utils.cleanObject3D(intersectionLines);
       return;
-    } 
+    }
     var geometry = new THREE.Geometry();
     var et = newDist;
     OA.Utils.cleanObject3D(intersectionLines);
@@ -396,7 +396,7 @@ OA.Model = function(userSetting, isPattern2D) {
     line.position.z = -0.5;
     intersectionLines.add(line);
   }
-  
+
   function onMousewheel(event, delta, deltaX, deltaY) {
     if (event.ctrlKey) {
       event.preventDefault();
@@ -601,7 +601,7 @@ OA.Model = function(userSetting, isPattern2D) {
   }
 
   var buildFoldLine = function (clippedFaces){
-   
+
     var vupper = [ /*{  t: 0, pnts: [X:0, Y:0] }*/  ];
     var vlower = [ ];
     var hupper = [ ];
@@ -640,7 +640,7 @@ OA.Model = function(userSetting, isPattern2D) {
         }
       });
     });
-    
+
     //find mountain line
     $.each(vupper, function(i, vuLine){
         $.each(hlower, function(j, hlLine){
@@ -767,7 +767,7 @@ OA.Model = function(userSetting, isPattern2D) {
       foldLineGroup.add(foldLine);
     }
   }
-  
+
   function changeCardMode(cardMode) {
     if (cardMode === 0) {
       //edit
@@ -1136,7 +1136,7 @@ OA.Model = function(userSetting, isPattern2D) {
       return "---  | Total:" + total;
     }
   };
-  
+
   this.contourRotateX = function() {
     if (liveContour != null && liveContour.checkClosed()) {
       liveContour.rotateX();
