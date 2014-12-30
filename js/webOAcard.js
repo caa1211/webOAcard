@@ -139,7 +139,6 @@
             spotLight.shadowCameraFov = 40;
             spotLight.shadowMapWidth = 2048;
             spotLight.shadowMapHeight = 2048;
-            spotLight.castShadow = true;
             scene.add(spotLight);
         }
 
