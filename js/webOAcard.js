@@ -151,7 +151,7 @@ function init(oa) {
         //OA.Utils.debugaxis(scene, oa, 1000);
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
-        stats.domElement.style.top = '0px';;
+        stats.domElement.style.top = '0px';
         container.appendChild(stats.domElement);
     }
 
