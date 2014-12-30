@@ -15,13 +15,14 @@ THREE.TextGeometry.prototype = Object.create( THREE.ExtrudeGeometry.prototype );
 
 var OA = {
     REVISION: 'r01',
-    debugMode: true,
+    debugMode: false,
     logLevel: 2, //0: error, 1: warning, 2: info
     tunePath: true,
     light: true,
     pointLight: false,
     paperTexture: true,
     clipScale: 1000,
+    cameraOffset: 80,
     paperTextureInfo:{
 //     src: "img/wood.jpg",
 //     size: 575,

@@ -16,7 +16,7 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 var container = document.getElementById('container');
 var $container = $(container);
-var cameraOffset = 110;
+var cameraOffset = OA.cameraOffset;
 
 var debugMode = OA.debugMode;
 var camera, scene, renderer;
