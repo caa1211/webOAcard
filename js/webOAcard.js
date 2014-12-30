@@ -307,10 +307,14 @@ window.onload = function() {
         $.extend(modelOption, opt);
         OA.Utils.texture.loadAllTexture(modelOption);
         oaModel = new OA.Model(modelOption);
+        oaModel.visible = false;
         scene.add(oaModel);
         setGlobalValuableByCardSize(modelOption.cardW, modelOption.cardH);
         oaModel.setCardMode(0);
         renderPreview();
+        setTimeout(function(){
+            oaModel.visible = true;
+        }, 100);
     }
 
     function removeURLParameter() {
