@@ -466,7 +466,9 @@ OA.Model = function(userSetting, isPattern2D) {
     });
     editPlane.position.z = initEditT;
     editPlane.setT(initEditT);
-
+    var planeMesh = editPlane.getFaceMesh();
+    planeMesh.receiveShadow = false;
+    planeMesh.castShadow = false;
     editPlane.setGridColorByIndex(0);
     model.add(editPlane);
 
