@@ -183,9 +183,5 @@ body .dg .c .slider:hover .slider-fg {
 }
 
 body .dg li.folder {
-    border-left: 0;
-}
-
-body .dg.a {
-    border-right:4px solid #3d3d3d;
+    border-left: -4px;
 }
