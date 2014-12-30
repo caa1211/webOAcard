@@ -213,6 +213,14 @@ OA.Model = function(userSetting, isPattern2D) {
     if (!contour) {
       return;
     }
+    //push subdivision contour to repo
+    if(contour.subdivisionLevel > 1){
+      if (contour instanceof OA.Contour) {
+        contourRepo.push(contour.getPosition3Ds());
+      } else if (contour instanceof OA.ExContour) {
+        contourRepo.push(contour.getPoint2Ds());
+      }
+    }
     var point2Ds = contour.getPoint2Ds();
     var newFace = createFace(point2Ds, "VFACE", contour.t, {
       faceCreateMode: faceCreateMode
@@ -1146,6 +1154,7 @@ OA.Model = function(userSetting, isPattern2D) {
   this.subdivision = function(level, xLimit) {
     if (liveContour){
       liveContour.subdiv(level, xLimit);
+      liveContour.subdivisionLevel = level;
     }
   };
 

@@ -313,6 +313,14 @@ window.onload = function() {
         renderPreview();
     }
 
+    function removeURLParameter() {
+        var uri = window.location.toString();
+        if (uri.indexOf("?") > 0) {
+            var clean_uri = uri.substring(0, uri.indexOf("?"));
+            window.history.replaceState({}, document.title, clean_uri);
+        }
+    }
+
     var oaControl = {
         cardAngle: 90,
         angleChange: function(angle) {
@@ -397,6 +405,7 @@ window.onload = function() {
             if (oaControl.confirmModelChange()) {
                 newOAModel(oaControl);
                 createGUI();
+                removeURLParameter();
             }
         },
         readOAFile: function(evt){
@@ -407,14 +416,14 @@ window.onload = function() {
                     var contents = e.target.result;
                     try {
                         if(oaControl.confirmModelChange()){
-                            oaControl.passFileToModel(contents);
+                            oaControl.passFileToModel(contents, f.name);
                             loadedFileName = f.name;
                         }
                     } catch (e) {
                         alert("Failed to load file");
                     }
                     //alert("Got the file.n" + "name: " + f.name + "n" + "type: " + f.type + "n" + "size: " + f.size + " bytesn" + "starts with: " + contents);
-                }
+                };
                 r.readAsText(f);
             } else {
                 alert("Failed to load file");
@@ -433,10 +442,13 @@ window.onload = function() {
             }
             return res;
         },
-        passFileToModel: function(contents) {
+        passFileToModel: function(contents, name) {
             var fileObj = jQuery.parseJSON(contents);
             newOAModel(fileObj.settings);
             oaModel.setModel(fileObj);
+            if(name){
+                history.pushState(null, null, "?m="+name.toLowerCase());
+            }
             createGUI();
         },
         passJsonToModel: function(jsonContents, name) {
