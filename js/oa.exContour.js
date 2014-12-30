@@ -84,7 +84,7 @@ OA.ExContour = function(userSetting) {
                var p3d = OA.Utils.D2To3(point, t, "VFACE");
                holeP3dAry.push(p3d);
             });
-            hole_shape = new THREE.Shape(holeP3dAry); 
+            hole_shape = new THREE.Shape(holeP3dAry);
             addBolderInShape(hole_shape);
          });
 
@@ -92,13 +92,13 @@ OA.ExContour = function(userSetting) {
    }
 
    this.moveTo = function(newPos, t){
-         var newPos2D;
-         if(newPos){
-            newPos2D = OA.Utils.D3To2(newPos, t);
-         }
-         var newExpolys = movePoint2Ds(expolys, newPos2D, t);
-         expolys = newExpolys;
-      
+      var newPos2D;
+      if(newPos){
+         newPos2D = OA.Utils.D3To2(newPos, t);
+      }
+      var newExpolys = movePoint2Ds(expolys, newPos2D, t);
+      expolys = newExpolys;
+
       draw3DExpolys();
    };
 
@@ -117,7 +117,7 @@ OA.ExContour = function(userSetting) {
 
    this.moveTest = function(){
 
-     var newExpolys =  movePoint2Ds(expolys, {X:0, Y:0}, 20);
+      var newExpolys =  movePoint2Ds(expolys, {X:0, Y:0}, 20);
       expolys = newExpolys;
       draw3DExpolys();
    };
@@ -158,10 +158,10 @@ OA.ExContour = function(userSetting) {
       }
 
       newPolys = eachPointOperation(polys, function(point){
-            return {
-               X: newPos && newPos.X===null? point.X : point.X - middlePoint.X + target.X,
-               Y: newPos && newPos.Y===null? point.Y : point.Y - middlePoint.Y + target.Y
-            };
+         return {
+            X: newPos && newPos.X===null? point.X : point.X - middlePoint.X + target.X,
+            Y: newPos && newPos.Y===null? point.Y : point.Y - middlePoint.Y + target.Y
+         };
       });
 
       return newPolys;
@@ -235,10 +235,10 @@ OA.ExContour = function(userSetting) {
       var polys = expolys;
       var mp = getMiddlePointFromPath(polys);
       newPolys = eachPointOperation(polys, function(point){
-          return {
-                  X: point.X * -1,
-                  Y: point.Y
-                 };
+         return {
+            X: point.X * -1,
+            Y: point.Y
+         };
       });
       expolys = movePoint2Ds(newPolys, mp);
       draw3DExpolys();
@@ -253,7 +253,7 @@ OA.ExContour = function(userSetting) {
    };
 
 
-     //public
+   //public
    this.subdiv = function(level, xLimit) {
 
       exContour.subLevel = level;
@@ -276,7 +276,7 @@ OA.ExContour = function(userSetting) {
    var subdivision = function(polys, xLimit) {
       var newPolys = eachPathOperation(polys, function(path){
          var newPath = OA.Utils.subdivision(path, xLimit);
-            return newPath;
+         return newPath;
       });
       return newPolys;
    };

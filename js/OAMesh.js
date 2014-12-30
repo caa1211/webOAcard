@@ -6,10 +6,10 @@
 THREE.OAMesh = function ( geometry, material ) {
     THREE.Mesh.call( this, geometry, material );
     this.oa = {
-    	type: "",
-    	depth: 0
+        type: "",
+        depth: 0
     };
-	return 0;
+    return 0;
 };
 
 THREE.OAMesh.prototype = Object.create( THREE.Mesh.prototype );

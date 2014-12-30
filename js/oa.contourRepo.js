@@ -11,7 +11,7 @@ OA.ContourRepo = function(userSetting) {
         if (p3ds.cid != null) {
             curr = p3ds.cid;
         }
-    }
+    };
     this.push = function(p3ds) {
         var original = Array.prototype.push;
         if (p3ds.cid != null) {

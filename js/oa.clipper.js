@@ -188,24 +188,24 @@ OA.Clipper = function(userSetting) {
         //     return resPolys;
         // } else {
 
-            var resPolys = [];
-            var p1x = modifyFloatPoint(upper[0].X);
-            var p2x = modifyFloatPoint(upper[1].X);
-            var upperY = modifyFloatPoint(upper[0].Y);
-            var upperMaxX = p1x > p2x ? p1x : p2x;
-            var upperMinX = p1x < p2x ? p1x : p2x;
-            $.each(polys, function(i, poly) {
-                var vaildPoly = null;
-                $.each(poly && poly.outer, function(j, p2d) {
-                    if (p2d.Y === upperY && p2d.X <= upperMaxX && p2d.X >= upperMinX) {
-                        vaildPoly = poly;
-                    }
-                });
-                if (vaildPoly) {
-                    resPolys.push(vaildPoly);
+        var resPolys = [];
+        var p1x = modifyFloatPoint(upper[0].X);
+        var p2x = modifyFloatPoint(upper[1].X);
+        var upperY = modifyFloatPoint(upper[0].Y);
+        var upperMaxX = p1x > p2x ? p1x : p2x;
+        var upperMinX = p1x < p2x ? p1x : p2x;
+        $.each(polys, function(i, poly) {
+            var vaildPoly = null;
+            $.each(poly && poly.outer, function(j, p2d) {
+                if (p2d.Y === upperY && p2d.X <= upperMaxX && p2d.X >= upperMinX) {
+                    vaildPoly = poly;
                 }
             });
-            return resPolys;
+            if (vaildPoly) {
+                resPolys.push(vaildPoly);
+            }
+        });
+        return resPolys;
         //}
     }
 
@@ -283,7 +283,7 @@ OA.Clipper = function(userSetting) {
                         return true;
                     }
                 }
-         
+
                 if (ft < ut) {
                     //create smallFakeHface from upper to pervious vface
                     var smallFakeHface = fakeHface(upper, ut - ft);
@@ -321,8 +321,8 @@ OA.Clipper = function(userSetting) {
     }
 
     function clipAbove(faceList) {
-       
-       var new_faceList = $.grep(faceList, function(f, i) {
+
+        var new_faceList = $.grep(faceList, function(f, i) {
             var subj = f.getExPolygons();
             if(!subj || (subj&& subj.length ===0)){
                 //remove from list
@@ -346,7 +346,7 @@ OA.Clipper = function(userSetting) {
             f.rebuild(subj);
             return true;
         });
-       return new_faceList;
+        return new_faceList;
     }
 
     function unionList(faceList) {
@@ -364,9 +364,9 @@ OA.Clipper = function(userSetting) {
         }
         return unionPolys;
     }
-    
 
-    function doMergeFaces(face, faces){ 
+
+    function doMergeFaces(face, faces){
         var unionPoly = unionList(faces);
         face.rebuild(unionPoly, true);
         return face;
@@ -406,7 +406,7 @@ OA.Clipper = function(userSetting) {
         // if (forceClipList.length > 0) {
 
         //     var forceClipAllPoly = unionList(forceClipList);
-    
+
         //     $.each(vface_list, function(i, f) {
         //         var subj = f.getExPolygons();
         //         var clip = forceClipAllPoly;
@@ -432,7 +432,7 @@ OA.Clipper = function(userSetting) {
             $.each(forceClipList, function(i, fc) {
                 var lower2Ds = fc.getLower2Ds();
                 var lower2DY = lower2Ds && lower2Ds[0] &&  lower2Ds[0][0] &&  lower2Ds[0][0].Y;
-               //debugger;
+                //debugger;
                 var fct = fc.getT();
                 var fctPoly = fc.getExPolygons();
                 $.each(vface_list, function(i, f) {
@@ -470,11 +470,11 @@ OA.Clipper = function(userSetting) {
         var hfaceAllPoly = unionList(hface_list);
         var unionAllPoly = null;
         if(vfaceAllPoly && hfaceAllPoly){
-          unionAllPoly = polyBoolean(vfaceAllPoly, hfaceAllPoly, clipType.ctUnion);
+            unionAllPoly = polyBoolean(vfaceAllPoly, hfaceAllPoly, clipType.ctUnion);
         }else if(vfaceAllPoly && ! hfaceAllPoly){
-          unionAllPoly = vfaceAllPoly;
+            unionAllPoly = vfaceAllPoly;
         }else if(hfaceAllPoly && ! vfaceAllPoly){
-          unionAllPoly = hfaceAllPoly;
+            unionAllPoly = hfaceAllPoly;
         }
 
         if (unionAllPoly) {
@@ -540,7 +540,7 @@ OA.Clipper = function(userSetting) {
             var maxP = m.maxP(u);
             maxX = maxP.X > maxX ? maxP.X : maxX;
         });
-        newUpper[0] = {X: maxX, Y: upperY},
+        newUpper[0] = {X: maxX, Y: upperY};
         newUpper[1] = {X: minX, Y: upperY};
         newUpper.mergeUppers = sameYary;
         return newUpper;
@@ -607,7 +607,7 @@ OA.Clipper = function(userSetting) {
                 return true;
             });
             pullList = new_pullList;
-        });    
+        });
 
         //find upper
         vface_list.sort(compareFaceT);
@@ -638,7 +638,7 @@ OA.Clipper = function(userSetting) {
                     // if (yChecked > -1) {
                     //     return true;
                     // }
-                   
+
                     // var sameYuppers = $.grep(upper2Ds, function(u, k) {   
                     //     var res = false;
                     //     if(u[0].Y == uy && !u.inHole && u.polyIndex === uPolyIndex){
@@ -678,7 +678,7 @@ OA.Clipper = function(userSetting) {
             }
         });
         upper_list.sort(compareUpperY);
-        
+
         //merge vface list and pull list
         vface_list = tryMergeFaces($.merge(vface_list, pullList));
 
@@ -718,9 +718,9 @@ OA.Clipper = function(userSetting) {
             hface_list[i].setAngle(cardAngle);
             clipper.push(hface_list[i]);
         }
-       
+
         return clipper.length>0;
-        
+
     };
 
 

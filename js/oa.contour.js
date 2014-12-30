@@ -44,7 +44,7 @@ OA.Contour = function(userSetting) {
    var init = function() {
       contour.t = _setting.t;
       contour.baseT = _setting.t;
-     
+
       lineGroup = new THREE.Object3D();
       contour.add(lineGroup);
       lineGroup.position.z = 0.1;
@@ -201,7 +201,7 @@ OA.Contour = function(userSetting) {
             p1 = p3DAry[i];
             p2 = p3DAry[i+1];
          } else {
-            p1 = p3DAry[i],
+            p1 = p3DAry[i];
             p2 = p3DAry[0];
          }
 
@@ -352,7 +352,7 @@ OA.Contour = function(userSetting) {
          OA.Utils.modifyPathOrientation(path, true);
          return path;
       }
-  
+
    }
 
    this.getPoint2Ds = function() {
@@ -391,9 +391,9 @@ OA.Contour = function(userSetting) {
    function collectUpper2Ds(point2Ds){
       var ary = [];
       $.each(point2Ds, function(i, p2d){
-            // if (p1.y === p2.y && p1.x > p2.x) {
-            //    contour.uppers.push([p1, p2]);
-            // }
+         // if (p1.y === p2.y && p1.x > p2.x) {
+         //    contour.uppers.push([p1, p2]);
+         // }
 
          debugger;
       })
@@ -483,7 +483,7 @@ OA.Contour = function(userSetting) {
       userPosition3Ds = convertPoint2DsTo3Ds(point2Ds);
       drawCloseCoutour();
    };
-   
+
    //public
    this.subdiv = function(level, xLimit) {
 
@@ -555,8 +555,8 @@ OA.Contour = function(userSetting) {
       }
 
       var p1 = movePosition3D,
-         p2 = userPosition3Ds[len - 1],
-         geometry = new THREE.Geometry();
+          p2 = userPosition3Ds[len - 1],
+          geometry = new THREE.Geometry();
       geometry.vertices.push(p1, p2);
       geometry.computeLineDistances();
       hoverLine = new THREE.Line(geometry, new THREE.LineDashedMaterial({
