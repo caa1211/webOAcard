@@ -5,8 +5,8 @@ var demoList = [{
     "name": "Chair",
     "path": "demo/chair.oa"
 }, {
-    "name": "Hourse",
-    "path": "demo/hourse.oa"
+    "name": "House",
+    "path": "demo/house.oa"
 }, {
     "name": "Bath",
     "path": "demo/bath.oa"
