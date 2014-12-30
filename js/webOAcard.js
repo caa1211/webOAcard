@@ -529,47 +529,17 @@ window.onload = function() {
         }
     };
 
+    var gui = null;
     function createGUI() {
         var angleOpt;
-        var gui = new dat.GUI({
-            autoPlace: false
-        });
-
-        $datContainer = $("#datContainer");
+        if(gui != null){
+            $(gui.domElement).unbind().remove();
+        }
+        gui = new dat.GUI();
         $previewUIwrapper.css("visibility", "hidden");
         $("body").append($previewUIwrapper);
-
-        $datContainer.empty();
-        $datContainer.append(gui.domElement);
-
-        // var f3 = gui.addFolder('2D Pattern');
-        // // f3.add(oaControl, 'width2D').min(600).max(1200).name('Width').onChange(oaControl.width2DChange);
-        // // f3.add(oaControl, 'height2D').min(600).max(1200).name('Height');
-        // f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
-        // //f3.open();
-
-        var demoControl = {};
-        var f0 = gui.addFolder('Model');
-        var f0_0 = f0.addFolder('New Model Settings');
-        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
-        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
-        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
-        f0.open();
-        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
-        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
-        '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
-        var forder = f0.addFolder('Open Recent');
-        $.each(demoList, function(i, d){
-            demoControl[d.name]= function(){
-                var path = d.path;
-                $loadingMask.show();
-                $.getJSON(path, function(data){
-                    oaControl.passJsonToModel(data, d.name);
-                    $loadingMask.hide();
-                });
-            };
-            forder.add(demoControl, d.name).name(d.name);
-        });
+        $guiDom = $(gui.domElement);
+        $guiDom.prepend($previewUIwrapper);
 
         angleChangeUI = gui.add(oaControl, "cardAngle", 0, 180).step(-5).name("Card Angle")
             .onChange(oaControl.angleChange);
@@ -582,6 +552,30 @@ window.onload = function() {
 
         gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
             .onChange(oaControl.editModeChange);
+
+
+        var demoControl = {};
+        var f0 = gui.addFolder('Model');
+        var forder = f0.addFolder('Open Recent');
+        var f0_0 = f0.addFolder('New Model Settings');
+        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
+        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
+        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
+        f0.open();
+        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
+        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
+        '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+        $.each(demoList, function(i, d){
+            demoControl[d.name]= function(){
+                var path = d.path;
+                $loadingMask.show();
+                $.getJSON(path, function(data){
+                    oaControl.passJsonToModel(data, d.name);
+                    $loadingMask.hide();
+                });
+            };
+            forder.add(demoControl, d.name).name(d.name);
+        });
 
         var f1 = gui.addFolder('Face');
         var faceModeUI = f1.add(oaControl, 'faceMode', {
@@ -627,10 +621,8 @@ window.onload = function() {
             oaControl.xLimitChange);
         //f2.open();
 
-
         $fileUpload.unbind("change").bind("change", oaControl.readOAFile);
-        $savedHint = $datContainer.find("#savedHint");
-        $datContainer.find(".dg.main").before($previewUIwrapper);
+        $savedHint = $guiDom.find("#savedHint");
         $previewUIwrapper.css("visibility", "visible");
 
         $(oaModel).unbind("facesClipped", oaControl.checkSaved)
