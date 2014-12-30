@@ -116,6 +116,7 @@
         //renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setSize($container.width(), $container.height());
         renderer.shadowMapEnabled = true;
+        renderer.shadowMapSoft = true;
         renderer.shadowMapType = THREE.PCFShadowMap;
 
         container.appendChild(renderer.domElement);
@@ -128,17 +129,18 @@
 //            var ambientLight = new THREE.AmbientLight(0xEEEEEE);
 //            scene.add(ambientLight);
             var spotLightBase = new THREE.SpotLight(0xffffff);
-            spotLightBase.position.set(maxWidth*1.2, maxWidth*4, maxWidth*1.2);
+            spotLightBase.position.set(maxWidth*1.5, maxWidth*4.4, maxWidth*1.5);
             scene.add(spotLightBase);
 
             spotLight = new THREE.SpotLight(0xffffff);
             //spotLight.position.set(-viewerR * 1, viewerR * 1.0, viewerR*1.4 );
             //spotLight.shadowCameraVisible = true;
-            spotLight.shadowDarkness = 0.17;
+            spotLight.shadowDarkness = 0.2;
             spotLight.castShadow = true;
             spotLight.shadowCameraFov = 40;
             spotLight.shadowMapWidth = 2048;
             spotLight.shadowMapHeight = 2048;
+            spotLight.shadowBias = -0.00001;
             scene.add(spotLight);
         }
 

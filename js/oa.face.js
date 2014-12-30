@@ -177,7 +177,7 @@ OA.Face = function(userSetting) {
          visible: _setting.opacity === 0 ? false : true,
          side: THREE.DoubleSide,
          specular: 0x444444,
-         shininess: 1,
+         shininess: 0.1,
          shading: THREE.SmoothShading,
          // map: paperTexture,
          bumpMap: paperTexture
