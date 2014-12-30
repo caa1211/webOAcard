@@ -532,15 +532,14 @@ window.onload = function() {
     var gui = null;
     function createGUI() {
         var angleOpt;
+        $previewUIwrapper.css("visibility", "hidden");
+        $("body").append($previewUIwrapper);
         if(gui != null){
             $(gui.domElement).unbind().remove();
         }
         gui = new dat.GUI();
-        $previewUIwrapper.css("visibility", "hidden");
-        $("body").append($previewUIwrapper);
         $guiDom = $(gui.domElement);
         $guiDom.prepend($previewUIwrapper);
-
         angleChangeUI = gui.add(oaControl, "cardAngle", 0, 180).step(-5).name("Card Angle")
             .onChange(oaControl.angleChange);
 
