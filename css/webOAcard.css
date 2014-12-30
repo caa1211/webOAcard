@@ -1,112 +1,125 @@
-    body {
-        font-family: Monospace;
-        background-color: #f0f0f0;
-        margin: 0px;
-        overflow: hidden;
-    }
+body {
+    font-family: Monospace;
+    background-color: #f0f0f0;
+    margin: 0px;
+    overflow: hidden;
+}
 
 @font-face {
-  font-family: Quicksand;
-  src: url(../fonts/quicksand/Quicksand-Light.otf);
-  font-weight:400;
+    font-family: Quicksand;
+    src: url(../fonts/quicksand/Quicksand-Light.otf);
+    font-weight:400;
 }
 /* Usage */
 body {
-  font-family: "Quicksand", Arial, Sans-serif;
+    font-family: "Quicksand", Arial, Sans-serif;
 }
 
 #modeText {
     text-shadow: -1px 0px 15px rgba(200, 200, 200, 0.3);
-    font-size:85px; 
-    left:100px; 
-    position:absolute; 
-    z-index:99; 
+    font-size:85px;
+    left:0px;
+    position:absolute;
+    z-index:99;
     top:0px;
     color: #cccccc;
     /*cursor: pointer;*/
     text-decoration: none;
+    margin: 10px;
+    padding: -2px;
+    border-radius: 4px;
+    border: solid 1px transparent;
+    opacity: 0.5;
 }
+
+#modeText:hover{
+    color: #bbb;
+    border: solid 1px #cccccc;
+    opacity: 0.8;
+}
+
+
 .dg.ac {
     z-index: 100;
 }
-    #download2D{
-        opacity:0.0; 
-        left:0px; 
-        top:0px; 
-        color: #333333; 
-        position: absolute;
-        z-index:10;
-        width:100%;
-        height:100%;
-        -webkit-transition: all 0.2s linear;
-        -moz-transition: all 0.2s linear;
-        -o-transition: all 0.2s linear;
-        transition: all 0.2s linear;      
-    }
+#download2D{
+    opacity:0.0;
+    left:0px;
+    top:0px;
+    color: #333333;
+    position: absolute;
+    z-index:10;
+    width:100%;
+    height:100%;
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}
 
-    #download2D > i.fa{
-        font-size:80px;
-        width:100%;
-        text-align: center;
-        margin-top: 40px;
-        color: #eeeeee;
-        -webkit-transition: all 0.1s linear;
-        -moz-transition: all 0.1s linear;
-        -o-transition: all 0.1s linear;
-        transition: all 0.1s linear;     
-    }
+#download2D > i.fa{
+    font-size:80px;
+    width:100%;
+    text-align: center;
+    margin-top: 40px;
+    color: #eeeeee;
+    -webkit-transition: all 0.1s linear;
+    -moz-transition: all 0.1s linear;
+    -o-transition: all 0.1s linear;
+    transition: all 0.1s linear;
+}
 
-    #download2D:hover{
-        opacity: 0.5;
-        background: #888888;
-        -webkit-transition: all 0.2s linear;
-        -moz-transition: all 0.2s linear;
-        -o-transition: all 0.2s linear;
-        transition: all 0.2s linear;    
-    }
+#download2D:hover{
+    opacity: 0.5;
+    background: #888888;
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}
 
-    #download2D:hover > i.fa{
-        margin-top: 55px;
-        -webkit-transition: all 0.1s linear;
-        -moz-transition: all 0.1s linear;
-        -o-transition: all 0.1s linear;
-        transition: all 0.1s linear;      
-    }
+#download2D:hover > i.fa{
+    margin-top: 55px;
+    -webkit-transition: all 0.1s linear;
+    -moz-transition: all 0.1s linear;
+    -o-transition: all 0.1s linear;
+    transition: all 0.1s linear;
+}
 
-    #previewUI{
-     -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-     border-radius: 4px;
-/*     -webkit-box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
-     -moz-box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
-     box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);*/
-     border: solid 1px #4a4a4a; 
-     width:150px; 
-     height:185px;
-     display: block;
-     position: relative; 
-     z-index:50;
-     top: 5px;
-     margin: 0 auto 20px auto;
-    }
-    #imgContainer{
-        display: none;
-        right:300px;
-        overflow:hidden; 
-        z-index: 3; 
-        border: solid 1px red; 
-        position: absolute;  
-        top:0px; 
-        width:200px; 
-        height:200px
-    }
-    #imgContainer > img {
-       width:100%; height:100%; display:absolute; top:0px;
-    }
+#previewUI{
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    /*     -webkit-box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
+         -moz-box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);
+         box-shadow: 0px 0px 20px -6px rgba(0,0,0,0.64);*/
+    border: solid 1px #4a4a4a;
+    width:150px;
+    height:185px;
+    display: block;
+    position: relative;
+    z-index:50;
+    top: 5px;
+    margin: 0 auto 20px auto;
+}
+#imgContainer{
+    display: none;
+    right:300px;
+    overflow:hidden;
+    z-index: 3;
+    border: solid 1px red;
+    position: absolute;
+    top:0px;
+    width:200px;
+    height:200px
+}
+#imgContainer > img {
+    width:100%; height:100%; display:absolute; top:0px;
+}
 
-    #imgContainer > a {
-       z-index:30; font-size:10px;position:absolute; top:0px;
-    }
+#imgContainer > a {
+    z-index:30; font-size:10px;position:absolute; top:0px;
+}
 
 
 #container{
@@ -119,7 +132,7 @@ body {
 }
 
 #container2D{
-   overflow:hidden;  width:100%;; height:100%;
+    overflow:hidden;  width:100%;; height:100%;
 }
 #datContainer{
     overflow: auto;
@@ -128,14 +141,14 @@ body {
 }
 
 #demoContainer{
-    height:auto; top:0px;position:absolute; 
-    z-index:999; 
+    height:auto; top:0px;position:absolute;
+    z-index:999;
     right:245px;
     opacity: 1;
 }
 #previewUIwrapper{
     height:195px;
-/*    margin-left:4px; */
+    /*    margin-left:4px; */
     background:#1a1a1a;
     border-left: 3px solid #FF8F19;
     visibility: hidden;
@@ -143,16 +156,16 @@ body {
 
 #savedHint {
     display: none;
-font-size:5px;
-color: #DF3B39;
-margin-left: 5px;
-top:0px;
-line-height: 10px;
-width:30px;
+    font-size:5px;
+    color: #DF3B39;
+    margin-left: 5px;
+    top:0px;
+    line-height: 10px;
+    width:30px;
 }
 
 #loadingMask{
-  display: none;  width: 80%; position:absolute; opacity:1; background:#eeeeee; left:0px; right:0px; top:0px; bottom:0px;
+    display: none;  width: 80%; position:absolute; opacity:1; background:#eeeeee; left:0px; right:0px; top:0px; bottom:0px;
 
 }
 #loadingMask i{
@@ -165,8 +178,8 @@ width:30px;
     left: 10px;
     bottom: 10px;
     float: left;
-    width: 150px;
-    opacity: 0.7; 
+    width: 156px;
+    opacity: 0.7;
 }
 
 #googleBadge{
@@ -174,15 +187,18 @@ width:30px;
     height: auto;
     position: relative;
     display: block;
-    float: left; 
+    float: left;
 }
 #googleBadge img{
+    border: solid 1px #ddd;
+    overflow: hidden;
+    border-radius: 4px;
     width: 100%;
 }
 
 #shareArea .others{
-    float: left; display: block; 
-    width: 30px; 
+    float: left; display: block;
+    width: 30px;
 }
 
 #shareArea .others .fa{
@@ -215,7 +231,7 @@ width:30px;
     -webkit-transition: all 0.2s linear;
     -moz-transition: all 0.2s linear;
     -o-transition: all 0.2s linear;
-    transition: all 0.2s linear;   
+    transition: all 0.2s linear;
 }
 
 #tip.hide {
@@ -224,21 +240,21 @@ width:30px;
     -webkit-transition: all 0.2s linear;
     -moz-transition: all 0.2s linear;
     -o-transition: all 0.2s linear;
-    transition: all 0.2s linear;   
+    transition: all 0.2s linear;
 }
 
 #tip p{
-  font-size: 14px;
-  font-weight: bold;
-  vertical-align: middle;
-  border-bottom: outset 1px #ffffff;
-  margin-left: -5px;
-  padding-left: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    vertical-align: middle;
+    border-bottom: outset 1px #ffffff;
+    margin-left: -5px;
+    padding-left: 10px;
 }
 
 #tip ul{
-  padding-left: 20px;
-  list-style-type: square;
+    padding-left: 20px;
+    list-style-type: square;
 }
 
 

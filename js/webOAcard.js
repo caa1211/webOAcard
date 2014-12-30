@@ -16,7 +16,7 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 var container = document.getElementById('container');
 var $container = $(container);
-var cameraOffset = 110;
+var cameraOffset = OA.cameraOffset;
 
 var debugMode = OA.debugMode;
 var camera, scene, renderer;
@@ -151,7 +151,7 @@ function init(oa) {
         //OA.Utils.debugaxis(scene, oa, 1000);
         stats = new Stats();
         stats.domElement.style.position = 'absolute';
-        stats.domElement.style.top = '0px';
+        stats.domElement.style.top = '0px';;
         container.appendChild(stats.domElement);
     }
 
