@@ -28,7 +28,7 @@
         gridZstep: 5,
         domContainer: container
     };
-    
+    var spotLight;
     var cardW = modelOption.cardW,
         cardH = modelOption.cardH;
     OA.Utils.texture.loadAllTexture({cardW:cardW, cardH: cardH});
@@ -115,6 +115,8 @@
         renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
         //renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setSize($container.width(), $container.height());
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMapType = THREE.PCFShadowMap;
 
         container.appendChild(renderer.domElement);
         orbitCtrls = new THREE.OrbitControls(camera, renderer.domElement, container);
@@ -123,13 +125,22 @@
         renderPreview();
 
         if (OA.light) {
-            var ambientLight = new THREE.AmbientLight(0xEEEEEE);
-            scene.add(ambientLight);
-            var spotLight = new THREE.SpotLight(0xffffff);
-            spotLight.position.set(-viewerR * 30, viewerR * 35, viewerR * 40);
-            scene.add(spotLight);
+//            var ambientLight = new THREE.AmbientLight(0xEEEEEE);
+//            scene.add(ambientLight);
+            var spotLightBase = new THREE.SpotLight(0xffffff);
+            spotLightBase.position.set(maxWidth*1.2, maxWidth*4, maxWidth*1.2);
+            scene.add(spotLightBase);
 
+            spotLight = new THREE.SpotLight(0xffffff);
+            //spotLight.position.set(-viewerR * 1, viewerR * 1.0, viewerR*1.4 );
+            //spotLight.shadowCameraVisible = true;
+            spotLight.shadowDarkness = 0.17;
             spotLight.castShadow = true;
+            spotLight.shadowCameraFov = 40;
+            spotLight.shadowMapWidth = 2048;
+            spotLight.shadowMapHeight = 2048;
+            spotLight.castShadow = true;
+            scene.add(spotLight);
         }
 
         var w = $container.width();
@@ -261,15 +272,7 @@
        
     }
     function render() {
-        //raycaster = projector.pickingRay(mouse2D.clone(), camera);
-
-//         var coords = new THREE.Vector2();
-//         coords.x = ( mouse2D.x / renderer.domElement.width ) * 2 - 1;
-//         coords.y = - ( mouse2D.y / renderer.domElement.height ) * 2 + 1;
-//         debugger;
-// raycaster.pickingRay( coords, camera );
-
-
+        spotLight.position.set(camera.position.x*1.6-250,camera.position.y*1.6-30, camera.position.z*1.6);
 
         var vector = mouse2D.clone().unproject( camera );
         var direction = new THREE.Vector3( 0, 0, -1 ).transformDirection( camera.matrixWorld );
@@ -282,7 +285,6 @@
         });
         renderer.render(scene, camera);
     }
-
 
     init(oaModel);
     animate();
@@ -462,10 +464,14 @@ window.onload = function() {
                 oaModel.setModel(fileObj);
                 createGUI();
             },
-            passJsonToModel: function(jsonContents) {
+            passJsonToModel: function(jsonContents, name) {
                 var fileObj = jsonContents;
                 newOAModel(fileObj.settings);
                 oaModel.setModel(fileObj);
+                oaControl.editModeChange(0);
+                if(name){
+                    history.pushState(null, null, "?m="+name.toLowerCase());
+                }
                 createGUI();
             },
             loadModel: function() {
@@ -567,6 +573,29 @@ window.onload = function() {
         // f3.add(oaControl, 'downloadImg').name('<i class="fa fa-floppy-o fa-1x"></i> Save');
         // //f3.open();
 
+        var demoControl = {};
+        var f0 = gui.addFolder('Model');
+        var f0_0 = f0.addFolder('New Model Settings');
+        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
+        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
+        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
+        f0.open();
+        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
+        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
+            '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+        var forder = f0.addFolder('Open Recent');
+        $.each(demoList, function(i, d){
+            demoControl[d.name]= function(){
+                var path = d.path;
+                $loadingMask.show();
+                $.getJSON(path, function(data){
+                    oaControl.passJsonToModel(data, d.name);
+                    $loadingMask.hide();
+                });
+            };
+            forder.add(demoControl, d.name).name(d.name);
+        });
+
         angleChangeUI = gui.add(oaControl, "cardAngle", 0, 180).step(-5).name("Card Angle")
             .onChange(oaControl.angleChange);
 
@@ -578,21 +607,6 @@ window.onload = function() {
 
         gui.add(oaControl, 'isEditMode').name("Edit Mode").listen()
             .onChange(oaControl.editModeChange);
-
-        var f0 = gui.addFolder('Model');
-
-        var f0_0 = f0.addFolder('New Model Settings');
-        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
-        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
-        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
-        //f0.open();
-
-        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
-
-        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
-            '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
-
-        //f0.open();
 
         var f1 = gui.addFolder('Face');
         var faceModeUI = f1.add(oaControl, 'faceMode', {
@@ -636,7 +650,7 @@ window.onload = function() {
             oaControl.subLevelChange);
         xLimitUI = f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').onChange(
             oaControl.xLimitChange);
-        f2.open();
+        //f2.open();
 
 
         $fileUpload.unbind("change").bind("change", oaControl.readOAFile);
@@ -663,37 +677,42 @@ window.onload = function() {
     }
     createGUI();
 
-
-    function createDemoGUI(){
-        var demoControl = {};
-
-        var gui = new dat.GUI({
-            autoPlace: false
-        });
-
-        gui.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New Model');
-
-        $demoContainer = $("#demoContainer");
-        $demoContainer.append(gui.domElement);
-        var forder = gui.addFolder('Model Examples');
-
-        $.each(demoList, function(i, d){
-            demoControl[d.name]= function(){
-                var path = d.path;
-                $loadingMask.show();
-                $.getJSON(path, function(data){
-                    oaControl.passJsonToModel(data);
-                    $loadingMask.hide();
-                });
-            };
-            forder.add(demoControl, d.name).name(d.name);
-        });
-        
-
-    }
- 
-
-    createDemoGUI();
+//    function createDemoGUI(){
+//        var demoControl = {};
+//
+//        var gui = new dat.GUI({
+//            autoPlace: false
+//        });
+//
+//        //gui.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New Model');
+//        var f0 = gui.addFolder('Model');
+//        var f0_0 = f0.addFolder('New Model Settings');
+//        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
+//        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
+//        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
+//        f0.open();
+//        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
+//        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
+//            '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+//
+//
+//        $demoContainer = $("#demoContainer");
+//        $demoContainer.append(gui.domElement);
+//        var forder = gui.addFolder('Recent Model');
+//
+//        $.each(demoList, function(i, d){
+//            demoControl[d.name]= function(){
+//                var path = d.path;
+//                $loadingMask.show();
+//                $.getJSON(path, function(data){
+//                    oaControl.passJsonToModel(data, d.name);
+//                    $loadingMask.hide();
+//                });
+//            };
+//            forder.add(demoControl, d.name).name(d.name);
+//        });
+//    }
+//    createDemoGUI();
 
     //load demo model from url parameter
     $.ajaxSetup({ cache: false });
@@ -705,7 +724,7 @@ window.onload = function() {
                     var path = t.path;
                     $loadingMask.show();
                     $.getJSON(path, function(data) {
-                        oaControl.passJsonToModel(data);
+                        oaControl.passJsonToModel(data, name);
                         $loadingMask.hide();
                     });
                 }

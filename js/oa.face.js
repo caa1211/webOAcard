@@ -39,7 +39,8 @@ OA.Face = function(userSetting) {
    var baseContour = _setting.baseContour;
    var typeOpts = {
       "HFACE": {
-         color: 0xE9DABC
+         //color: 0xE9DABC
+         color: 0xEADED2
       },
       "VFACE": {
          color: 0xEADED2
@@ -152,8 +153,6 @@ OA.Face = function(userSetting) {
 
       var planeGeom = new THREE.ShapeGeometry(shapes);
 
-
-
       var paperTexture = null;
       if (OA.paperTexture) {
          var textures = OA.Utils.texture.getTexture();
@@ -177,13 +176,13 @@ OA.Face = function(userSetting) {
          opacity: _setting.opacity,
          visible: _setting.opacity === 0 ? false : true,
          side: THREE.DoubleSide,
-         specular: 0x333333,
-         shininess: 4,
+         specular: 0x444444,
+         shininess: 1,
          shading: THREE.SmoothShading,
          // map: paperTexture,
          bumpMap: paperTexture
       });
-      lightMaterial.bumpScale = 0.3;
+      lightMaterial.bumpScale = -0.3;
   
       var planeMat = lightMaterial;
  
@@ -199,6 +198,7 @@ OA.Face = function(userSetting) {
       var plane = new THREE.Mesh(planeGeom, planeMat);
       if (OA.light) {
          plane.receiveShadow = true;
+         plane.castShadow = true;
       }
       plane.name = "faceBody";
       face.add(plane);
@@ -566,7 +566,7 @@ OA.Face = function(userSetting) {
 
 
    this.getFaceMesh = function() {
-      return faceMesh;
+      return face.getObjectByName("faceBody");
    };
 
    this.setGridColorByIndex = function(index) {

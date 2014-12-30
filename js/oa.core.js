@@ -23,21 +23,21 @@ var OA = {
    paperTexture: true,
    clipScale: 1000,
    paperTextureInfo:{
-     // src: "img/wood.jpg",
-     // size: 575,
-     // isFill: false
+//     src: "img/wood.jpg",
+//     size: 575,
+//     isFill: false
 
      // src: "img/leather01.jpg",
      // size: 600,
      // isFill: false
 
-     // src: "img/bumpmap3.bmp",
-     // size: 256,
-     // isFill: false
+//     src: "img/bumpmap3.bmp",
+//     size: 256,
+//     isFill: false
 
-     // src: "img/bump1.jpg",
-     // size: 512,
-     // isFill: false
+//     src: "img/bump1.jpg",
+//     size: 512,
+//     isFill: false
 
      // src: "img/bump2.jpg",
      // size: 512,
@@ -47,9 +47,9 @@ var OA = {
      // size: 400,
      // isFill: false
 
-     // src: "img/bump5.jpg",
-     // size: 500,
-     // isFill: false
+//     src: "img/bump5.jpg",
+//     size: 500,
+//     isFill: false
 
      src: "img/bump6.jpg",
      size: 300,
@@ -158,7 +158,7 @@ get_text_polys : function() {
         p1 = sourceP2Ds[i - 1];
         p2 = sourceP2Ds[i];
       }
-      if (p1.Y　 == 　p2.Y　 && Math.abs(p1.X - p2.X) > xLimit) {
+      if (p1.Y == p2.Y && Math.abs(p1.X - p2.X) > xLimit) {
         newP2Ary.push(p1);
         newP2Ary.push(p2);
         continue;
@@ -428,7 +428,7 @@ get_text_polys : function() {
      ready: false,
      data: {
       movePointTexture: null,
-      movePointFillTexture: null,
+      movePointFillTexture: null
      },
      adjustTextureSize: function(maxWidth, imageSize, isFill){
         if(isFill){
@@ -552,7 +552,7 @@ get_text_polys : function() {
       [224,110],  
       [174,180],  
       [120,136],  
-      [60,167],   
+      [60,167]
    ];
 
    var vertices3 = [
@@ -642,11 +642,11 @@ get_text_polys : function() {
     }
 
     var materialFront = new THREE.MeshPhongMaterial({
-      color: 0xff0000,
+      color: 0xff0000
       // ambient: 0xffffff,
     });
     var materialSide = new THREE.MeshPhongMaterial({
-      color: 0xA5589D,
+      color: 0xA5589D
       //  ambient: 0xffffff
     });
 
