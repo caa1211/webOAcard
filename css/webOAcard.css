@@ -142,12 +142,133 @@ body .dg.a {
     overflow:hidden;  width:100%;; height:100%;
 }
 
-#demoContainer{
-    height:auto; top:0px;position:absolute;
+#fileUIContainer{
+    height:auto;
+    position:absolute;
     z-index:999;
-    right:245px;
+    top:150px;
+    left:10px;
     opacity: 1;
+    font-weight: 300;
+    width: 200px;
 }
+
+body #fileUIContainer .dg.main{
+    max-width: 200px;
+}
+
+body #fileUIContainer .property-name {
+    width: 100%;
+}
+
+body #fileUIContainer .dg li:not(.folder), body #fileUIContainer .dg .cr.function {
+    padding-left: 0px;
+    border-radius: 4px;
+    border: solid 1px #cccccc;
+    background: none;
+    height: 40px;
+    font-size: 20px;
+    line-height: 40px;
+    vertical-align: middle;
+    margin-top:5px;
+}
+
+body #fileUIContainer .number.has-slider span{
+    width: 30%;
+}
+body #fileUIContainer .number.has-slider .c{
+    width: 65%;
+}
+
+
+body #fileUIContainer .dg li:not(.folder){
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    padding-left: 10px;
+}
+
+body #fileUIContainer .dg li.title {
+    font-size: 20px;
+    line-height: 17px;
+    vertical-align: middle;
+    border: solid 1px #cccccc;
+    border-radius: 4px;
+    background: none;
+    position: absolute;
+    width: 25px;
+    height: 20px;
+    top:auto;
+    margin-top: -37px;
+    right: 10px;
+    padding: 0;
+}
+
+body #fileUIContainer .dg .c select,
+body #fileUIContainer .dg .c input[type=text],
+body #fileUIContainer .dg .cr.number input[type=text] {
+    background: #ccc;
+    color: #999;
+    border: 0;
+    font-size: 12px;
+    height:15px;
+}
+
+body #fileUIContainer .dg ul.closed li.title {
+    margin-top: -32px;
+}
+
+/*body #fileUIContainer .dg ul.closed li:not(.title) {*/
+    /*height: 0px;*/
+    /*border: 0;*/
+    /*margin-top: 0px;*/
+/*}*/
+
+body #fileUIContainer .dg.recentFolder li:not(.title) {
+    top:0px;
+    left: 300px;
+}
+
+
+body #fileUIContainer .dg .c .slider-fg {
+    background: #ccc;
+}
+
+#fileUIContainer .dg .c .slider {
+    background: none;
+    cursor: ew-resize;
+    border: solid 1px #ccc;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+body #fileUIContainer .dg li.title:before {
+    font-size: 12px;
+    vertical-align: middle;
+    content: "\f077";
+    font-family: FontAwesome;
+    padding-left: 5px;
+    padding-right: 5px;
+    display: inline-block;
+
+
+}
+body #fileUIContainer .dg .closed li.title:before{
+    content: "\f078";
+}
+
+body #fileUIContainer .dg .cr.function i {
+    width: 30px;
+    text-align: center;
+}
+
+body #fileUIContainer .dg.main .close-button {
+    display: none;
+}
+
+
+
 #previewUIwrapper{
     height:195px;
     /*    margin-left:4px; */

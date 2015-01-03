@@ -469,6 +469,9 @@ window.onload = function() {
             //will trigger readOAFile handle
             $fileUpload.click();
         },
+        openRecent: function(){
+alert(5);
+        },
         saveModel: function() {
             var downloadFile = function(filename, content) {
                 var blob = new Blob([content], {type: "application/json"});
@@ -569,28 +572,28 @@ window.onload = function() {
             .onChange(oaControl.editModeChange);
 
 
-        var demoControl = {};
-        var f0 = gui.addFolder('Model');
-        var forder = f0.addFolder('Open Recent');
-        var f0_0 = f0.addFolder('New Model Settings');
-        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
-        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
-        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
-        f0.open();
-        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
-        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
-        '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
-        $.each(demoList, function(i, d){
-            demoControl[d.name]= function(){
-                var path = d.path;
-                $loadingMask.show();
-                $.getJSON(path, function(data){
-                    oaControl.passJsonToModel(data, d.name);
-                    $loadingMask.hide();
-                });
-            };
-            forder.add(demoControl, d.name).name(d.name);
-        });
+//        var demoControl = {};
+//        var f0 = gui.addFolder('Model');
+//        var forder = f0.addFolder('Open Recent');
+//        var f0_0 = f0.addFolder('New Model Settings');
+//        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Card Width');
+//        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Card Height');
+//        f0.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
+//        f0.open();
+//        f0.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
+//        f0.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
+//        '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+//        $.each(demoList, function(i, d){
+//            demoControl[d.name]= function(){
+//                var path = d.path;
+//                $loadingMask.show();
+//                $.getJSON(path, function(data){
+//                    oaControl.passJsonToModel(data, d.name);
+//                    $loadingMask.hide();
+//                });
+//            };
+//            forder.add(demoControl, d.name).name(d.name);
+//        });
 
         var f1 = gui.addFolder('Face');
         var faceModeUI = f1.add(oaControl, 'faceMode', {
@@ -659,6 +662,47 @@ window.onload = function() {
     }
     createGUI();
 
+
+    function createFileGUI(){
+        var gui = new dat.GUI({
+            autoPlace: false
+        });
+        $fileUIContainer = $("#fileUIContainer");
+        $fileUIContainer.append(gui.domElement);
+
+        //var f0 = gui.addFolder('Model');
+
+        gui.add(oaControl, 'newModel').name('<i class="fa fa-child"></i> New ');
+        var f0_0 = gui.addFolder('Settings');
+        f0_0.add(oaControl, 'cardW', 50, 300).step(1).name('Width');
+        f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Height');
+        gui.open();
+        gui.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
+            '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+        gui.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
+
+        gui.add(oaControl, 'openRecent').name('<i class="fa fa-gittip"></i> Recent');
+//
+//        var demoControl = {};
+//        var forder = gui.addFolder('Open Recent');
+//        $(forder.domElement).addClass("recentFolder");
+//        $.each(demoList, function(i, d){
+//            demoControl[d.name]= function(){
+//                var path = d.path;
+//                $loadingMask.show();
+//                $.getJSON(path, function(data){
+//                    oaControl.passJsonToModel(data, d.name);
+//                    $loadingMask.hide();
+//                });
+//            };
+//            forder.add(demoControl, d.name).name(d.name);
+//        });
+//        $(forder.domElement).find("li:not(.title)").addClass("recentItem").appendTo("#fileUIContainer2");
+//
+
+    }
+
+    createFileGUI();
 //    function createDemoGUI(){
 //        var demoControl = {};
 //
