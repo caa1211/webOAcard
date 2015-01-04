@@ -1,10 +1,10 @@
 webOAcard   
 =========
 
-<img src="https://developer.cdn.mozilla.net/media/uploads/demos/C/a/Caa/77f0afe80143d13eec0941a262fe4d69/1401981680_screenshot_1.png" style="border: solid 1px gray;">
+<img src="http://caa1211.github.io/webOAcard/preview.png" style="border: solid 1px gray;">
 
 Demo:
-- http://caa1211.github.io/webOAcard/
+- http://caa1211.github.io/webOAcard/?m=castle
 
 Slide: 
 - http://slides.com/caa1211/web3d
@@ -73,8 +73,5 @@ Mouse Operations:
 
 ======================================================================
 TODO:
-  - Shadow map self shadowing
-  - Save model to localStorage
-  - Photo upload
   - Tutorial
   - Animation method rewrite
