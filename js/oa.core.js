@@ -22,49 +22,52 @@ var OA = {
     pointLight: false,
     paperTexture: true,
     clipScale: 1000,
-    cameraOffset: 80,
+    cameraXOffset: 40,
+    cameraYOffset: 15,
+    recentLimit: 20,
+    isSaveLocalStorage: true,
     paperTextureInfo:{
-//     src: "img/wood.jpg",
+//     src: "textures/wood.jpg",
 //     size: 575,
 //     isFill: false
 
-        // src: "img/leather01.jpg",
+        // src: "textures/leather01.jpg",
         // size: 600,
         // isFill: false
 
-//     src: "img/bumpmap3.bmp",
+//     src: "textures/bumpmap3.bmp",
 //     size: 256,
 //     isFill: false
 
-//     src: "img/bump1.jpg",
+//     src: "textures/bump1.jpg",
 //     size: 512,
 //     isFill: false
 
-        // src: "img/bump2.jpg",
+        // src: "textures/bump2.jpg",
         // size: 512,
         // isFill: false
 
-        // src: "img/bump4.jpg",
+        // src: "textures/bump4.jpg",
         // size: 400,
         // isFill: false
 
-//     src: "img/bump5.jpg",
+//     src: "textures/bump5.jpg",
 //     size: 500,
 //     isFill: false
 
-        src: "img/bump6.jpg",
+        src: "textures/bump6.jpg",
         size: 300,
         isFill: false
 
-        // src: "img/p3.jpg",
+        // src: "textures/p3.jpg",
         // size: 130,
         // isFill: false
 
-        // src: "img/paper0.jpg",
+        // src: "textures/paper0.jpg",
         // size: 200,
         // isFill: false
 
-        // src: "img/picture1.jpg",
+        // src: "textures/picture1.jpg",
         // size: 500,
         // isFill: true,
         // offset:{
@@ -715,8 +718,6 @@ OA.Utils = {
         var material = new THREE.MeshFaceMaterial(materials);
 
         var mesh = new THREE.Mesh(geometry1, material);
-
-
 
         function center(geometry) {
 
