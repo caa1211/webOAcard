@@ -18,7 +18,7 @@ OA.Face = function(userSetting) {
       opacity: 1,
       gridData: {},
       borderColor: 0x888888,
-      borderWidth: 3,
+      borderWidth: 2.5,
       initAngle: 90,
       addingLine: null,
       depthTest: true,

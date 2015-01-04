@@ -161,8 +161,10 @@ body .dg.a {
     width: 100%;
 }
 
-body #fileUIContainer .dg .cr.function:hover {
-    /*background: #bbb;*/
+body #fileUIContainer .dg .cr.function:hover,
+body #fileUIContainer .dg ul.closed li.title:hover,
+body #fileUIContainer .dg li.title:hover{
+    /*background: #FFFFBB;*/
     border: 1px solid #aaa;
 }
 
@@ -172,7 +174,8 @@ body #fileUIContainer .dg li:not(.folder), body #fileUIContainer .dg .cr.functio
     border: solid 1px #cccccc;
     background: none;
     height: 40px;
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 300;
     line-height: 40px;
     vertical-align: middle;
     margin-top:5px;
@@ -183,6 +186,36 @@ body #fileUIContainer .number.has-slider span{
 }
 body #fileUIContainer .number.has-slider .c{
     width: 65%;
+}
+
+body #fileUIContainer .dg li.folder{
+    width: 95%;
+}
+
+#fileUIContainer .recentFolder,
+body #fileUIContainer .folder .dg{
+    padding-bottom: 5px;
+    max-height: 200px;
+    overflow: auto;
+    margin-right: 5px;
+    width: 95%;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 0px 0px 4px 4px;
+    box-shadow: inset 0px 0px 3px 0px #ABABAB;
+    -webkit-box-shadow: inset 0px 0px 3px 0px #ABABAB;
+    -moz-box-shadow: inset 0px 0px 3px 0px #ABABAB;
+    -o-box-shadow: inset 0px 0px 3px 0px #ABABAB;
+}
+
+body .recentFolder::-webkit-scrollbar {
+    background: transparent;
+    width: 5px;
+}
+
+body .recentFolder::-webkit-scrollbar-thumb {
+    background: #aaa;
+    border-radius: 4px;
 }
 
 body #fileUIContainer .dg li:not(.folder),
