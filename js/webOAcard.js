@@ -711,9 +711,15 @@ window.onload = function() {
     function buildRecentList(gui, isReloadModel){
         if(OA.isSaveLocalStorage) {
             /* Read demo from local storage */
-            var demoControl = {};
+            var demoControl = {
+                reset: function(){
+                    localStorage.removeItem("oaCardRecent");
+                    createFileGUI(false);
+                }
+            };
             var recentFolder = gui.addFolder('Open Recent');
             $(recentFolder.domElement).addClass("recentFolder");
+            recentFolder.open();
 
             function createControl(d) {
                 demoControl[d.name] = function () {
@@ -727,9 +733,11 @@ window.onload = function() {
 
             getRecentFromLocalStorage(function (recentList) {
                 var uiCounter = 0;
+
                 if(recentList.length === 0){
-                    $(recentFolder.domElement).css("display", "none");
+                    //$(recentFolder.domElement).css("display", "none");
                 }
+
                 for (var i = recentList.length - 1; i >= 0; i--) {
                     if (uiCounter >= OA.recentLimit) {
                         break;
@@ -738,6 +746,10 @@ window.onload = function() {
                     createControl(d);
                     uiCounter++;
                 }
+
+                //Reset local storage
+                recentFolder.add(demoControl, "reset").name("Reset");
+
                 $(recentFolder.domElement).find("li:not(.title)").addClass("recentItem");
 
                 if (isReloadModel) {
