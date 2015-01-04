@@ -16,7 +16,8 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 var container = document.getElementById('container');
 var $container = $(container);
-var cameraOffset = OA.cameraOffset;
+var cameraXOffset = OA.cameraXOffset;
+var cameraYOffset = OA.cameraYOffset;
 
 var debugMode = OA.debugMode;
 var camera, scene, renderer;
@@ -145,7 +146,7 @@ function init(oa) {
     var w = $container.width();
     var h = $container.height();
 
-    camera.setViewOffset(w, h, cameraOffset, 0, w, h);
+    camera.setViewOffset(w, h, cameraXOffset, cameraYOffset, w, h);
 
     if (debugMode) {
         //OA.Utils.debugaxis(scene, oa, 1000);
@@ -191,7 +192,7 @@ function onWindowResize() {
     renderer.setSize($container.width(), $container.height());
     var w = $container.width();
     var h = $container.height();
-    camera.setViewOffset(w, h, cameraOffset, 0, w, h);
+    camera.setViewOffset(w, h, cameraXOffset, cameraYOffset, w, h);
 }
 
 function onDocumentMouseMove(event) {

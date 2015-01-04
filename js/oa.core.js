@@ -22,7 +22,8 @@ var OA = {
     pointLight: false,
     paperTexture: true,
     clipScale: 1000,
-    cameraOffset: 40,
+    cameraXOffset: 40,
+    cameraYOffset: 15,
     paperTextureInfo:{
 //     src: "img/wood.jpg",
 //     size: 575,
