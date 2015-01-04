@@ -24,6 +24,8 @@ var OA = {
     clipScale: 1000,
     cameraXOffset: 40,
     cameraYOffset: 15,
+    recentLimit: 20,
+    isSaveLocalStorage: true,
     paperTextureInfo:{
 //     src: "textures/wood.jpg",
 //     size: 575,

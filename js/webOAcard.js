@@ -471,6 +471,15 @@ window.onload = function() {
             $fileUpload.click();
         },
         saveModel: function() {
+
+            var saveToLocalStorage = function(name, fileObj){
+                var len = oaCardRecent.length+1;
+                //save to local storage
+                oaCardRecent.push({name: "recent_"+len, data: fileObj});
+                localStorage.setItem("oaCardRecent", JSON.stringify(oaCardRecent));
+                createFileGUI(false);
+            };
+
             var downloadFile = function(filename, content) {
                 var blob = new Blob([content], {type: "application/json"});
                 var $link = $('<a></a>');
@@ -489,6 +498,9 @@ window.onload = function() {
             name = "oaCard_" + date + ".oa";
             //}
             var fileObj = oaModel.getModel();
+            if(OA.isSaveLocalStorage) {
+                saveToLocalStorage(name, fileObj);
+            }
             downloadFile(name, JSON.stringify(fileObj));
             oaModel.setModelSaved();
             oaControl.checkSaved();
@@ -614,7 +626,7 @@ window.onload = function() {
         //f2.open();
 
         $fileUpload.unbind("change").bind("change", oaControl.readOAFile);
-        $savedHint = $guiDom.find("#savedHint");
+
         $previewUIwrapper.css("visibility", "visible");
 
         $(oaModel).unbind("facesClipped", oaControl.checkSaved)
@@ -639,7 +651,7 @@ window.onload = function() {
 
     var fileGUI = null;
 
-    function createFileGUI(){
+    function createFileGUI(isReloadModel){
         if(fileGUI != null){
             $(fileGUI.domElement).unbind().remove();
         }
@@ -654,49 +666,159 @@ window.onload = function() {
         f0_0.add(oaControl, 'cardH', 50, 300).step(1).name('Height');
         fileGUI.open();
         fileGUI.add(oaControl, 'loadModel').name('<i class="fa fa-folder-open"></i> Load');
-        buildRecentList(fileGUI);
+        buildRecentList(fileGUI, isReloadModel);
         fileGUI.add(oaControl, 'saveModel').name('<i class="fa fa-floppy-o"></i> Save ' +
             '<i id="savedHint" class="fa fa-circle" title="need save"></i>');
+
+        $savedHint = $(fileGUI.domElement).find("#savedHint");
     }
 
-    function buildRecentList(gui){
-        var demoControl = {};
-        var recentFolder = gui.addFolder('Open Recent');
-        $(recentFolder.domElement).addClass("recentFolder");
-        $.each(demoList, function(i, d){
-            demoControl[d.name]= function(){
-                var path = d.path;
-                $loadingMask.show();
-                $.getJSON(path, function(data){
-                    oaControl.passJsonToModel(data, d.name);
-                    $loadingMask.hide();
-                });
-            };
-            recentFolder.add(demoControl, d.name).name(d.name);
+    var oaCardRecent = [];
+
+    function getRemoteRecent(path, name,  fn){
+        var ajax = $.getJSON(path, function(data,b){
+            fn({name: name, data: data});
         });
-        $(recentFolder.domElement).find("li:not(.title)").addClass("recentItem");
+        return ajax;
     }
 
-    createFileGUI();
-
-    //load demo model from url parameter
-    $.ajaxSetup({ cache: false });
-    var urlParam = getUrlVar("m").toLowerCase();
-    function loadDemoModel(name) {
-        if (name) {
-            $.each(demoList, function(i, t) {
-                if (t.name.toLowerCase() === name) {
-                    var path = t.path;
-                    $loadingMask.show();
-                    $.getJSON(path, function(data) {
-                        oaControl.passJsonToModel(data, name);
-                        $loadingMask.hide();
+    function getRecentFromLocalStorage(fn){
+        if(!localStorage.getItem("oaCardRecent")) {
+            var deferredArr = [];
+            $.each(demoList, function (i, d) {
+                var path = d.path;
+                var name = d.name;
+                if (i <= 10) {
+                    var deffer = getRemoteRecent(path, name, function (jsonObj) {
+                        oaCardRecent[i] = jsonObj;
                     });
+                    deferredArr.push(deffer);
                 }
             });
+            $.when.apply(this, deferredArr).then(function() {
+                localStorage.setItem("oaCardRecent", JSON.stringify(oaCardRecent));
+                console.log("recent list is from ajax !");
+                fn(oaCardRecent);
+            });
+        }else{
+            var recentStr = localStorage.getItem("oaCardRecent");
+            oaCardRecent = JSON.parse(recentStr);
+            console.log("recent list is from localstorage !");
+            fn(oaCardRecent);
         }
     }
-    loadDemoModel(urlParam);
+
+    function buildRecentList(gui, isReloadModel){
+        if(OA.isSaveLocalStorage) {
+            /* Read demo from local storage */
+            var demoControl = {};
+            var recentFolder = gui.addFolder('Open Recent');
+            $(recentFolder.domElement).addClass("recentFolder");
+
+            function createControl(d) {
+                demoControl[d.name] = function () {
+                    $loadingMask.show();
+                    oaControl.passJsonToModel(d.data, d.name);
+                    $loadingMask.hide();
+                };
+                recentFolder.add(demoControl, d.name).name("<span class='recentName'>"+d.name+"</span>" +
+                   '<i class="removeFromStorage fa fa-times"></i>');
+            }
+
+            getRecentFromLocalStorage(function (recentList) {
+                var uiCounter = 0;
+                if(recentList.length === 0){
+                    $(recentFolder.domElement).css("display", "none");
+                }
+                for (var i = recentList.length - 1; i >= 0; i--) {
+                    if (uiCounter >= OA.recentLimit) {
+                        break;
+                    }
+                    var d = recentList[i];
+                    createControl(d);
+                    uiCounter++;
+                }
+                $(recentFolder.domElement).find("li:not(.title)").addClass("recentItem");
+
+                if (isReloadModel) {
+                    loadModelByUrl(recentList);
+                }
+
+                //remove item from storage
+                $(recentFolder.domElement).find("li i.removeFromStorage").click(function(e){
+                    var name = $(this).siblings(".recentName").html();
+                    if (name) {
+                        $.each(recentList, function (i, d) {
+                            if (d.name.toLowerCase() === name.toLowerCase()) {
+                                recentList.splice(i, 1);
+                                localStorage.setItem("oaCardRecent", JSON.stringify(recentList));
+                                createFileGUI(false);
+                                return false;
+                            }
+                        });
+                    }
+                    e.stopPropagation();
+                });
+            });
+
+        }else {
+            /* Read demo from static file*/
+            var demoControl = {};
+            var recentFolder = gui.addFolder('Open Recent');
+            $(recentFolder.domElement).addClass("recentFolder");
+            $.each(demoList, function(i, d){
+                demoControl[d.name]= function(){
+                    var path = d.path;
+                    $loadingMask.show();
+                    $.getJSON(path, function(data){
+                        oaControl.passJsonToModel(data, d.name);
+                        $loadingMask.hide();
+                    });
+                };
+                recentFolder.add(demoControl, d.name).name(d.name);
+            });
+            $(recentFolder.domElement).find("li:not(.title)").addClass("recentItem");
+        }
+
+    }
+
+    createFileGUI(true);
+
+    //load demo model from url parameter
+    function loadModelByUrl(recentList) {
+        if(OA.isSaveLocalStorage) {
+            /* Read model from local storage */
+            var name = getUrlVar("m").toLowerCase();
+            if (name) {
+                $.each(recentList, function (i, d) {
+                    if (d.name.toLowerCase() === name) {
+                        $loadingMask.show();
+                        oaControl.passJsonToModel(d.data, d.name);
+                        $loadingMask.hide();
+                    }
+                });
+            }
+        }else {
+            /* Read model from static file*/
+            var name = getUrlVar("m").toLowerCase();
+            if (name) {
+                $.each(recentList, function (i, t) {
+                    if (t.name.toLowerCase() === name) {
+                        var path = t.path;
+                        $loadingMask.show();
+                        $.getJSON(path, function (data) {
+                            oaControl.passJsonToModel(data, name);
+                            $loadingMask.hide();
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    if(!OA.isSaveLocalStorage) {
+        loadModelByUrl(demoList);
+    }
 };
 
 //======================================

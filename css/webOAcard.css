@@ -159,6 +159,8 @@ body .dg.a {
 
 #fileUIContainer .property-name {
     width: 100%;
+    ext-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 body #fileUIContainer .dg .cr.function:hover,
@@ -310,14 +312,30 @@ body #fileUIContainer .dg.main .close-button {
     visibility: hidden;
 }
 
+.recentName{
+    width: 110px;
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+    float: left;
+}
+
+body #fileUIContainer .dg .cr.function i.removeFromStorage{
+    width: 30px;
+    float: right;
+    vertical-align: middle;
+    line-height: 30px;
+    border-left: solid 1px #ccc;
+}
+
 #savedHint {
     display: none;
-    font-size:5px;
-    color: #DF3B39;
+    font-size: 7px;
+    color: #FF3333;
     margin-left: 5px;
-    top:0px;
-    line-height: 10px;
-    width:30px;
+    line-height: 20px;
+    vertical-align: middle;
+    width: 30px;
 }
 
 #loadingMask{
