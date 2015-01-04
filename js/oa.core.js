@@ -22,7 +22,7 @@ var OA = {
     pointLight: false,
     paperTexture: true,
     clipScale: 1000,
-    cameraOffset: 30,
+    cameraOffset: 40,
     paperTextureInfo:{
 //     src: "img/wood.jpg",
 //     size: 575,
@@ -715,8 +715,6 @@ OA.Utils = {
         var material = new THREE.MeshFaceMaterial(materials);
 
         var mesh = new THREE.Mesh(geometry1, material);
-
-
 
         function center(geometry) {
 

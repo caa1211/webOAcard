@@ -146,19 +146,24 @@ body .dg.a {
     height:auto;
     position:absolute;
     z-index:999;
-    top:150px;
+    top: 150px;
     left:10px;
     opacity: 1;
     font-weight: 300;
-    width: 200px;
+    width: 180px;
 }
 
-body #fileUIContainer .dg.main{
-    max-width: 200px;
+#fileUIContainer .dg.main{
+    max-width: 180px;
 }
 
-body #fileUIContainer .property-name {
+#fileUIContainer .property-name {
     width: 100%;
+}
+
+body #fileUIContainer .dg .cr.function:hover {
+    /*background: #bbb;*/
+    border: 1px solid #aaa;
 }
 
 body #fileUIContainer .dg li:not(.folder), body #fileUIContainer .dg .cr.function {
@@ -180,26 +185,26 @@ body #fileUIContainer .number.has-slider .c{
     width: 65%;
 }
 
-
-body #fileUIContainer .dg li:not(.folder){
+body #fileUIContainer .dg li:not(.folder),
+body #fileUIContainer .dg .recentItem.cr.function{
     height: 30px;
     line-height: 30px;
-    font-size: 14px;
+    font-size: 12px;
     padding-left: 10px;
 }
 
 body #fileUIContainer .dg li.title {
     font-size: 20px;
-    line-height: 17px;
+    line-height: 22px;
     vertical-align: middle;
     border: solid 1px #cccccc;
     border-radius: 4px;
     background: none;
     position: absolute;
-    width: 25px;
-    height: 20px;
+    width: 40px;
+    height: 25px;
     top:auto;
-    margin-top: -37px;
+    margin-top: -39px;
     right: 10px;
     padding: 0;
 }
@@ -215,20 +220,15 @@ body #fileUIContainer .dg .cr.number input[type=text] {
 }
 
 body #fileUIContainer .dg ul.closed li.title {
-    margin-top: -32px;
+    margin-top: -34px;
 }
 
-body #fileUIContainer .dg ul.closed li:not(.title) {
+body #fileUIContainer .dg ul.closed li:not(.title),
+body #fileUIContainer .dg ul.closed  li.recentItem.cr.function{
     height: 0px;
     border: 0;
     margin-top: 0px;
 }
-
-/*body #fileUIContainer .dg.recentFolder li:not(.title) {*/
-    /*top:0px;*/
-    /*left: 300px;*/
-/*}*/
-
 
 body #fileUIContainer .dg .c .slider-fg {
     background: #ccc;
@@ -244,12 +244,12 @@ body #fileUIContainer .dg .c .slider-fg {
 }
 
 body #fileUIContainer .dg li.title:before {
-    font-size: 12px;
+    font-size: 18px;
     vertical-align: middle;
     content: "\f077";
     font-family: FontAwesome;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 10px;
+    padding-right:10px;
     display: inline-block;
 
 
