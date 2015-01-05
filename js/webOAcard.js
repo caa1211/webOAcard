@@ -724,8 +724,10 @@ window.onload = function() {
             function createControl(d) {
                 demoControl[d.name] = function () {
                     $loadingMask.show();
-                    oaControl.passJsonToModel(d.data, d.name);
-                    $loadingMask.hide();
+                    setTimeout(function(){
+                        oaControl.passJsonToModel(d.data, d.name);
+                        $loadingMask.hide();
+                    }, 300);
                 };
                 recentFolder.add(demoControl, d.name).name("<span class='recentName'>"+d.name+"</span>" +
                    '<i class="removeFromStorage fa fa-times"></i>');

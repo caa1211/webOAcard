@@ -339,7 +339,15 @@ body #fileUIContainer .dg .cr.function i.removeFromStorage{
 }
 
 #loadingMask{
-    display: none;  width: 80%; position:absolute; opacity:1; background:#eeeeee; left:0px; right:0px; top:0px; bottom:0px;
+    display: none;
+    width: 90%;
+    position:absolute;
+    opacity:1;
+    background:#eeeeee;
+    left:0px;
+    right:0px;
+    top:0px;
+    bottom:0px;
 
 }
 #loadingMask i{
