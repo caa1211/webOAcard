@@ -19,4 +19,7 @@ var demoList = [{
 }, {
     "name": "Nowday",
     "path": "demo/nowday.oa"
+}, {
+    "name": "College",
+    "path": "demo/college.oa"
 }];
