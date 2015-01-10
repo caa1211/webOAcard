@@ -464,12 +464,12 @@ body #fileUIContainer .dg .cr.function i.removeFromStorage{
 
 #videoLink{
     text-decoration: none;
-    bottom:10px;
+    bottom:15px;
     right: 10px;
     position: fixed;
     z-index: 1000;
     font-weight: bold;
-    color: #e22a27;
+    color: #E63F00;
 }
 
 #videoLink i{
@@ -477,3 +477,27 @@ body #fileUIContainer .dg .cr.function i.removeFromStorage{
     vertical-align: middle;
 }
 
+.social-container {
+    position: absolute;
+    bottom: 5px;
+    left: 45%;
+    margin-left: -190px;
+    margin-top: -50px;
+    width: 380px;
+    height: auto;
+    opacity: 0.4;
+}
+.social-container .links {
+    text-align: center;
+    bottom: 0px;
+}
+.social-container .links a {
+    margin: 0 10px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 30px;
+    font-weight: bold;
+}
+.social-container .links a:hover {
+    color: #ED452A;
+}
