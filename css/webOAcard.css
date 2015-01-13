@@ -146,7 +146,7 @@ body .dg.a {
     height:auto;
     position:absolute;
     z-index:999;
-    top: 100px;
+    top: 15%;
     left:10px;
     opacity: 1;
     font-weight: 300;
@@ -464,7 +464,7 @@ body #fileUIContainer .dg .cr.function i.removeFromStorage{
 
 #videoLink{
     text-decoration: none;
-    bottom:15px;
+    bottom:20px;
     right: 10px;
     position: fixed;
     z-index: 1000;

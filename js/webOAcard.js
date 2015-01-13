@@ -532,7 +532,7 @@ window.onload = function() {
                 xLimitUI.updateDisplay();
             }
             oaControl.liveContour_id = oaModel.getLiveContourID();
-            contourInfoUI.updateDisplay();
+            //contourInfoUI.updateDisplay();
         },
         onEditModeChange: function(){
             oaControl.isEditMode = oaModel.getEditMode();
@@ -582,20 +582,20 @@ window.onload = function() {
             .onChange(oaControl.editModeChange);
 
         var f1 = gui.addFolder('Face');
-        var faceModeUI = f1.add(oaControl, 'faceMode', {
-            'Faces': "faces",
-            'Hole': "hole",
-            'Pull': "pull"
-        }).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
-            .onChange(oaControl.faceModeChange);
-        oaControl.faceMode = "faces";
+        //var faceModeUI = f1.add(oaControl, 'faceMode', {
+        //    'Faces': "faces",
+        //    'Hole': "hole",
+        //    'Pull': "pull"
+        //}).name('<i class="fa fa-paw fa-1x"></i> Face Mode')
+        //    .onChange(oaControl.faceModeChange);
+        //oaControl.faceMode = "faces";
         $modeText.html(oaControl.faceMode);
         $modeText.unbind("click").click(function(e) {
             var index = (oaModel.getFaceCreateMode() + 1) % 3;
             var modeTye = ["faces", "hole", "pull"];
             $modeText.html(modeTye[index]);
             oaControl.faceMode = modeTye[index];
-            faceModeUI.updateDisplay();
+            //faceModeUI.updateDisplay();
             oaModel.setFaceCreateMode(modeTye[index]);
             e.preventDefault();
         });
@@ -612,7 +612,7 @@ window.onload = function() {
         f2_1.add(oaControl, 'textItalic').name('<i class="fa fa-italic "></i> Italic');
         f2_1.add(oaControl, 'textAdd').name('<i class="fa fa-plus   "></i> Add');
 
-        contourInfoUI = f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info');
+        //contourInfoUI = f2.add(oaControl, 'liveContour_id').name('<i class="fa fa-info-circle"></i> Info');
         f2.add(oaControl, 'cPrevious').name('<i class="fa fa-long-arrow-left"></i> Reuse Prev');
         f2.add(oaControl, 'cNext').name('<i class="fa fa-long-arrow-right"></i> Reuse Next');
         f2.add(oaControl, 'cclear').name('<i class="fa fa-times "></i> Clear Contour');
@@ -623,7 +623,7 @@ window.onload = function() {
             oaControl.subLevelChange);
         xLimitUI = f2.add(oaControl, "xLimit", 1, 100).step(5).name(' Subdiv X limit').onChange(
             oaControl.xLimitChange);
-        //f2.open();
+        f2.open();
 
         $fileUpload.unbind("change").bind("change", oaControl.readOAFile);
 
