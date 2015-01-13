@@ -22,7 +22,7 @@ var OA = {
     pointLight: false,
     paperTexture: true,
     clipScale: 1000,
-    cameraXOffset: 40,
+    cameraXOffset: 55,
     cameraYOffset: 15,
     recentLimit: 20,
     isSaveLocalStorage: true,
