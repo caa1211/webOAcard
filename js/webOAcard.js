@@ -42,7 +42,7 @@ var sceneOffset = new THREE.Vector3(oaModel.getCardW() / 2, oaModel.getCardH() /
 var viewerR = maxWidth * 2.5;
 var mouse2D = new THREE.Vector3(0, 10000, 0.5);
 var orbitCtrls;
-var raycaster, projector;
+var raycaster;
 var stats;
 //for preview
 var camera2, scene2, renderer2 , cam2, model2d;
@@ -158,7 +158,6 @@ function init(oa) {
 
     scene.add(oaModel);
 
-    projector = new THREE.Projector();
     //bind Event
     $(window).bind('resize', onWindowResize);
     $container.bind("mousemove", onDocumentMouseMove);
