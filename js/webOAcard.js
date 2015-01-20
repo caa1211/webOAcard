@@ -127,7 +127,7 @@ function init(oa) {
     if (OA.light) {
             //var ambientLight = new THREE.AmbientLight(0xEEEEEE);
             //scene.add(ambientLight);
-        var spotLightBase = new THREE.SpotLight(0xffffff);
+        var spotLightBase = new THREE.SpotLight(0xc1bfbf);
         spotLightBase.position.set(maxWidth*1.5, maxWidth*4.4, maxWidth*1.5);
         scene.add(spotLightBase);
 
