@@ -24,6 +24,7 @@ OA.Face = function(userSetting) {
       depthTest: true,
       depthWrite: true,
       name: null,
+      timestamp: null,
       oaMode: 0 //0: pattern3D, 1: pattern2D
    };
    var gridColor = [0x1F6CBD, 0xFF5755, 0x417D42];
@@ -35,6 +36,7 @@ OA.Face = function(userSetting) {
    var rot = [Math.PI / 2, 0, 0];
    var _setting = $.extend({}, _def, userSetting);
    var faceCreateModeType = {"faces":0, "hole":1, "pull": 2};
+   face.timestamp = _setting.timestamp;
    face.faceCreateMode = _setting.faceCreateMode;
    var baseContour = _setting.baseContour;
    var typeOpts = {

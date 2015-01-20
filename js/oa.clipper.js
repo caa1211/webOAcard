@@ -559,7 +559,8 @@ OA.Clipper = function(userSetting) {
         var allModeList = OA.Utils.facesCloneAllMode(faces, faceCreateModeType.hole);
         vface_list = allModeList[faceCreateModeType.faces];
         pullList = allModeList[faceCreateModeType.pull];
-        vface_list = tryMergeFaces(vface_list);
+
+        //vface_list = tryMergeFaces(vface_list);
         holeList = allModeList[faceCreateModeType.hole];
 
         //vfaces list clip holes
@@ -570,7 +571,7 @@ OA.Clipper = function(userSetting) {
             }
             var t = hole.getT();
             var new_vface_list = $.grep(vface_list, function(f, i) {
-                if (f.getT() <= t) {
+                if ( f.getT() < t || ( f.getT() == t && (f.timestamp < hole.timestamp || f.timestamp === 0) ) ) {
                     var subj = f.getExPolygons();
                     var clip = hole.getExPolygons();
                     var resPoly = polyBoolean(subj, clip, 2);
@@ -593,7 +594,7 @@ OA.Clipper = function(userSetting) {
             }
             var t = hole.getT();
             var new_pullList = $.grep(pullList, function(f, i) {
-                if (f.getT() <= t) {
+                if ( f.getT() < t || ( f.getT() == t && (f.timestamp < hole.timestamp || f.timestamp === 0) ) ) {
                     var subj = f.getExPolygons();
                     var clip = hole.getExPolygons();
                     var resPoly = polyBoolean(subj, clip, 2);

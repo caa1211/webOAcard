@@ -121,7 +121,8 @@ OA.Utils = {
             var _opt = {
                 t: rt,
                 contours: contours,
-                type: faceType
+                type: faceType,
+                timestamp: Number(new Date())
             }
             $.extend(_opt, opt);
             return new OA.Face(_opt);
