@@ -30,7 +30,7 @@ OA.Clipper = function(userSetting) {
     //OA clip Algorithm
     //### Create hface_list ###
     //1. create vface_list (sort by t big->small) 
-    //  1.1 clip vface whick out of card boundary
+    //  1.1 clip vface which out of card boundary
     //2. create upper_list (sort by 2D z)
     //2. for each uppper in upper_list
     //3. create HFACE
