@@ -1008,7 +1008,8 @@ OA.Model = function(userSetting, isPattern2D) {
         contoursType: f.oaInfo.contours.type === undefined ? "" : f.oaInfo.contours.type,
         type: f.oaInfo.type,
         mode: f.oaInfo.faceCreateMode,
-        t: f.oaInfo.t
+        t: f.oaInfo.t,
+        timestamp: f.timestamp
        };
        allFaces.push(fdata);
     });
@@ -1042,7 +1043,8 @@ OA.Model = function(userSetting, isPattern2D) {
              contours = contours[0].outer;
           }
           newFace = createFace(contours, type, fsetting.t, {
-            faceCreateMode: faceCreateMode
+            faceCreateMode: faceCreateMode,
+            timestamp: fsetting.timestamp ? fsetting.timestamp : 0 //TODO: store timestamp into file
           });
         facesAry.push(newFace);
       });
