@@ -73,5 +73,5 @@ Mouse Operations:
 
 ======================================================================
 TODO:
-  - Tutorial
-  - Animation method rewrite
+  - Allow two points faces for adding hface
+  - Detect self intersect path
