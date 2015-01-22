@@ -1,7 +1,7 @@
 webOAcard   
 =========
 
-<img src="http://caa1211.github.io/webOAcard/preview.png" style="border: solid 1px gray;">
+<img src="http://caa1211.github.io/webOAcard/preview.png?1" style="border: solid 1px gray;">
 
 Demo:
 - http://caa1211.github.io/webOAcard/?m=castle
