@@ -402,8 +402,11 @@ OA.Contour = function(userSetting) {
 
    function drawCloseCoutour(isInitInput) {
 
-      point2Ds = fineTunePath(point2Ds);//also modify Orientation 
-      //upper2Ds = collectUpper2Ds(point2Ds);
+      if(point2Ds.length ===3 && point2Ds[0].y ===  point2Ds[1].y){
+         //Line face
+      }else {
+         point2Ds = fineTunePath(point2Ds);//also modify Orientation
+      }
 
       var closePos3Ds = convertPoint2DsTo3Ds(point2Ds);
       //collect uppers?
@@ -526,7 +529,7 @@ OA.Contour = function(userSetting) {
       if(plen > 1 && OA.Utils.checkEqualPosition(inputP, userPosition3Ds[plen-1])){
          return;
       }
-      if (plen > 2 && OA.Utils.checkEqualPosition(userPosition3Ds[0], inputP)) {
+      if (plen > 1 && OA.Utils.checkEqualPosition(userPosition3Ds[0], inputP)) {
          userPosition3Ds.push(inputP);
          closeContour();
       } else {

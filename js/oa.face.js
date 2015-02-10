@@ -117,7 +117,7 @@ OA.Face = function(userSetting) {
                var p2d = new THREE.Vector2(point.X, point.Y);
                p2dAry.push(p2d);
             }
-
+debugger;
             //check orientation before create shape
             //OA.Utils.modifyPathOrientation(p2dAry)
 
