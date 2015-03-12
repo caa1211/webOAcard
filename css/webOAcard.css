@@ -18,7 +18,7 @@ body {
 #modeText {
     text-shadow: -1px 0px 15px rgba(200, 200, 200, 0.3);
     font-size:40px;
-    right: 250px;
+    right: 240px;
     position:absolute;
     z-index:99;
     top:45%;
@@ -32,11 +32,13 @@ body {
     opacity: 0.5;
     width: 120px;
     text-align: center;
+    background: #398ADF;
+    font-weight: 900;
 }
 
 #modeText:hover{
     color: #bbb;
-    border: solid 1px #cccccc;
+    border: solid 1px #1F6CBD;
     opacity: 0.8;
 }
 
