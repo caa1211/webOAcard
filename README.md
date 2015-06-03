@@ -24,8 +24,8 @@ Libraries used:
   - typeface.js: http://typeface.neocracy.org/fonts.html
   - Font Awesome: https://github.com/FortAwesome/Font-Awesome
 
-Porting from OpenGL version:
-  - http://youtu.be/MlV4Qf1-l4E 
+Youtube:
+  - https://www.youtube.com/watch?v=NJpCSPWXeTE
       
 Mouse Operations:
 
