@@ -3,6 +3,9 @@ webOAcard
 
 <img src="http://caa1211.github.io/webOAcard/preview.png?1" style="border: solid 1px gray;">
 
+Preview:
+![Preview](preview.gif)
+
 Demo:
 - http://caa1211.github.io/webOAcard/?m=castle
 
@@ -14,7 +17,6 @@ Author:
 - https://www.facebook.com/caa1211
 - http://www.linkedin.com/profile/view?id=225229289
   
-
 
 Libraries used: 
   - Three.JS: https://github.com/mrdoob/three.js/
