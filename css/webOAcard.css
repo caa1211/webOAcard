@@ -463,22 +463,6 @@ body #fileUIContainer .dg .cr.function i.removeFromStorage{
     display: block;
 }
 
-
-#videoLink{
-    text-decoration: none;
-    bottom:20px;
-    right: 10px;
-    position: fixed;
-    z-index: 1000;
-    font-weight: bold;
-    color: #E63F00;
-}
-
-#videoLink i{
-    font-size: 20px;
-    vertical-align: middle;
-}
-
 .social-container {
     position: absolute;
     bottom: 5px;
@@ -502,4 +486,31 @@ body #fileUIContainer .dg .cr.function i.removeFromStorage{
 }
 .social-container .links a:hover {
     color: #ED452A;
+}
+
+#tutorialDiv {
+    margin-right: 100px;
+    position: fixed;
+    z-index: 1000;
+    bottom:10px;
+    right: 150px;
+}
+
+.videoLink{
+    text-decoration: none;
+    font-weight: bold;
+    color: #E63F00;
+    margin: 0 3px;
+}
+
+.videoLink i{
+    font-size: 20px;
+    vertical-align: middle;
+}
+.videoLink.youtube{
+    color: #E63F00;
+}
+
+.videoLink.gif{
+    color: #1989FF;
 }

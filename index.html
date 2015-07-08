@@ -18,21 +18,31 @@
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/dat-gui-light-theme.css" rel="stylesheet">
     <link href="css/webOAcard.css" rel="stylesheet">
+
+    <!-- Add fancyBox CSS files -->
+    <link href="lib/fancyBox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" media="screen" />
+
     <style></style>
 </head>
 
 <body>
 
-<a id="videoLink" href="https://www.youtube.com/watch?v=NJpCSPWXeTE" target="_blank">
-    <i class="fa fa-youtube-play"></i>
-    Tutorial
-</a>
+<div id="tutorialDiv">
+    <a class="videoLink gif" href="javascript:;" target="_blank">
+        <i class="fa fa-rocket"></i>
+        Quick Guide
+    </a>
+
+    <a class="videoLink youtube" href="https://www.youtube.com/watch?v=NJpCSPWXeTE">
+        <i class="fa fa-youtube-play"></i>
+        Tutorial
+    </a>
+
+</div>
  
 <div id="container">
    <div id="loadingMask"><i class="fa fa-circle-o-notch fa-spin"></i></div>
 </div>
-
-
 
 <div id="tip" class="modeSel display hide">
     <ul class="task-list">
@@ -125,13 +135,15 @@
     <script src="js/helvetiker_font/helvetiker_italic.typeface.js"></script>
     <script src="js/helvetiker_font/helvetiker_regular.typeface.js"></script>
 
+    <!-- fancyBox JS files -->
+    <script src="lib/fancyBox/jquery.fancybox.js?v=2.1.5"></script>
+    <script src="lib/fancyBox/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+
+
     <!--script src="js/typeface/mickey_m_tfb_regular.typeface.js"></script>
     <script src="js/typeface/jigsaw_pieces_tfb_regular.typeface.js"></script>
     <script src="js/typeface/cityscape-_regular.typeface.js"></script>
     <script src="js/typeface/housing_regular.typeface.js"></script-->
-
-
-
 
     <!--script src="js/oa.core.js"></script>
     <script src="js/oa.model.js"></script>
@@ -159,6 +171,26 @@
     for(var i=0; i<scriptList.length; i++){
      document.write('<script src="'+ scriptList[i] +'"?v='+new Date().getMilliseconds()+'><\/script>');
     }
+
+
+    // Tutorials
+    $("#tutorialDiv .gif").click(function(){
+        $.fancybox.open('preview.gif');
+    });
+
+    $("#tutorialDiv .youtube").attr('rel', 'media-gallery')
+            .fancybox({
+                openEffect : 'none',
+                closeEffect : 'none',
+                prevEffect : 'none',
+                nextEffect : 'none',
+
+                arrows : false,
+                helpers : {
+                    media : {},
+                    buttons : {}
+                }
+            });
     </script>
 
 
