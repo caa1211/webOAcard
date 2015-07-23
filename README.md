@@ -50,7 +50,13 @@ Mouse Operations:
       - right key : switch to Edit mode (open edit grid)
       - scroll : change the card angle
 
+Honors & Awards:
 
+- [Google Chrome Experiment 1000!] (http://1000.chromeexperiments.com/#/experiment/3d-pop-up-card)
+
+- [Inspiring WebGL #10 2015 by Goo Create Technologies!](http://goocreate.com/blog/1007/inspiring-webgl-10-pop-up-card-builder)
+
+- [圧倒的な3D表現にWebの未来を感じるWebGLを使ったサイト・デモ20選!] (http://liginc.co.jp/web/tool/browser/95118)
 ======================================================================
 滑鼠操作說明：
 
