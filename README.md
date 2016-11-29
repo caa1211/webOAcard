@@ -13,7 +13,7 @@ Slide:
 - http://slides.com/caa1211/web3d
 
 Author:
-- caa@email.com   
+- caa1211@gmail.com   
 - https://www.facebook.com/caa1211
 - http://www.linkedin.com/profile/view?id=225229289
   
