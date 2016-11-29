@@ -15,7 +15,7 @@ Slide:
 Author:
 - caa1211@gmail.com   
 - https://www.facebook.com/caa1211
-- http://www.linkedin.com/profile/view?id=225229289
+- https://tw.linkedin.com/in/yu-chih-chang-03551963
   
 
 Libraries used: 
