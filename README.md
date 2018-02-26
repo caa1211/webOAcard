@@ -13,9 +13,9 @@ Slide:
 - http://slides.com/caa1211/web3d
 
 Author:
-- caa@livemail.tw   
+- caa1211@gmail.com   
 - https://www.facebook.com/caa1211
-- http://www.linkedin.com/profile/view?id=225229289
+- https://tw.linkedin.com/in/yu-chih-chang-03551963
   
 
 Libraries used: 
@@ -27,6 +27,7 @@ Libraries used:
   - Font Awesome: https://github.com/FortAwesome/Font-Awesome
 
 Youtube:
+  - https://www.youtube.com/watch?v=TKUqK5zyhHU
   - https://www.youtube.com/watch?v=NJpCSPWXeTE
       
 Mouse Operations:
@@ -50,6 +51,11 @@ Mouse Operations:
       - right key : switch to Edit mode (open edit grid)
       - scroll : change the card angle
 
+Honors & Awards:
+
+- [Google Chrome Experiment 1000!] (http://1000.chromeexperiments.com/#/experiment/3d-pop-up-card)
+- [Inspiring WebGL #10 2015 by Goo Create Technologies!](http://goocreate.com/blog/1007/inspiring-webgl-10-pop-up-card-builder)
+- [圧倒的な3D表現にWebの未来を感じるWebGLを使ったサイト・デモ20選!] (http://liginc.co.jp/web/tool/browser/95118)
 
 ======================================================================
 滑鼠操作說明：
